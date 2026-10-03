@@ -1,5 +1,765 @@
-// LE COURS « Copywriting et vente avec l'IA », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Copywriting et vente avec l'IA », PARTIE A · voir ./types et ./index.
+//
+// UN SEUL FIL ROUGE · la Bicyclerie Merle, un atelier fictif tenu par Claire
+// Merle, qui vend des vélos de ville reconditionnés, contrôlés sur une liste de
+// points, garantis, et un forfait d'entretien. Chaque cours fait avancer les
+// textes de cet atelier : on comprend son lecteur (module 1), puis on
+// positionne son offre (module 2). La partie B écrit la page de vente, les
+// e-mails, les publicités, puis affine et mesure.
+//
+// CE QUE LE COURS S'INTERDIT. Aucun chiffre de marché, aucun taux, aucun
+// témoignage, aucune citation, aucun article de loi inventé. Les faits de la
+// Bicyclerie Merle sont ceux du cas fictif, présentés comme tels. Les règles
+// juridiques sont décrites par leur principe, avec un renvoi aux sources
+// officielles (DGCCRF, Légifrance, CNIL), sans numéro d'article ni seuil.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const COPY_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · COMPRENDRE LE LECTEUR                                    */
+/* ================================================================== */
+
+const M1 = 'cw-m1'
+
+const READER: Level[] = [
+  {
+    id: 'cw-what',
+    master: 'research',
+    minutes: 9,
+    title: B('What copywriting is, and what it is not', "Ce qu'est le copywriting, et ce qu'il n'est pas"),
+    learn: B(
+      'You will tell copy that sells from pretty writing: one reader, one offer, one action, judged by what the reader does.',
+      "Vous distinguerez un texte qui vend d'une belle écriture : un lecteur, une offre, une action, jugés à ce que fait le lecteur.",
+    ),
+    act: B('Audit the current home page of Bicyclerie Merle: name its reader, its offer and the one action it asks for.',
+      "Auditez l'accueil actuel de la Bicyclerie Merle : nommez son lecteur, son offre et l'unique action qu'il demande."),
+    steps: [
+      B('Copy the home page text into a document and strip the layout: only the words remain.',
+        "Copiez le texte de l'accueil dans un document et retirez la mise en page : seuls les mots restent."),
+      B('Underline every sentence about the shop, and circle every sentence about the reader.',
+        "Soulignez chaque phrase qui parle de l'atelier, entourez chaque phrase qui parle du lecteur."),
+      B('Write in one line who the page is for, what it offers and what the reader should do next.',
+        "Écrivez en une ligne à qui s'adresse la page, ce qu'elle offre et ce que le lecteur doit faire ensuite."),
+      B('Ask an AI to play that reader and say where it would stop reading, then compare with your notes.',
+        "Demandez à une IA de jouer ce lecteur et de dire où il cesserait de lire, puis comparez avec vos notes."),
+    ],
+    trap: B(
+      'Judging copy by how elegant it sounds: a text can be well written and sell nothing, because it talks about the seller and asks for no action.',
+      "Juger un texte à son élégance : il peut être bien écrit et ne rien vendre, parce qu'il parle du vendeur et ne demande aucune action.",
+    ),
+    quiz: {
+      q: B('The team prefers version A of the home page; version B brings more booked test rides. Which is the better copy?',
+        "L'équipe préfère la version A de l'accueil ; la version B amène plus d'essais réservés. Quel texte est le meilleur ?"),
+      options: [
+        B('Version A, since the people who know the shop best like it more', "La version A, puisque ceux qui connaissent l'atelier la préfèrent"),
+        B('Version B, since copy is judged by what readers actually do', "La version B, puisqu'un texte se juge à ce que font les lecteurs"),
+        B('Neither, until a style expert has reviewed both of the versions', "Aucune, tant qu'un expert du style ne les a pas relues toutes deux"),
+      ],
+      answer: 1,
+      why: B(
+        'Copywriting is writing whose success is an action: a booking, a reply, a purchase. The team is not the reader: its taste is a hypothesis, the behaviour of readers is a result.',
+        "Le copywriting est une écriture dont la réussite est une action : une réservation, une réponse, un achat. L'équipe n'est pas le lecteur : son goût est une hypothèse, le comportement des lecteurs un résultat.",
+      ),
+    },
+    badge: B('Judges copy by what readers do', 'Juge un texte à ce que fait le lecteur'),
+  },
+  {
+    id: 'cw-voc',
+    master: 'extraction',
+    minutes: 11,
+    title: B('Voice of customer: reviews, interviews, AI synthesis', "La voix du client : avis, entretiens, synthèse avec l'IA"),
+    learn: B(
+      'You will collect the exact words of customers, then have an AI sort them without losing a single phrase.',
+      "Vous saurez recueillir les mots exacts des clients, puis les faire trier par une IA sans perdre leurs formulations.",
+    ),
+    act: B('Gather Merle reviews and interview notes, anonymise them, then have an AI extract the verbatim quotes.',
+      "Rassemblez avis et notes d'entretien de Merle, anonymisez-les, puis faites-en extraire les verbatims par une IA."),
+    steps: [
+      B('Collect sources: your reviews, customer emails, competitor reviews, forums where your readers talk.',
+        "Réunissez les sources : vos avis, vos e-mails clients, les avis des concurrents, les forums où parlent vos lecteurs."),
+      B('Run three short interviews with recent buyers; ask about the moment before buying, not about the product.',
+        "Menez trois courts entretiens avec des acheteurs récents ; interrogez le moment d'avant l'achat, pas le produit."),
+      B('Remove names, emails and any personal detail before pasting anything into an AI tool.',
+        "Retirez noms, e-mails et tout détail personnel avant de coller quoi que ce soit dans un outil d'IA."),
+      B('Ask for a table of exact quotes by theme, each with its source, and check a sample against the originals.',
+        "Demandez un tableau de citations exactes par thème, chacune sourcée, et vérifiez-en un échantillon sur l'original."),
+    ],
+    trap: B(
+      'Letting the AI summarise reviews in its own words: you lose the phrases customers use, the raw material of copy, and it may invent some.',
+      "Laisser l'IA résumer les avis avec ses propres mots : vous perdez les formulations des clients, matière première du texte, et elle peut en inventer.",
+    ),
+    quiz: {
+      q: B('A quote in the AI table cannot be found in any of the reviews you pasted. What do you do?',
+        "Une citation du tableau de l'IA ne se retrouve dans aucun des avis que vous avez collés. Que faites-vous ?"),
+      options: [
+        B('Keep it, since it sounds exactly like what your customers would say', "Vous la gardez, puisqu'elle ressemble à ce que diraient vos clients"),
+        B('Rephrase it slightly so that it no longer counts as a direct quote', "Vous la reformulez un peu pour qu'elle ne compte plus comme citation"),
+        B('Remove it, and require a source for every remaining quote', 'Vous la retirez, et exigez une source pour chaque citation'),
+      ],
+      answer: 2,
+      why: B(
+        'A quote that is not in the sources is a fabrication, however plausible. Voice of customer is only useful if it is the voice of customers: every line points to its source, and a sample is checked.',
+        "Une citation absente des sources est une invention, si plausible soit-elle. La voix du client ne vaut que si c'est celle des clients : chaque ligne renvoie à sa source, et un échantillon est vérifié.",
+      ),
+    },
+    badge: B('Quotes customers, never the AI', "Cite les clients, jamais l'IA"),
+  },
+  {
+    id: 'cw-aware',
+    master: 'analysis',
+    minutes: 10,
+    title: B("The reader's levels of awareness", 'Les niveaux de conscience du lecteur'),
+    learn: B(
+      'You will place a reader on the five levels of awareness and choose the opening that fits: situation, problem, solution or offer.',
+      "Vous saurez situer un lecteur sur les cinq niveaux de conscience et choisir l'ouverture adaptée : situation, problème, solution, offre.",
+    ),
+    act: B('Classify three audiences of Merle by awareness level, then write one opening line for each of them.',
+      'Classez trois publics de la Bicyclerie Merle par niveau de conscience, puis écrivez une première ligne pour chacun.'),
+    steps: [
+      B('Learn the five levels: unaware, problem aware, solution aware, product aware, most aware.',
+        'Retenez les cinq niveaux : inconscient, conscient du problème, de la solution, du produit, pleinement conscient.'),
+      B('Place each audience using its own words in your quote table: what does it already know?',
+        "Situez chaque public grâce à ses propres mots dans votre tableau de citations : que sait-il déjà ?"),
+      B('For each level, decide what the first line talks about: the situation, the problem, the solution or the offer.',
+        'Pour chaque niveau, décidez de quoi parle la première ligne : la situation, le problème, la solution ou l\'offre.'),
+      B('Ask an AI to classify ten openings by level, then check each of its reasons against the definitions.',
+        "Demandez à une IA de classer dix ouvertures par niveau, puis vérifiez chacune de ses raisons sur les définitions."),
+    ],
+    trap: B(
+      'Opening with the product for a reader who does not yet see the problem: they cannot recognise themselves, and stop at the first line.',
+      "Ouvrir sur le produit devant un lecteur qui ne voit pas encore le problème : il ne s'y reconnaît pas, et s'arrête à la première ligne.",
+    ),
+    quiz: {
+      q: B('A reader knows Merle, has tried a bike in the workshop and only hesitates on timing. What should the email open with?',
+        "Un lecteur connaît Merle, a essayé un vélo à l'atelier et hésite seulement sur le moment. Sur quoi ouvrir l'e-mail ?"),
+      options: [
+        B('The offer itself: the bike, its warranty and a pickup slot', "Sur l'offre elle-même : le vélo, sa garantie et un créneau de retrait"),
+        B('The cost of public transport and how it keeps going up', 'Sur le coût des transports en commun et sa hausse continue'),
+        B('The benefits of cycling for health and for the planet', 'Sur les bienfaits du vélo pour la santé et pour la planète'),
+      ],
+      answer: 0,
+      why: B(
+        'A most aware reader needs no persuasion about the problem or the solution: they need the offer, its terms and a reason to act now. Going back to the problem wastes their attention.',
+        "Un lecteur pleinement conscient n'a pas besoin d'être convaincu du problème ni de la solution : il lui faut l'offre, ses conditions et une raison d'agir maintenant. Revenir au problème gaspille son attention.",
+      ),
+    },
+    badge: B('Opens where the reader stands', 'Ouvre là où se trouve le lecteur'),
+  },
+  {
+    id: 'cw-objections',
+    master: 'triage',
+    minutes: 11,
+    title: B('Desires, fears and objections', 'Désirs, peurs et objections'),
+    learn: B(
+      'You will map what the reader wants, fears and objects to, and match each objection with a fact, a proof or a change of offer.',
+      "Vous saurez cartographier ce que le lecteur veut, craint et objecte, et répondre à chaque objection par un fait, une preuve ou l'offre.",
+    ),
+    act: B('Build the objection table of Merle from your quotes, then answer each objection with a fact you can prove.',
+      "Construisez le tableau des objections de Merle à partir des citations, puis répondez à chacune par un fait prouvable."),
+    steps: [
+      B('From the quote table, list desires in the words of readers: what changes in their day if it works.',
+        "Depuis le tableau de citations, listez les désirs dans les mots des lecteurs : ce qui change dans leur journée."),
+      B('List fears and objections: price, trust in used bikes, size when buying online, repairs later.',
+        "Listez peurs et objections : le prix, la confiance dans l'occasion, la taille à distance, les réparations ensuite."),
+      B('For each objection, write the answer: a fact that can be checked, a guarantee, or a change to the offer.',
+        "Pour chaque objection, écrivez la réponse : un fait vérifiable, une garantie, ou une modification de l'offre."),
+      B('Have an AI play a sceptical buyer, then keep only the new objections that your sources confirm.',
+        "Faites jouer un acheteur sceptique à une IA, puis ne gardez que les nouvelles objections que vos sources confirment."),
+    ],
+    trap: B(
+      'Answering an objection with an adjective such as reliable or high quality: the reader already doubts the claim, and an adjective is one more claim.',
+      "Répondre à une objection par un adjectif comme fiable ou de qualité : le lecteur doute déjà de l'affirmation, et un adjectif en est une de plus.",
+    ),
+    quiz: {
+      q: B('Several readers fear the bike will not fit them, since they buy online without trying. Which answer works best?',
+        "Plusieurs lecteurs craignent que le vélo ne leur aille pas, faute de l'essayer en ligne. Quelle réponse fonctionne le mieux ?"),
+      options: [
+        B('Write that every bike is comfortable and suits all body types', 'Écrire que chaque vélo est confortable et convient à toutes les morphologies'),
+        B('Leave the subject out of the page so that the doubt is not raised', 'Taire le sujet sur la page, pour ne pas faire naître le doute'),
+        B('A size guide by height, plus the exchange policy truly applied', "Un guide des tailles par hauteur, et la politique d'échange réellement appliquée"),
+      ],
+      answer: 2,
+      why: B(
+        'An objection is answered by something the reader can check: a guide, a real policy, a guarantee. An adjective is another claim to doubt, and silence leaves the fear intact at the moment of buying.',
+        "Une objection se lève par ce que le lecteur peut vérifier : un guide, une politique réelle, une garantie. Un adjectif est une affirmation de plus, et le silence laisse la peur intacte au moment d'acheter.",
+      ),
+    },
+    badge: B('Answers doubts with facts', 'Répond aux doutes par des faits'),
+  },
+]
+
+const READER_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'cw-what')]: {
+    why: [
+      B("Copywriting is writing with a job to do. An article is judged on whether it informs, a novel on whether it moves; a sales text is judged on whether a given reader takes a given action: books a test ride, replies to an email, buys. Everything else, style, rhythm, vocabulary, either serves that action or gets in its way. This is why a copywriter starts from the reader and the action, not from the sentence.",
+        "Le copywriting est une écriture qui a une tâche à accomplir. Un article se juge à ce qu'il informe, un roman à ce qu'il émeut ; un texte de vente se juge à ce qu'un lecteur précis accomplit une action précise : réserver un essai, répondre à un e-mail, acheter. Le reste, style, rythme, vocabulaire, sert cette action ou la gêne. C'est pourquoi le copywriter part du lecteur et de l'action, pas de la phrase."),
+      B("Copywriting is not manipulation, nor hype, nor a page filled with adjectives. Words can make the value an offer really has for someone visible, clear and easy to choose; they cannot create that value. When the offer does not fit the reader, better words do not save it: they only make the mismatch appear faster, in returns, complaints and bad reviews.",
+        "Le copywriting n'est ni de la manipulation, ni de l'emphase, ni une page remplie d'adjectifs. Les mots peuvent rendre visible, claire et facile à choisir la valeur qu'une offre a réellement pour quelqu'un ; ils ne peuvent pas la créer. Quand l'offre ne convient pas au lecteur, de meilleurs mots ne la sauvent pas : ils font seulement apparaître le décalage plus vite, en retours, en plaintes et en mauvais avis."),
+      B("A language model produces fluent text on demand, and fluency is exactly what copy does not lack. Left alone, it writes the average of what it has read, for an average reader. Its value in this course lies elsewhere: sorting what real customers say, proposing variants, criticising a draft from the reader's point of view. You bring the research and the criteria; it brings material to choose from.",
+        "Un modèle produit du texte fluide à la demande, et la fluidité est précisément ce qui ne manque pas aux textes de vente. Livré à lui-même, il écrit la moyenne de ce qu'il a lu, pour un lecteur moyen. Sa valeur dans ce cours est ailleurs : trier ce que disent les vrais clients, proposer des variantes, critiquer un brouillon du point de vue du lecteur. Vous apportez la recherche et les critères ; il apporte de la matière à choisir."),
+    ],
+    example: {
+      context: B("Claire Merle runs Bicyclerie Merle, a fictional workshop that sells refurbished city bikes, checked and guaranteed. She asks an AI for home page copy and gets a text that could describe any bike shop.",
+        "Claire Merle tient la Bicyclerie Merle, un atelier fictif qui vend des vélos de ville reconditionnés, contrôlés et garantis. Elle demande un texte d'accueil à une IA et obtient un texte qui pourrait décrire n'importe quel magasin de vélos."),
+      before: B("Write a catchy text for my bike shop's home page.",
+        "Écris un texte accrocheur pour la page d'accueil de mon magasin de vélos."),
+      after: B("You are helping me write the home page of Bicyclerie Merle, a small workshop that sells refurbished city bikes, each one checked, repaired and guaranteed.\nReader: someone who commutes in town, wants a reliable bike without paying the price of a new one, and fears buying a used bike that breaks down.\nOne action only: book a free test ride at the workshop.\nBefore writing anything, ask me the 5 questions about my customers and my offer whose answers you would need most.\nDo not invent any figure, review or guarantee: where a fact is missing, write [TO CONFIRM].",
+        "Tu m'aides à écrire la page d'accueil de la Bicyclerie Merle, un petit atelier qui vend des vélos de ville reconditionnés, chacun contrôlé, réparé et garanti.\nLecteur : quelqu'un qui se déplace en ville, veut un vélo fiable sans payer le prix du neuf, et craint d'acheter un vélo d'occasion qui tombe en panne.\nUne seule action : réserver un essai gratuit à l'atelier.\nAvant d'écrire quoi que ce soit, pose-moi les 5 questions sur mes clients et mon offre dont tu aurais le plus besoin.\nN'invente aucun chiffre, aucun avis, aucune garantie : là où un fait manque, écris [À CONFIRMER]."),
+      takeaway: B("The first prompt asks for 'catchy', which the model fills with generic adjectives. The second names the reader, the fear, the offer and a single action, and forbids invention. The AI starts by asking questions: research comes before sentences.",
+        "Le premier prompt demande de l'« accrocheur », que le modèle remplit d'adjectifs génériques. Le second nomme le lecteur, la peur, l'offre et une seule action, et interdit l'invention. L'IA commence par poser des questions : la recherche passe avant les phrases."),
+    },
+    exercise: {
+      goal: B("A one-line diagnosis of a real page you know, yours or a business you know: its reader, its offer, its single action, and the sentences that serve none of them.",
+        "Un diagnostic en une ligne d'une vraie page que vous connaissez, la vôtre ou celle d'une entreprise connue : son lecteur, son offre, son action unique, et les phrases qui ne servent à rien de cela."),
+      prompt: B("I will paste the text of a sales or home page below, without its layout.\nPage: [PASTE THE TEXT]\nWhat I believe about its reader: [WHO THEY ARE, WHAT THEY WANT, WHAT THEY FEAR]\nThe action the page should lead to: [ONE ACTION]\n1. Classify each sentence: about the seller, about the reader, about the action, or filler.\n2. Say in one line who the page seems written for, in your reading. If it differs from my belief, say so.\n3. Point to the place where my reader would most likely stop reading, and why.\nDo not rewrite the page. Do not invent facts about the business.",
+        "Je colle ci-dessous le texte d'une page de vente ou d'accueil, sans sa mise en page.\nPage : [COLLEZ LE TEXTE]\nCe que je crois de son lecteur : [QUI IL EST, CE QU'IL VEUT, CE QU'IL CRAINT]\nL'action à laquelle la page doit mener : [UNE ACTION]\n1. Classe chaque phrase : sur le vendeur, sur le lecteur, sur l'action, ou remplissage.\n2. Dis en une ligne pour qui la page te semble écrite. Si cela diffère de ce que je crois, dis-le.\n3. Indique l'endroit où mon lecteur cesserait le plus probablement de lire, et pourquoi.\nNe réécris pas la page. N'invente aucun fait sur l'entreprise."),
+      check: [
+        B("Each sentence of the page is classified, none skipped", "Chaque phrase de la page est classée, aucune n'est sautée"),
+        B("You wrote reader, offer and action in one line before reading the AI's answer", "Vous avez écrit lecteur, offre et action en une ligne avant de lire la réponse de l'IA"),
+        B("You compared your line with the AI's reading and noted any gap", "Vous avez comparé votre ligne avec la lecture de l'IA et noté l'écart"),
+        B("Nothing was rewritten yet: this lesson is a diagnosis", "Rien n'a encore été réécrit : ce cours est un diagnostic"),
+      ],
+      bonus: B("Run the same audit on a competitor's page. Count the sentences about the seller and about the reader on both pages. The comparison often shows that the problem is not the words, but who they are about.",
+        "Faites le même audit sur la page d'un concurrent. Comptez les phrases sur le vendeur et sur le lecteur dans les deux pages. La comparaison montre souvent que le problème n'est pas dans les mots, mais dans la personne dont ils parlent."),
+    },
+    more: [
+      { q: B("A friend says copywriting is the art of convincing anyone to buy anything. What does this lesson answer?",
+          "Un ami dit que le copywriting est l'art de convaincre n'importe qui d'acheter n'importe quoi. Que répond ce cours ?"),
+        options: [
+          B("That it is true, provided the techniques are applied with enough skill", "Que c'est vrai, à condition d'appliquer les techniques avec assez d'habileté"),
+          B("That copy reveals the value an offer has for a reader, it cannot create it", "Qu'un texte révèle la valeur d'une offre pour un lecteur, sans pouvoir la créer"),
+          B("That it only applies to luxury goods, where image counts more than use", "Que cela ne vaut que pour le luxe, où l'image compte plus que l'usage"),
+        ],
+        answer: 1,
+        why: B("Words make the value of an offer visible and easier to choose. When the offer does not fit the reader, better words only make the mismatch appear sooner. This is also why the course rejects manipulation.",
+          "Les mots rendent la valeur d'une offre visible et plus facile à choisir. Quand l'offre ne convient pas au lecteur, de meilleurs mots font seulement apparaître le décalage plus tôt. C'est aussi pourquoi ce cours refuse la manipulation.") },
+      { q: B("You ask an AI for 'a powerful sales text' and get fluent, generic sentences. What is the main cause?",
+          "Vous demandez à une IA « un texte de vente percutant » et obtenez des phrases fluides et génériques. Quelle en est la cause principale ?"),
+        options: [
+          B("It lacks the reader, the offer and the action, so it writes the average", "Il lui manque le lecteur, l'offre et l'action, alors elle écrit la moyenne"),
+          B("The model is deliberately limited to prevent it from writing sales texts", "Le modèle est bridé exprès pour l'empêcher d'écrire des textes de vente"),
+          B("The word 'powerful' is too weak; adding 'very persuasive' would fix it all", "Le mot « percutant » est trop faible ; « très persuasif » réglerait tout"),
+        ],
+        answer: 0,
+        why: B("Without a reader, an offer and an action, the model has nothing specific to write about, so it produces the most probable text: the average of sales pages it has read. Stronger adjectives in the prompt change nothing.",
+          "Sans lecteur, sans offre et sans action, le modèle n'a rien de précis à dire : il produit le texte le plus probable, la moyenne des pages de vente qu'il a lues. Des adjectifs plus forts dans le prompt n'y changent rien.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cw-voc')]: {
+    why: [
+      B("Customers describe their problem with words the seller would never choose: 'I was fed up with waiting for the bus in the rain' rather than 'urban mobility'. When copy reuses those words, readers recognise their own thoughts, and that recognition is what keeps them reading. Collecting these words is called voice of customer research; mining reviews for it is a technique widely taught by conversion copywriters.",
+        "Les clients décrivent leur problème avec des mots que le vendeur ne choisirait jamais : « j'en avais assez d'attendre le bus sous la pluie » plutôt que « mobilité urbaine ». Quand le texte reprend ces mots, le lecteur y reconnaît ses propres pensées, et c'est cette reconnaissance qui le fait continuer. Recueillir ces mots s'appelle la recherche de la voix du client (voice of customer) ; l'extraire des avis est une technique très enseignée en copywriting de conversion."),
+      B("The sources are known: your own reviews, competitor reviews (the three-star ones hold the nuance), support emails, sales conversations, forums and communities where your readers talk, and interviews. In an interview, ask about the situation before buying: what triggered the search, which alternatives were weighed, what almost stopped the purchase. Ask permission before recording, and say what the notes will be used for.",
+        "Les sources sont connues : vos avis, ceux des concurrents (les avis à trois étoiles portent la nuance), les e-mails au service client, les échanges de vente, les forums et communautés où parlent vos lecteurs, et les entretiens. En entretien, interrogez la situation d'avant l'achat : ce qui a déclenché la recherche, les solutions envisagées, ce qui a failli arrêter l'achat. Demandez l'accord avant d'enregistrer, et dites à quoi serviront les notes."),
+      B("Sorting hundreds of lines by theme is something models do quickly and well. Paraphrasing is what they do by default, and it destroys the value. The prompt must therefore require verbatim extraction with a source identifier for each line, forbid rephrasing, and you check a sample. Anonymise before pasting, and check in the official documentation of your tool how it handles the data you send.",
+        "Trier des centaines de lignes par thème, les modèles le font vite et bien. Reformuler, c'est ce qu'ils font par défaut, et cela détruit la valeur. Le prompt doit donc exiger une extraction mot pour mot avec un identifiant de source par ligne, interdire la reformulation, et vous vérifiez un échantillon. Anonymisez avant de coller, et vérifiez dans la documentation officielle de votre outil comment il traite les données envoyées."),
+    ],
+    example: {
+      context: B("Claire has pasted a few dozen Google reviews of Bicyclerie Merle into an AI tool. The summary she gets back is accurate in spirit, yet not one sentence of it can be used in a text.",
+        "Claire a collé quelques dizaines d'avis Google de la Bicyclerie Merle dans un outil d'IA. Le résumé obtenu est juste sur le fond, mais aucune de ses phrases n'est utilisable dans un texte."),
+      before: B("Here are my customer reviews. Summarise what customers think of us.",
+        "Voici les avis de mes clients. Résume ce que les clients pensent de nous."),
+      after: B("Below are anonymised customer reviews of a bike workshop. Each one starts with an identifier (R01, R02, and so on).\nTask: extract verbatim quotes. Do not rephrase, do not correct spelling, do not merge two reviews.\nBuild a table with three columns: theme, exact quote, identifier.\nThemes: situation before buying, trigger of the search, fear or hesitation, alternatives considered, result hoped for, what pleased, what disappointed.\nIf a review has no sentence for a theme, skip it. Never write a quote that is not in the text.\nThen list the expressions that come back in several reviews, word for word, with the identifiers where each appears.\n\n[ANONYMISED REVIEWS]",
+        "Voici des avis clients anonymisés d'un atelier de vélos. Chacun commence par un identifiant (R01, R02, etc.).\nTâche : extrais des citations mot pour mot. Ne reformule pas, ne corrige pas l'orthographe, ne fusionne jamais deux avis.\nConstruis un tableau à trois colonnes : thème, citation exacte, identifiant.\nThèmes : situation avant l'achat, déclencheur de la recherche, peur ou hésitation, solutions envisagées, résultat espéré, ce qui a plu, ce qui a déçu.\nSi un avis n'a aucune phrase pour un thème, passe-le. N'écris jamais une citation absente du texte.\nListe ensuite les expressions qui reviennent dans plusieurs avis, mot pour mot, avec les identifiants où chacune apparaît.\n\n[AVIS ANONYMISÉS]"),
+      takeaway: B("The second prompt turns the AI into a sorting tool rather than a writer. Each quote can be traced to a review, the themes follow the buying journey, and the repeated expressions become candidate words for headlines.",
+        "Le second prompt fait de l'IA un outil de tri plutôt qu'un rédacteur. Chaque citation remonte à un avis, les thèmes suivent le parcours d'achat, et les expressions répétées deviennent des mots candidats pour les titres."),
+    },
+    exercise: {
+      goal: B("A table of at least thirty verbatim quotes from real sources about an offer you know, sorted by theme, each traceable to its source.",
+        "Un tableau d'au moins trente citations mot pour mot, issues de vraies sources sur une offre que vous connaissez, triées par thème, chacune rattachée à sa source."),
+      prompt: B("Below are anonymised texts written by customers of [THE OFFER OR PRODUCT]: reviews, emails or interview notes. Each starts with an identifier.\nExtract verbatim quotes only. Do not rephrase, do not correct, do not invent.\nTable: theme | exact quote | identifier.\nThemes: [YOUR THEMES, E.G. SITUATION BEFORE, TRIGGER, FEAR, ALTERNATIVES, HOPED RESULT, PRAISE, DISAPPOINTMENT].\nAfter the table, list the expressions that appear in at least two different sources, with their identifiers.\nFinally, tell me which theme has the fewest quotes: that is where I need more research.\n\n[PASTE THE ANONYMISED TEXTS]",
+        "Voici des textes anonymisés écrits par des clients de [L'OFFRE OU LE PRODUIT] : avis, e-mails ou notes d'entretien. Chacun commence par un identifiant.\nExtrais uniquement des citations mot pour mot. Ne reformule pas, ne corrige pas, n'invente rien.\nTableau : thème | citation exacte | identifiant.\nThèmes : [VOS THÈMES, PAR EXEMPLE SITUATION AVANT, DÉCLENCHEUR, PEUR, SOLUTIONS ENVISAGÉES, RÉSULTAT ESPÉRÉ, ÉLOGE, DÉCEPTION].\nAprès le tableau, liste les expressions présentes dans au moins deux sources différentes, avec leurs identifiants.\nEnfin, dis-moi quel thème a le moins de citations : c'est là qu'il me faut plus de recherche.\n\n[COLLEZ LES TEXTES ANONYMISÉS]"),
+      check: [
+        B("No name, email or identifying detail was pasted into the tool", "Aucun nom, e-mail ou détail identifiant n'a été collé dans l'outil"),
+        B("You checked ten quotes at random against the original texts", "Vous avez vérifié dix citations au hasard sur les textes d'origine"),
+        B("Every line of the table carries a source identifier", "Chaque ligne du tableau porte un identifiant de source"),
+        B("You noted the weakest theme and where to look for more", "Vous avez noté le thème le plus pauvre et où chercher davantage"),
+      ],
+      bonus: B("Ask the AI to draft an interview guide of eight questions about the moment before buying. Then cross out every leading question, such as one that suggests the answer, and run the guide with one real customer.",
+        "Demandez à l'IA un guide d'entretien de huit questions sur le moment d'avant l'achat. Barrez ensuite chaque question orientée, celle qui suggère la réponse, et menez l'entretien avec un vrai client."),
+    },
+    more: [
+      { q: B("In an interview with a recent buyer, which question gives the most useful material for copy?",
+          "En entretien avec un acheteur récent, quelle question donne la matière la plus utile pour le texte ?"),
+        options: [
+          B("What do you think of our bikes in general, all things considered?", "Que pensez-vous de nos vélos en général, tout bien considéré ?"),
+          B("What was happening the week you started looking for a bike?", "Que se passait-il la semaine où vous avez cherché un vélo ?"),
+          B("Would you recommend us to a friend, and if so, for what reason?", "Nous recommanderiez-vous à un ami, et si oui, pour quelle raison ?"),
+        ],
+        answer: 1,
+        why: B("Asking about the situation before the purchase brings back the trigger, the alternatives and the hesitations, in the buyer's words. General opinions and recommendation questions bring back compliments that are hard to use.",
+          "Interroger la situation d'avant l'achat fait revenir le déclencheur, les solutions envisagées et les hésitations, dans les mots de l'acheteur. Les avis généraux et les questions de recommandation ramènent des compliments difficiles à exploiter.") },
+      { q: B("Before pasting support emails into an AI tool, what must you do first?",
+          "Avant de coller des e-mails du service client dans un outil d'IA, que devez-vous faire d'abord ?"),
+        options: [
+          B("Translate them into English, which models are said to read better", "Les traduire en anglais, que les modèles liraient mieux"),
+          B("Shorten each email to its first sentence, which carries the idea", "Réduire chaque e-mail à sa première phrase, qui porte l'idée"),
+          B("Remove names, addresses and details that identify a person", "Retirer noms, adresses et détails qui identifient une personne"),
+        ],
+        answer: 2,
+        why: B("Customer emails contain personal data. Anonymising them before sending protects your customers and keeps you in line with data protection rules; the CNIL publishes guidance on this. Translation and cutting would also destroy the exact words you need.",
+          "Les e-mails clients contiennent des données personnelles. Les anonymiser avant envoi protège vos clients et vous garde dans les règles de protection des données ; la CNIL publie des recommandations à ce sujet. Traduire ou couper détruirait aussi les mots exacts recherchés.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cw-aware')]: {
+    why: [
+      B("In Breakthrough Advertising (1966), Eugene Schwartz described five levels of awareness. The unaware reader does not see the problem. The problem aware reader feels it but knows no solution. The solution aware reader knows the kind of solution but not your offer. The product aware reader knows your offer but is not convinced. The most aware reader only waits for the right terms.",
+        "Dans Breakthrough Advertising (1966), Eugene Schwartz décrit cinq niveaux de conscience. Le lecteur inconscient ne voit pas le problème. Le lecteur conscient du problème le ressent mais ne connaît pas de solution. Le lecteur conscient de la solution connaît le type de solution, pas votre offre. Le lecteur conscient du produit connaît votre offre sans en être convaincu. Le lecteur pleinement conscient attend seulement les bonnes conditions."),
+      B("The level decides where the text starts. The first line must meet the reader where they are: a situation they live for the unaware, the problem in their words for the problem aware, the comparison of solutions for the solution aware, proof for the product aware, the offer and its terms for the most aware. The less aware the reader, the longer the path before the offer, and the later it appears.",
+        "Le niveau décide où le texte commence. La première ligne doit rejoindre le lecteur là où il se trouve : une situation qu'il vit pour l'inconscient, le problème dans ses mots pour le conscient du problème, la comparaison des solutions pour le conscient de la solution, la preuve pour le conscient du produit, l'offre et ses conditions pour le pleinement conscient. Moins le lecteur est conscient, plus le chemin jusqu'à l'offre est long."),
+      B("Left alone, a model opens almost every text on the product, because product-first copy dominates what it has read. Telling it the level, with the quotes that show it, changes the first line more than any tone instruction. The quote table from the previous lesson is your evidence: readers who already compare 'new or used' are solution aware, whatever you assume.",
+        "Livré à lui-même, un modèle ouvre presque chaque texte sur le produit, parce que ce type de texte domine ce qu'il a lu. Lui donner le niveau, avec les citations qui le montrent, change la première ligne plus que toute consigne de ton. Le tableau de citations du cours précédent est votre preuve : des lecteurs qui comparent déjà « neuf ou occasion » sont conscients de la solution, quoi que vous supposiez."),
+    ],
+    example: {
+      context: B("Claire wants a social media ad for Merle. The AI opens on the workshop and its bikes, but the people she targets are office workers who have never thought of cycling to work.",
+        "Claire veut une publicité sur les réseaux sociaux pour Merle. L'IA ouvre sur l'atelier et ses vélos, alors que les personnes visées sont des employés de bureau qui n'ont jamais pensé à aller au travail à vélo."),
+      before: B("Write an ad for our refurbished bikes, with a strong first line.",
+        "Écris une publicité pour nos vélos reconditionnés, avec une première ligne forte."),
+      after: B("Audience: office workers who commute by bus or tram and have never considered cycling. Awareness level: problem aware at best. They feel the commute as lost time and stress, but do not see a bike as the answer.\nTheir words, from our interviews: [3 TO 5 QUOTES ABOUT THE COMMUTE].\nWrite 5 possible first lines. Each must start from their situation or their problem, in their words. None may name Bicyclerie Merle or a product.\nFor each line, say in one sentence which level it addresses and why.\nDo not invent figures about commuting times or costs.",
+        "Public : des employés qui vont au travail en bus ou en tram et n'ont jamais envisagé le vélo. Niveau de conscience : conscients du problème, au mieux. Ils vivent le trajet comme du temps perdu et du stress, mais ne voient pas le vélo comme la réponse.\nLeurs mots, tirés de nos entretiens : [3 À 5 CITATIONS SUR LE TRAJET].\nÉcris 5 premières lignes possibles. Chacune part de leur situation ou de leur problème, dans leurs mots. Aucune ne nomme la Bicyclerie Merle ni un produit.\nPour chaque ligne, dis en une phrase à quel niveau elle s'adresse et pourquoi.\nN'invente aucun chiffre sur les temps ou les coûts de trajet."),
+      takeaway: B("The second prompt gives the level and the evidence for it, and forbids the reflex of naming the product. The first lines now start from the bus stop, where the reader is, and the offer can come later.",
+        "Le second prompt donne le niveau et ce qui le prouve, et interdit le réflexe de nommer le produit. Les premières lignes partent désormais de l'arrêt de bus, là où est le lecteur, et l'offre peut venir ensuite."),
+    },
+    exercise: {
+      goal: B("Three audiences of an offer you know, each placed on a level of awareness with a quote as evidence, and one opening line written for each.",
+        "Trois publics d'une offre que vous connaissez, chacun situé sur un niveau de conscience avec une citation pour preuve, et une première ligne écrite pour chacun."),
+      prompt: B("The five levels of awareness: unaware, problem aware, solution aware, product aware, most aware.\nOffer: [YOUR OFFER IN ONE SENTENCE]\nAudience 1: [DESCRIPTION] · its words: [2 QUOTES]\nAudience 2: [DESCRIPTION] · its words: [2 QUOTES]\nAudience 3: [DESCRIPTION] · its words: [2 QUOTES]\n1. For each audience, propose a level and justify it only with its quotes. If the quotes are not enough to decide, say so.\n2. For each audience, write 3 opening lines that start where that level stands.\n3. Point out any line that opens on the product for a reader who is not yet product aware.",
+        "Les cinq niveaux de conscience : inconscient, conscient du problème, conscient de la solution, conscient du produit, pleinement conscient.\nOffre : [VOTRE OFFRE EN UNE PHRASE]\nPublic 1 : [DESCRIPTION] · ses mots : [2 CITATIONS]\nPublic 2 : [DESCRIPTION] · ses mots : [2 CITATIONS]\nPublic 3 : [DESCRIPTION] · ses mots : [2 CITATIONS]\n1. Pour chaque public, propose un niveau et justifie-le uniquement par ses citations. Si elles ne suffisent pas pour trancher, dis-le.\n2. Pour chaque public, écris 3 premières lignes qui partent de là où se trouve ce niveau.\n3. Signale toute ligne qui ouvre sur le produit devant un lecteur qui n'en est pas encore conscient."),
+      check: [
+        B("Each level is justified by a real quote, not by a guess", "Chaque niveau est justifié par une vraie citation, pas par une supposition"),
+        B("The opening lines differ in what they talk about, not only in wording", "Les premières lignes diffèrent par leur sujet, pas seulement par leurs mots"),
+        B("No line names the product for an audience that is not product aware", "Aucune ligne ne nomme le produit devant un public qui n'en est pas conscient"),
+        B("You kept one line per audience and wrote why you chose it", "Vous avez gardé une ligne par public et écrit pourquoi"),
+      ],
+      bonus: B("Take an ad you saw this week and guess the awareness level it assumes from its first line alone. Then ask yourself whether you were at that level when you saw it: this is often why an ad passes you by.",
+        "Prenez une publicité vue cette semaine et devinez, à sa seule première ligne, le niveau de conscience qu'elle suppose. Demandez-vous ensuite si vous étiez à ce niveau en la voyant : c'est souvent pour cela qu'une publicité vous laisse indifférent."),
+    },
+    more: [
+      { q: B("In interviews, readers say 'I hesitate between a new e-bike and a used one'. Which level are they at?",
+          "En entretien, des lecteurs disent « j'hésite entre un vélo électrique neuf et un d'occasion ». À quel niveau sont-ils ?"),
+        options: [
+          B("Unaware, since they have not yet named the workshop", "Inconscients, puisqu'ils n'ont pas encore nommé l'atelier"),
+          B("Solution aware: they compare kinds of solutions", "Conscients de la solution : ils comparent des types de solutions"),
+          B("Most aware, since they are ready to buy a bike soon", "Pleinement conscients, puisqu'ils sont prêts à acheter bientôt"),
+        ],
+        answer: 1,
+        why: B("They know a bike solves their problem and compare categories, new or used. They do not yet know Merle's offer. The text should help them choose between the solutions, then introduce the offer.",
+          "Ils savent qu'un vélo résout leur problème et comparent des catégories, neuf ou occasion. Ils ne connaissent pas encore l'offre de Merle. Le texte doit les aider à choisir entre les solutions, puis présenter l'offre.") },
+      { q: B("Why does a model, without guidance, tend to open copy on the product?",
+          "Pourquoi un modèle, sans indication, tend-il à ouvrir un texte sur le produit ?"),
+        options: [
+          B("Because product-first copy is what it has read the most", "Parce que les textes centrés sur le produit sont ce qu'il a le plus lu"),
+          B("Because its makers trained it to promote products above all", "Parce que ses concepteurs l'ont entraîné à promouvoir les produits"),
+          B("Because it cannot understand what a reader's problem is", "Parce qu'il est incapable de comprendre le problème d'un lecteur"),
+        ],
+        answer: 0,
+        why: B("Models reproduce the most frequent patterns of their training data, and most sales copy starts with the product. Giving the level and the reader's words is what moves the opening to where the reader is.",
+          "Les modèles reproduisent les schémas les plus fréquents de ce qu'ils ont lu, et la plupart des textes de vente commencent par le produit. Donner le niveau et les mots du lecteur, c'est ce qui déplace l'ouverture là où il se trouve.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cw-objections')]: {
+    why: [
+      B("A reader buys when what they want outweighs what they fear. Desires are of several kinds: functional (getting to work on time), emotional (no longer feeling stuck), social (being seen as someone who copes well). Fears and objections are the other side: the price, trust in the seller, the risk of a bad choice, the effort required, the feeling that it is not for them.",
+        "Un lecteur achète quand ce qu'il veut l'emporte sur ce qu'il craint. Les désirs sont de plusieurs sortes : fonctionnels (arriver à l'heure au travail), émotionnels (ne plus se sentir coincé), sociaux (être vu comme quelqu'un qui s'organise bien). Les peurs et les objections sont l'autre plateau : le prix, la confiance dans le vendeur, le risque de mal choisir, l'effort demandé, le sentiment que ce n'est pas pour soi."),
+      B("Each objection calls for an answer the reader can check: a fact (each bike is checked on a written list), a proof (a real review on that point), a guarantee (the actual terms), or a change of offer when no honest answer exists. An adjective does not answer an objection, it repeats the claim the reader already doubts. Some objections show that the offer itself must change: that is useful information, not a copy problem.",
+        "Chaque objection appelle une réponse que le lecteur peut vérifier : un fait (chaque vélo est contrôlé sur une liste écrite), une preuve (un vrai avis sur ce point), une garantie (ses conditions réelles), ou une modification de l'offre quand aucune réponse honnête n'existe. Un adjectif ne répond pas à une objection, il répète l'affirmation dont le lecteur doute. Certaines objections montrent que l'offre doit changer : c'est une information utile, pas un problème de texte."),
+      B("An AI is useful here in two roles. As a sorter, it groups your quotes into desires, fears and objections. As a sceptical buyer, it raises objections you have not thought of. Only the second role needs care: the objections it invents are hypotheses, to keep only if your sources or a real customer confirm them.",
+        "Une IA est utile ici dans deux rôles. Comme outil de tri, elle range vos citations en désirs, peurs et objections. Comme acheteur sceptique, elle soulève des objections auxquelles vous n'aviez pas pensé. Seul le second rôle demande de la prudence : les objections qu'elle imagine sont des hypothèses, à garder seulement si vos sources ou un vrai client les confirment."),
+    ],
+    example: {
+      context: B("Claire's draft answers doubts with words such as 'reliable', 'quality' and 'peace of mind'. Readers still write to ask whether a used bike will last and what happens if it breaks.",
+        "Le brouillon de Claire répond aux doutes par des mots comme « fiable », « qualité » et « tranquillité ». Les lecteurs écrivent toujours pour demander si un vélo d'occasion va durer et ce qui se passe s'il casse."),
+      before: B("List the objections of my customers and give a convincing answer to each one.",
+        "Liste les objections de mes clients et donne une réponse convaincante à chacune."),
+      after: B("Here is my quote table, sorted by theme, with source identifiers: [TABLE].\nHere are the facts I can prove about Bicyclerie Merle: [LIST: CHECK LIST, WARRANTY TERMS, EXCHANGE POLICY, REPAIR SERVICE].\n1. Group the quotes into desires (functional, emotional, social), fears and objections. Keep the identifiers.\n2. For each objection, propose an answer that uses only a fact from my list. If no fact answers it, write NO ANSWER: OFFER TO REVIEW.\n3. Do not use adjectives such as reliable, quality or peace of mind as answers.\n4. Then play a sceptical buyer and list 5 objections absent from my table, clearly marked as hypotheses to verify.",
+        "Voici mon tableau de citations, trié par thème, avec les identifiants de source : [TABLEAU].\nVoici les faits que je peux prouver sur la Bicyclerie Merle : [LISTE : LISTE DE CONTRÔLE, CONDITIONS DE GARANTIE, POLITIQUE D'ÉCHANGE, SERVICE DE RÉPARATION].\n1. Range les citations en désirs (fonctionnels, émotionnels, sociaux), peurs et objections. Garde les identifiants.\n2. Pour chaque objection, propose une réponse qui n'utilise qu'un fait de ma liste. Si aucun fait n'y répond, écris PAS DE RÉPONSE : OFFRE À REVOIR.\n3. N'utilise pas d'adjectifs comme fiable, qualité ou tranquillité en guise de réponse.\n4. Joue ensuite un acheteur sceptique et liste 5 objections absentes de mon tableau, marquées comme hypothèses à vérifier."),
+      takeaway: B("Answers are now tied to provable facts, and the objections without an answer are flagged as offer questions instead of being covered with adjectives. The sceptical buyer's ideas stay labelled as hypotheses.",
+        "Les réponses sont désormais attachées à des faits prouvables, et les objections sans réponse sont signalées comme des questions d'offre au lieu d'être couvertes d'adjectifs. Les idées de l'acheteur sceptique restent marquées comme des hypothèses."),
+    },
+    exercise: {
+      goal: B("An objection table for an offer you know: each objection sourced, each answer tied to a fact, and the objections without an honest answer listed apart.",
+        "Un tableau des objections d'une offre que vous connaissez : chaque objection sourcée, chaque réponse rattachée à un fait, et les objections sans réponse honnête listées à part."),
+      prompt: B("My quotes, with identifiers: [PASTE YOUR QUOTE TABLE]\nThe facts I can prove (with where the proof is): [YOUR FACTS]\nBuild a table: objection | quotes that show it | answer based on one of my facts | type of answer (fact, proof, guarantee, offer change).\nRules: no adjective as an answer; no fact that is not in my list; if nothing answers an objection, write OFFER TO REVIEW.\nThen list the desires in three groups, functional, emotional, social, using the customers' words only.\nFinally, as a sceptical buyer of [TYPE OF READER], give me 5 objections I have not listed, marked HYPOTHESIS.",
+        "Mes citations, avec identifiants : [COLLEZ VOTRE TABLEAU DE CITATIONS]\nLes faits que je peux prouver (avec l'endroit où se trouve la preuve) : [VOS FAITS]\nConstruis un tableau : objection | citations qui la montrent | réponse fondée sur un de mes faits | type de réponse (fait, preuve, garantie, modification de l'offre).\nRègles : aucun adjectif comme réponse ; aucun fait absent de ma liste ; si rien ne répond à une objection, écris OFFRE À REVOIR.\nListe ensuite les désirs en trois groupes, fonctionnels, émotionnels, sociaux, avec les seuls mots des clients.\nEnfin, en acheteur sceptique de type [TYPE DE LECTEUR], donne-moi 5 objections que je n'ai pas listées, marquées HYPOTHÈSE."),
+      check: [
+        B("Each objection points to at least one real quote", "Chaque objection renvoie à au moins une vraie citation"),
+        B("Each answer rests on a fact whose proof you can show", "Chaque réponse repose sur un fait dont vous pouvez montrer la preuve"),
+        B("Objections without an answer are listed as offer questions", "Les objections sans réponse sont listées comme questions d'offre"),
+        B("The AI's hypotheses were checked with a customer or a source", "Les hypothèses de l'IA ont été vérifiées auprès d'un client ou d'une source"),
+      ],
+      bonus: B("Take the objection marked OFFER TO REVIEW that comes up most often, and write two ways of changing the offer to answer it. Discuss them with whoever decides: sometimes the best copy is a better offer.",
+        "Prenez l'objection marquée OFFRE À REVOIR qui revient le plus, et écrivez deux façons de modifier l'offre pour y répondre. Discutez-en avec qui décide : parfois, le meilleur texte est une meilleure offre."),
+    },
+    more: [
+      { q: B("A reader writes that they fear spending a lot on repairs after buying a used bike. Which answer is a real one?",
+          "Un lecteur écrit qu'il craint de dépenser beaucoup en réparations après l'achat d'un vélo d'occasion. Quelle réponse en est une vraie ?"),
+        options: [
+          B("Our bikes are robust and built to last, you can buy with peace of mind", "Nos vélos sont robustes et faits pour durer, achetez l'esprit tranquille"),
+          B("Thousands of cyclists have chosen used bikes and never looked back", "Des milliers de cyclistes ont choisi l'occasion sans jamais le regretter"),
+          B("The warranty terms, and what the maintenance plan covers", "Les conditions de la garantie, et ce que couvre le forfait d'entretien"),
+        ],
+        answer: 2,
+        why: B("Terms that can be read and checked answer the fear of repair costs. 'Robust' is an adjective the reader already doubts, and 'thousands of cyclists' is an unsourced figure, which this course never writes.",
+          "Des conditions lisibles et vérifiables répondent à la peur du coût des réparations. « Robuste » est un adjectif dont le lecteur doute déjà, et « des milliers de cyclistes » est un chiffre sans source, que ce cours n'écrit jamais.") },
+      { q: B("The AI, playing a sceptical buyer, raises an objection no customer has ever expressed. What is its status?",
+          "L'IA, en acheteur sceptique, soulève une objection qu'aucun client n'a jamais exprimée. Quel est son statut ?"),
+        options: [
+          B("A hypothesis, to confirm with a source or a customer", "Une hypothèse, à confirmer par une source ou un client"),
+          B("A proven objection, since the model has read many buyers", "Une objection prouvée, puisque le modèle a lu beaucoup d'acheteurs"),
+          B("A mistake of the model, to delete without a second thought", "Une erreur du modèle, à supprimer sans plus y réfléchir"),
+        ],
+        answer: 0,
+        why: B("The model may point to a real blind spot, or to an objection that does not exist among your readers. Neither is known until checked: ask a customer, or look for it in more reviews.",
+          "Le modèle peut pointer un vrai angle mort, ou une objection qui n'existe pas chez vos lecteurs. On ne le sait qu'après vérification : demandez à un client, ou cherchez-la dans davantage d'avis.") },
+    ],
+  },
+}
+
+const READER_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'cw-what')]: {
+    intro: B("Copywriting is often confused with slogans, with manipulation, or with simply writing well. This lesson defines it precisely: writing addressed to one reader, about one offer, to obtain one action, and judged by what that reader does. You will see what copywriting is not, why fluent AI text is not the same as copy, and how this course uses AI: to sort, to propose and to criticise, never to replace research. You will meet Bicyclerie Merle, a fictional workshop selling refurbished city bikes, whose texts you will build throughout the course, and you will be able to audit any page in about ten minutes.",
+      "On confond souvent le copywriting avec les slogans, avec la manipulation, ou avec le simple fait de bien écrire. Ce cours le définit précisément : une écriture adressée à un lecteur, à propos d'une offre, pour obtenir une action, et jugée à ce que fait ce lecteur. Vous verrez ce que le copywriting n'est pas, pourquoi un texte fluide produit par une IA n'est pas un texte de vente, et comment cette formation utilise l'IA : pour trier, proposer et critiquer, jamais pour remplacer la recherche. Vous ferez la connaissance de la Bicyclerie Merle, un atelier fictif de vélos de ville reconditionnés, dont vous construirez les textes tout au long de la formation, et vous saurez auditer une page en une dizaine de minutes."),
+    concepts: [
+      { term: B('Copy', 'Texte de vente (copy)'),
+        def: B("Any text written to lead a reader to an action: a page, an email, an ad, a product sheet. Its quality is measured by that action, not by its style.",
+          "Tout texte écrit pour mener un lecteur à une action : une page, un e-mail, une publicité, une fiche produit. Sa qualité se mesure à cette action, pas à son style.") },
+      { term: B('Single action', 'Action unique'),
+        def: B("The one thing the text asks the reader to do next. A text that asks for three things at once usually obtains none of them.",
+          "La seule chose que le texte demande au lecteur de faire ensuite. Un texte qui demande trois choses à la fois n'en obtient en général aucune.") },
+      { term: B('Reader-centred sentence', 'Phrase centrée sur le lecteur'),
+        def: B("A sentence about the reader's situation, problem or result, rather than about the seller's history, values or pride.",
+          "Une phrase qui parle de la situation, du problème ou du résultat du lecteur, plutôt que de l'histoire, des valeurs ou de la fierté du vendeur.") },
+      { term: B('Fluency and relevance', 'Fluidité et pertinence'),
+        def: B("Fluency is text that reads easily; relevance is text that fits this reader and this offer. Models give fluency for free, relevance only from what you provide.",
+          "La fluidité, c'est un texte qui se lit facilement ; la pertinence, un texte qui convient à ce lecteur et à cette offre. Les modèles donnent la fluidité gratuitement, la pertinence seulement à partir de ce que vous fournissez.") },
+    ],
+    walkthrough: {
+      title: B("Claire audits the current home page of Bicyclerie Merle before rewriting a single word.",
+        "Claire audite l'accueil actuel de la Bicyclerie Merle avant d'en réécrire le moindre mot."),
+      steps: [
+        B("She copies the text of the page into a blank document, without images or layout. Why: design can hide that the words say nothing; alone, the text shows what it really carries.",
+          "Elle copie le texte de la page dans un document vierge, sans images ni mise en page. Pourquoi : le design peut masquer que les mots ne disent rien ; seul, le texte montre ce qu'il porte vraiment."),
+        B("She marks each sentence: about the workshop, about the reader, about the action. Most sentences talk about the workshop: its founding, its passion, its team. Why: the proportion shows at once who the page is written for.",
+          "Elle marque chaque phrase : sur l'atelier, sur le lecteur, sur l'action. La plupart parlent de l'atelier : sa création, sa passion, son équipe. Pourquoi : la proportion montre d'emblée pour qui la page est écrite."),
+        B("She looks for the action and finds three: subscribe to the newsletter, follow on social media, visit the shop. None is the one that matters, booking a test ride. Why: a page without a single action leaves the reader to guess.",
+          "Elle cherche l'action et en trouve trois : s'abonner à la lettre, suivre sur les réseaux, passer à la boutique. Aucune n'est celle qui compte, réserver un essai. Pourquoi : une page sans action unique laisse le lecteur deviner."),
+        B("She writes her diagnosis in one line: reader, offer, action. Then she asks an AI to read the page as that reader and say where it would stop. Why: writing her own line first keeps the AI from setting her judgement.",
+          "Elle écrit son diagnostic en une ligne : lecteur, offre, action. Puis elle demande à une IA de lire la page comme ce lecteur et de dire où il s'arrêterait. Pourquoi : écrire sa ligne d'abord évite que l'IA fixe son jugement."),
+        B("She notes the gap between the two readings and decides what to learn next: what her real customers say. Why: no rewrite is useful before knowing the reader, which is the subject of the next lessons.",
+          "Elle note l'écart entre les deux lectures et décide quoi apprendre ensuite : ce que disent ses vrais clients. Pourquoi : aucune réécriture n'est utile avant de connaître le lecteur, sujet des cours suivants."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking an AI to rewrite a page before knowing who it is for.",
+          "Demander à une IA de réécrire une page avant de savoir à qui elle s'adresse."),
+        fix: B("Diagnose first: reader, offer, action. Rewrite only when you can name all three, and give them to the AI in the prompt.",
+          "Diagnostiquez d'abord : lecteur, offre, action. Ne réécrivez que lorsque vous savez nommer les trois, et donnez-les à l'IA dans le prompt.") },
+      { wrong: B("Measuring a text by the compliments of colleagues or friends.",
+          "Mesurer un texte aux compliments des collègues ou des amis."),
+        fix: B("Treat opinions as hypotheses. The result is what readers do: bookings, replies, purchases. The last module of the course shows how to measure it.",
+          "Traitez les avis comme des hypothèses. Le résultat, c'est ce que font les lecteurs : réservations, réponses, achats. Le dernier module de la formation montre comment le mesurer.") },
+      { wrong: B("Believing good copy can sell an offer that does not suit its reader.",
+          "Croire qu'un bon texte peut vendre une offre qui ne convient pas à son lecteur."),
+        fix: B("When the diagnosis shows a mismatch, fix the offer or the audience first. Words reveal value, they do not create it.",
+          "Quand le diagnostic montre un décalage, corrigez d'abord l'offre ou le public. Les mots révèlent la valeur, ils ne la créent pas.") },
+    ],
+    recap: [
+      B("Copy is writing judged by an action of one reader about one offer.", "Un texte de vente se juge à l'action d'un lecteur à propos d'une offre."),
+      B("A page with several actions, or none, leaves the reader to guess.", "Une page à plusieurs actions, ou à aucune, laisse le lecteur deviner."),
+      B("Sentences about the seller rarely move the reader; sentences about the reader do.", "Les phrases sur le vendeur touchent rarement le lecteur ; celles sur le lecteur, si."),
+      B("AI gives fluency for free; relevance comes only from your research and criteria.", "L'IA donne la fluidité gratuitement ; la pertinence vient de votre recherche et de vos critères."),
+    ],
+    further: B("Collect five pages or emails that made you act this year, and five that you left without acting. For each, write the reader it assumed and its single action. The pattern you find is your first personal model of what copy does.",
+      "Rassemblez cinq pages ou e-mails qui vous ont fait agir cette année, et cinq que vous avez quittés sans agir. Pour chacun, écrivez le lecteur supposé et l'action unique. Le motif qui se dégage est votre premier modèle personnel de ce que fait un texte de vente."),
+    more: [
+      { q: B("The Merle home page asks visitors to subscribe, follow on social media and visit. What is the main problem?",
+          "L'accueil de Merle demande de s'abonner, de suivre sur les réseaux et de passer à l'atelier. Quel est le problème principal ?"),
+        options: [
+          B("The page lacks a single action, so the reader has to choose", "La page n'a pas d'action unique, le lecteur doit choisir seul"),
+          B("The page is too short to justify asking for three actions", "La page est trop courte pour justifier trois demandes"),
+          B("Social media links should always be placed at the very top", "Les liens vers les réseaux doivent toujours figurer tout en haut"),
+        ],
+        answer: 0,
+        why: B("Three requests compete for the same attention, and none is the action that matters most, the test ride. Choosing one action and building the page towards it is the first decision of any copy.",
+          "Trois demandes se disputent la même attention, et aucune n'est l'action qui compte le plus, l'essai. Choisir une action et construire la page vers elle est la première décision de tout texte de vente.") },
+      { q: B("Why does Claire write her own diagnosis before asking the AI to read the page?",
+          "Pourquoi Claire écrit-elle son propre diagnostic avant de demander à l'IA de lire la page ?"),
+        options: [
+          B("Because the AI cannot read a page that has no images in it", "Parce que l'IA ne sait pas lire une page sans images"),
+          B("To keep her own judgement, then compare it with the AI's reading", "Pour garder son propre jugement, puis le comparer à la lecture de l'IA"),
+          B("Because the AI refuses to analyse a text written by someone else", "Parce que l'IA refuse d'analyser un texte écrit par quelqu'un d'autre"),
+        ],
+        answer: 1,
+        why: B("Reading the AI's answer first anchors your opinion on it. Writing your line first gives two independent readings, and the gap between them is where you learn something about the page.",
+          "Lire d'abord la réponse de l'IA ancre votre avis sur le sien. Écrire votre ligne d'abord donne deux lectures indépendantes, et c'est dans leur écart que vous apprenez quelque chose sur la page.") },
+    ],
+  },
+
+  [deepKey(M1, 'cw-voc')]: {
+    intro: B("The best sentences of a sales text are rarely invented: they are found in what customers already say. This lesson shows where to collect these words (reviews, emails, forums, interviews), how to run a short interview about the moment before buying, and how to have an AI sort hundreds of lines without paraphrasing or inventing any. You will also see how to anonymise data before sending it to a tool. At the end, you will have a quote table for Bicyclerie Merle that the next lessons will use, and a method you can apply to any offer.",
+      "Les meilleures phrases d'un texte de vente sont rarement inventées : on les trouve dans ce que disent déjà les clients. Ce cours montre où recueillir ces mots (avis, e-mails, forums, entretiens), comment mener un court entretien sur le moment d'avant l'achat, et comment faire trier des centaines de lignes par une IA sans qu'elle reformule ni invente. Vous verrez aussi comment anonymiser les données avant de les envoyer à un outil. À la fin, vous aurez pour la Bicyclerie Merle un tableau de citations que les cours suivants utiliseront, et une méthode applicable à toute offre."),
+    concepts: [
+      { term: B('Voice of customer', 'Voix du client'),
+        def: B("The words, phrases and images customers use to describe their situation, problem, hesitations and results. It is collected, not imagined.",
+          "Les mots, expressions et images qu'emploient les clients pour décrire leur situation, leur problème, leurs hésitations et leurs résultats. Elle se recueille, elle ne s'imagine pas.") },
+      { term: B('Verbatim', 'Verbatim'),
+        def: B("A quote reproduced word for word, with its spelling and turns of phrase. Its value lies precisely in not being cleaned up.",
+          "Une citation reproduite mot pour mot, avec son orthographe et ses tournures. Sa valeur tient précisément à ce qu'elle n'est pas nettoyée.") },
+      { term: B('Source identifier', 'Identifiant de source'),
+        def: B("A label such as R12 or E03 attached to each text before analysis, so that every quote in the table can be traced back and checked.",
+          "Une étiquette comme R12 ou E03 attachée à chaque texte avant l'analyse, pour que chaque citation du tableau puisse être retrouvée et vérifiée.") },
+      { term: B('Interview about the purchase', "Entretien sur l'achat"),
+        def: B("A conversation with a recent buyer about what happened before buying: the trigger, the alternatives, the doubts. It draws on the jobs to be done approach.",
+          "Une conversation avec un acheteur récent sur ce qui s'est passé avant l'achat : le déclencheur, les solutions envisagées, les doutes. Elle s'inspire de l'approche jobs to be done.") },
+      { term: B('Anonymisation', 'Anonymisation'),
+        def: B("Removing names, contact details and any detail that identifies a person before sharing data with a tool or a colleague.",
+          "Le retrait des noms, coordonnées et de tout détail qui identifie une personne avant de partager des données avec un outil ou un collègue.") },
+    ],
+    walkthrough: {
+      title: B("Claire builds the quote table of Bicyclerie Merle from her reviews and three interviews.",
+        "Claire construit le tableau de citations de la Bicyclerie Merle à partir de ses avis et de trois entretiens."),
+      steps: [
+        B("She exports her Google reviews and her customer emails into a spreadsheet, one text per row, and gives each an identifier. Why: identifiers make every later quote traceable.",
+          "Elle exporte ses avis Google et ses e-mails clients dans un tableur, un texte par ligne, et donne à chacun un identifiant. Pourquoi : les identifiants rendent chaque citation traçable par la suite."),
+        B("She adds the three-star reviews of two competitors, found on public review sites. Why: mixed reviews hold the hesitations and disappointments her own happy customers rarely write.",
+          "Elle ajoute les avis à trois étoiles de deux concurrents, trouvés sur des sites d'avis publics. Pourquoi : les avis mitigés portent les hésitations et déceptions que ses clients satisfaits écrivent rarement."),
+        B("She calls three recent buyers for twenty minutes, with their agreement to take notes, and asks what was happening the week they started looking. Why: the trigger is the strongest material for an opening.",
+          "Elle appelle trois acheteurs récents pendant vingt minutes, avec leur accord pour prendre des notes, et demande ce qui se passait la semaine où ils ont cherché. Pourquoi : le déclencheur est la matière la plus forte pour une ouverture."),
+        B("She removes names, emails and order numbers, then sends the texts to the AI with a prompt that requires verbatim quotes, themes and identifiers. Why: anonymised data protects customers, and the strict format prevents paraphrase.",
+          "Elle retire noms, e-mails et numéros de commande, puis envoie les textes à l'IA avec un prompt qui exige des verbatims, des thèmes et des identifiants. Pourquoi : des données anonymisées protègent les clients, et le format strict empêche la reformulation."),
+        B("She checks ten quotes at random against the spreadsheet, finds one that was slightly reworded, and restores the exact words. Why: a single check reveals whether the whole table can be trusted.",
+          "Elle vérifie dix citations au hasard dans le tableur, en trouve une légèrement reformulée, et rétablit les mots exacts. Pourquoi : un seul contrôle révèle si le tableau entier mérite confiance."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking the AI for a summary of the reviews instead of exact quotes.",
+          "Demander à l'IA un résumé des avis plutôt que des citations exactes."),
+        fix: B("Require verbatim extraction with identifiers, and forbid rephrasing in the prompt. A summary is useful for a decision, not for writing copy.",
+          "Exigez une extraction mot pour mot avec identifiants, et interdisez la reformulation dans le prompt. Un résumé sert à décider, pas à écrire un texte.") },
+      { wrong: B("Asking interviewees what they think of the product.",
+          "Demander aux personnes interrogées ce qu'elles pensent du produit."),
+        fix: B("Ask about the situation before buying: the trigger, the alternatives, what nearly stopped them. Opinions on the product come back as polite compliments.",
+          "Interrogez la situation d'avant l'achat : le déclencheur, les solutions envisagées, ce qui a failli les arrêter. Les avis sur le produit reviennent en compliments polis.") },
+      { wrong: B("Pasting raw emails with names and addresses into an AI tool.",
+          "Coller dans un outil d'IA des e-mails bruts avec noms et adresses."),
+        fix: B("Anonymise first, then check in the official documentation of your tool how it stores and uses what you send. The CNIL website explains the general principles.",
+          "Anonymisez d'abord, puis vérifiez dans la documentation officielle de votre outil comment il conserve et utilise ce que vous envoyez. Le site de la CNIL explique les principes généraux.") },
+    ],
+    recap: [
+      B("The strongest copy reuses words that customers already use.", "Le texte le plus fort reprend des mots que les clients emploient déjà."),
+      B("Reviews, emails, forums and interviews are the sources; mixed reviews hold the nuance.", "Avis, e-mails, forums et entretiens sont les sources ; les avis mitigés portent la nuance."),
+      B("Interviews ask about the moment before buying, not about the product.", "Les entretiens portent sur le moment d'avant l'achat, pas sur le produit."),
+      B("The AI sorts verbatim quotes with identifiers; you check a sample.", "L'IA trie des verbatims avec identifiants ; vous en vérifiez un échantillon."),
+      B("Data is anonymised before it is pasted into any tool.", "Les données sont anonymisées avant d'être collées dans un outil."),
+    ],
+    further: B("Read Demand-Side Sales 101 by Bob Moesta, which describes interviews about the purchase in detail, and adapt its questions to your offer. Then run two interviews and add their quotes to your table.",
+      "Lisez Demand-Side Sales 101 de Bob Moesta, qui décrit en détail les entretiens sur l'achat, et adaptez ses questions à votre offre. Menez ensuite deux entretiens et ajoutez leurs citations à votre tableau."),
+    more: [
+      { q: B("Why include the three-star reviews of competitors in the research?",
+          "Pourquoi inclure dans la recherche les avis à trois étoiles des concurrents ?"),
+        options: [
+          B("To quote them on your own page as proof against those shops", "Pour les citer sur votre page comme preuve contre ces enseignes"),
+          B("Because they often state the doubts your readers also have", "Parce qu'ils disent souvent les doutes qu'ont aussi vos lecteurs"),
+          B("Because five-star reviews are always written by the seller", "Parce que les avis à cinq étoiles sont toujours écrits par le vendeur"),
+        ],
+        answer: 1,
+        why: B("Mixed reviews describe what disappointed or almost stopped a purchase, which is the material for objections. Quoting competitors' customers against them would be a different matter, and five-star reviews are not all fake.",
+          "Les avis mitigés décrivent ce qui a déçu ou failli arrêter un achat, matière des objections. Citer les clients d'un concurrent contre lui serait une autre affaire, et les avis à cinq étoiles ne sont pas tous faux.") },
+      { q: B("The AI table has a quote slightly cleaner than the original review. What should you do?",
+          "Le tableau de l'IA contient une citation un peu plus propre que l'avis d'origine. Que faire ?"),
+        options: [
+          B("Keep the cleaner version, since it reads better on a page", "Garder la version propre, puisqu'elle se lit mieux sur une page"),
+          B("Delete the whole table and start the research again", "Supprimer tout le tableau et recommencer la recherche"),
+          B("Restore the exact words, and check a few more quotes", "Rétablir les mots exacts, et vérifier quelques citations de plus"),
+        ],
+        answer: 2,
+        why: B("A cleaned quote is no longer the customer's voice, and if published as a quote it misrepresents what was said. Restore it, then widen the check to see whether the problem is isolated.",
+          "Une citation nettoyée n'est plus la voix du client, et publiée comme citation elle déforme ce qui a été dit. Rétablissez-la, puis élargissez le contrôle pour voir si le problème est isolé.") },
+    ],
+  },
+
+  [deepKey(M1, 'cw-aware')]: {
+    intro: B("Two readers can need the same offer and yet need very different texts, because they do not know the same things. This lesson presents the five levels of awareness described by Eugene Schwartz: unaware, problem aware, solution aware, product aware and most aware. You will learn to place an audience on a level using its own words, to choose where the text must start, and to tell an AI the level so that it stops opening every text on the product. You will apply this to three audiences of Bicyclerie Merle.",
+      "Deux lecteurs peuvent avoir besoin de la même offre et pourtant de textes très différents, parce qu'ils ne savent pas les mêmes choses. Ce cours présente les cinq niveaux de conscience décrits par Eugene Schwartz : inconscient, conscient du problème, conscient de la solution, conscient du produit et pleinement conscient. Vous apprendrez à situer un public sur un niveau à partir de ses propres mots, à choisir où le texte doit commencer, et à donner ce niveau à une IA pour qu'elle cesse d'ouvrir chaque texte sur le produit. Vous l'appliquerez à trois publics de la Bicyclerie Merle."),
+    concepts: [
+      { term: B('Level of awareness', 'Niveau de conscience'),
+        def: B("What the reader already knows about their problem, the possible solutions and your offer. It decides where the text starts and how long the path to the offer is.",
+          "Ce que le lecteur sait déjà de son problème, des solutions possibles et de votre offre. Il décide où commence le texte et la longueur du chemin jusqu'à l'offre.") },
+      { term: B('Problem aware', 'Conscient du problème'),
+        def: B("The reader feels the problem but does not know a solution. The text starts from the problem, in the reader's words, before any solution is named.",
+          "Le lecteur ressent le problème mais ne connaît pas de solution. Le texte part du problème, dans les mots du lecteur, avant de nommer une solution.") },
+      { term: B('Solution aware', 'Conscient de la solution'),
+        def: B("The reader knows the kind of solution and compares options. The text helps them choose, then shows why your offer is the best fit.",
+          "Le lecteur connaît le type de solution et compare les options. Le texte l'aide à choisir, puis montre pourquoi votre offre convient le mieux.") },
+      { term: B('Most aware', 'Pleinement conscient'),
+        def: B("The reader knows and wants your offer, and waits for the right terms or moment. The text goes straight to the offer, the conditions and a reason to act now.",
+          "Le lecteur connaît et veut votre offre, et attend les bonnes conditions ou le bon moment. Le texte va droit à l'offre, aux conditions et à une raison d'agir maintenant.") },
+    ],
+    walkthrough: {
+      title: B("Claire places three audiences of Bicyclerie Merle on the levels of awareness and writes an opening for each.",
+        "Claire situe trois publics de la Bicyclerie Merle sur les niveaux de conscience et écrit une ouverture pour chacun."),
+      steps: [
+        B("She lists three audiences: office workers who take the bus, people comparing new and used bikes, and former customers whose bike needs servicing. Why: one offer often speaks to several audiences, each with its own text.",
+          "Elle liste trois publics : des employés qui prennent le bus, des personnes qui comparent vélos neufs et d'occasion, et d'anciens clients dont le vélo doit être révisé. Pourquoi : une offre parle souvent à plusieurs publics, chacun avec son texte."),
+        B("For each, she looks in her quote table for what they say. The bus users talk about lost time, not bikes; the comparers talk about new or used; the former customers name Merle. Why: their words, not her assumptions, set the level.",
+          "Pour chacun, elle cherche ce qu'il dit dans son tableau de citations. Les usagers du bus parlent de temps perdu, pas de vélo ; les comparateurs parlent de neuf ou d'occasion ; les anciens clients nomment Merle. Pourquoi : leurs mots, pas ses suppositions, fixent le niveau."),
+        B("She places them: problem aware, solution aware, most aware. Why: three levels mean three different first lines, and three different lengths before the offer appears.",
+          "Elle les situe : conscients du problème, conscients de la solution, pleinement conscients. Pourquoi : trois niveaux signifient trois premières lignes différentes, et trois longueurs différentes avant l'apparition de l'offre."),
+        B("She asks an AI for five openings per audience, giving the level and two quotes each, and forbids naming the workshop for the first two audiences. Why: without that rule, the model would open on the product for everyone.",
+          "Elle demande à une IA cinq ouvertures par public, en donnant le niveau et deux citations pour chacun, et interdit de nommer l'atelier pour les deux premiers. Pourquoi : sans cette règle, le modèle ouvrirait sur le produit pour tout le monde."),
+        B("She keeps one opening per audience and writes, next to each, the level and the quote it relies on. Why: this note will guide the sales page and the emails in the following modules.",
+          "Elle garde une ouverture par public et écrit à côté le niveau et la citation sur laquelle elle s'appuie. Pourquoi : cette note guidera la page de vente et les e-mails dans les modules suivants."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Assuming every reader already knows the problem and the solution.",
+          "Supposer que chaque lecteur connaît déjà le problème et la solution."),
+        fix: B("Place each audience on a level using its own words. If the quotes never mention the solution, the reader is not solution aware yet.",
+          "Situez chaque public sur un niveau à partir de ses propres mots. Si les citations ne mentionnent jamais la solution, le lecteur n'en est pas encore conscient.") },
+      { wrong: B("Writing one text for all audiences, from the same opening line.",
+          "Écrire un seul texte pour tous les publics, à partir de la même première ligne."),
+        fix: B("Write one opening per level. The body of the text can share parts, but where it starts must match what each reader knows.",
+          "Écrivez une ouverture par niveau. Le corps du texte peut partager des parties, mais son point de départ doit correspondre à ce que sait chaque lecteur.") },
+      { wrong: B("Telling the AI only the tone, never the level of awareness.",
+          "Donner à l'IA le seul ton, jamais le niveau de conscience."),
+        fix: B("State the level and give the quotes that show it. Add a rule such as 'do not name the product in the first line' when the reader is not product aware.",
+          "Indiquez le niveau et donnez les citations qui le montrent. Ajoutez une règle comme « ne nomme pas le produit en première ligne » quand le lecteur n'en est pas conscient.") },
+    ],
+    recap: [
+      B("Schwartz describes five levels, from unaware to most aware.", "Schwartz décrit cinq niveaux, de l'inconscient au pleinement conscient."),
+      B("The level decides where the text starts and how late the offer appears.", "Le niveau décide où commence le texte et à quel moment l'offre apparaît."),
+      B("The reader's own words, not your assumptions, reveal the level.", "Les mots du lecteur, pas vos suppositions, révèlent le niveau."),
+      B("Giving the level to the AI changes the opening more than a tone instruction.", "Donner le niveau à l'IA change l'ouverture plus qu'une consigne de ton."),
+    ],
+    further: B("Read the chapter on the stages of awareness in Breakthrough Advertising by Eugene Schwartz, a classic of advertising that has been reissued. Then sort ten ads you receive this week by the level they assume.",
+      "Lisez le chapitre sur les niveaux de conscience dans Breakthrough Advertising d'Eugene Schwartz, classique de la publicité réédité. Classez ensuite dix publicités reçues cette semaine selon le niveau qu'elles supposent."),
+    more: [
+      { q: B("Former Merle customers receive an email about servicing their bike. Which level are they at?",
+          "D'anciens clients de Merle reçoivent un e-mail sur la révision de leur vélo. À quel niveau sont-ils ?"),
+        options: [
+          B("Unaware, since they have not thought about servicing yet", "Inconscients, puisqu'ils n'ont pas encore pensé à la révision"),
+          B("Problem aware, since their bike may have a hidden fault", "Conscients du problème, puisque leur vélo cache peut-être un défaut"),
+          B("Close to most aware: they know Merle and its servicing", "Proches du pleinement conscient : ils connaissent Merle et son service"),
+        ],
+        answer: 2,
+        why: B("They have bought from Merle and know the workshop. The email can go straight to the offer: what the servicing includes, when, and how to book. Explaining why bikes need care would waste their attention.",
+          "Ils ont acheté chez Merle et connaissent l'atelier. L'e-mail peut aller droit à l'offre : ce que comprend la révision, quand, et comment réserver. Expliquer pourquoi un vélo s'entretient gaspillerait leur attention.") },
+      { q: B("For an unaware audience, where should the text start?",
+          "Pour un public inconscient, où le texte doit-il commencer ?"),
+        options: [
+          B("With a situation the reader lives, before any problem is named", "Par une situation que vit le lecteur, avant de nommer un problème"),
+          B("With the price of the offer, so that the reader sees the value", "Par le prix de l'offre, pour que le lecteur voie sa valeur"),
+          B("With the history of the company, to build trust from the start", "Par l'histoire de l'entreprise, pour créer la confiance d'emblée"),
+        ],
+        answer: 0,
+        why: B("An unaware reader does not yet see a problem, so neither a price nor a company history will hold them. A situation they recognise from their own day is the only way in.",
+          "Un lecteur inconscient ne voit pas encore de problème : ni un prix ni une histoire d'entreprise ne le retiendront. Une situation qu'il reconnaît dans sa propre journée est la seule porte d'entrée.") },
+    ],
+  },
+
+  [deepKey(M1, 'cw-objections')]: {
+    intro: B("Every purchase is a balance between what the reader wants and what holds them back. This lesson shows how to map desires (functional, emotional, social), fears and objections from your quote table, and how to answer each objection with something the reader can check: a fact, a proof, a guarantee, or a change in the offer. You will see why adjectives never answer a doubt, and how to use an AI as a sceptical buyer without taking its ideas for facts. You will build the objection table of Bicyclerie Merle, which the sales page will rely on later.",
+      "Chaque achat est un équilibre entre ce que veut le lecteur et ce qui le retient. Ce cours montre comment cartographier les désirs (fonctionnels, émotionnels, sociaux), les peurs et les objections à partir de votre tableau de citations, et comment répondre à chaque objection par ce que le lecteur peut vérifier : un fait, une preuve, une garantie, ou une modification de l'offre. Vous verrez pourquoi un adjectif ne répond jamais à un doute, et comment utiliser une IA en acheteur sceptique sans prendre ses idées pour des faits. Vous construirez le tableau des objections de la Bicyclerie Merle, sur lequel s'appuiera plus tard la page de vente."),
+    concepts: [
+      { term: B('Desire', 'Désir'),
+        def: B("What the reader hopes will change: functional (arrive on time), emotional (feel free), social (be seen as organised). Copy names it in the reader's words.",
+          "Ce que le lecteur espère voir changer : fonctionnel (arriver à l'heure), émotionnel (se sentir libre), social (être vu comme organisé). Le texte le nomme dans les mots du lecteur.") },
+      { term: B('Objection', 'Objection'),
+        def: B("A reason not to buy, stated or silent: price, trust, risk of a bad choice, effort, not for me. Each one left unanswered can stop the purchase.",
+          "Une raison de ne pas acheter, dite ou tue : le prix, la confiance, le risque de mal choisir, l'effort, ce n'est pas pour moi. Chacune laissée sans réponse peut arrêter l'achat.") },
+      { term: B('Checkable answer', 'Réponse vérifiable'),
+        def: B("An answer the reader can verify: a written check list, the terms of a warranty, a real review, a size guide. It replaces adjectives.",
+          "Une réponse que le lecteur peut vérifier : une liste de contrôle écrite, les conditions d'une garantie, un vrai avis, un guide des tailles. Elle remplace les adjectifs.") },
+      { term: B('Offer question', "Question d'offre"),
+        def: B("An objection that no honest fact can answer. It shows that the offer, not the text, must change, and goes to whoever decides the offer.",
+          "Une objection à laquelle aucun fait honnête ne répond. Elle montre que c'est l'offre, pas le texte, qui doit changer, et remonte à qui décide de l'offre.") },
+    ],
+    walkthrough: {
+      title: B("Claire builds the objection table of Bicyclerie Merle and finds one objection the text cannot answer.",
+        "Claire construit le tableau des objections de la Bicyclerie Merle et découvre une objection que le texte ne peut pas lever."),
+      steps: [
+        B("She has the AI sort her quotes into desires, fears and objections, keeping the identifiers. Why: the sorting is mechanical and quick, and the identifiers keep each line tied to a real customer.",
+          "Elle fait ranger ses citations par l'IA en désirs, peurs et objections, en gardant les identifiants. Pourquoi : le tri est mécanique et rapide, et les identifiants gardent chaque ligne rattachée à un vrai client."),
+        B("She lists the facts she can prove: the written check list for each bike, the warranty terms, the maintenance plan, the repair service. Why: answers can only come from this list, never from adjectives.",
+          "Elle liste les faits qu'elle peut prouver : la liste de contrôle écrite de chaque vélo, les conditions de garantie, le forfait d'entretien, le service de réparation. Pourquoi : les réponses ne peuvent venir que de cette liste, jamais d'adjectifs."),
+        B("She matches each objection with a fact: fear of breakdown with the warranty terms, distrust of used bikes with the check list. Why: the reader can read these, which is what makes them answers.",
+          "Elle associe chaque objection à un fait : la peur de la panne aux conditions de garantie, la méfiance envers l'occasion à la liste de contrôle. Pourquoi : le lecteur peut les lire, c'est ce qui en fait des réponses."),
+        B("One objection has no fact: buyers who live far away cannot come for a test ride. She marks it as an offer question. Why: covering it with words would hide a real limit of the offer.",
+          "Une objection n'a aucun fait en face : les acheteurs éloignés ne peuvent pas venir essayer. Elle la marque comme question d'offre. Pourquoi : la couvrir de mots cacherait une vraie limite de l'offre."),
+        B("She asks the AI to play a sceptical buyer, gets five new objections, and keeps two that appear in competitor reviews. Why: the AI's ideas become usable only once a source confirms them.",
+          "Elle demande à l'IA de jouer un acheteur sceptique, obtient cinq nouvelles objections, et garde les deux qui apparaissent dans des avis de concurrents. Pourquoi : les idées de l'IA ne deviennent utilisables qu'une fois confirmées par une source."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Answering doubts with adjectives such as reliable, quality or premium.",
+          "Répondre aux doutes par des adjectifs comme fiable, qualité ou haut de gamme."),
+        fix: B("Replace each adjective with a fact the reader can check: the content of the check list, the length and terms of the warranty, a real review on that point.",
+          "Remplacez chaque adjectif par un fait vérifiable : le contenu de la liste de contrôle, la durée et les conditions de la garantie, un vrai avis sur ce point.") },
+      { wrong: B("Leaving uncomfortable objections out of the page, hoping nobody thinks of them.",
+          "Taire les objections gênantes sur la page, en espérant que personne n'y pense."),
+        fix: B("Readers think of them anyway, often at the moment of paying. Answer them openly, or treat them as offer questions if there is no honest answer.",
+          "Les lecteurs y pensent quand même, souvent au moment de payer. Répondez-y ouvertement, ou traitez-les comme questions d'offre s'il n'existe pas de réponse honnête.") },
+      { wrong: B("Taking the objections imagined by the AI as facts about the customers.",
+          "Prendre les objections imaginées par l'IA pour des faits sur les clients."),
+        fix: B("Label them as hypotheses, then look for them in reviews or ask a customer. Keep only those confirmed by a source.",
+          "Marquez-les comme hypothèses, puis cherchez-les dans les avis ou demandez à un client. Ne gardez que celles qu'une source confirme.") },
+    ],
+    recap: [
+      B("A purchase balances desires against fears and objections.", "Un achat met en balance les désirs, les peurs et les objections."),
+      B("Desires are functional, emotional and social, named in the reader's words.", "Les désirs sont fonctionnels, émotionnels et sociaux, nommés dans les mots du lecteur."),
+      B("Each objection needs a checkable answer: fact, proof, guarantee or offer change.", "Chaque objection demande une réponse vérifiable : fait, preuve, garantie ou modification de l'offre."),
+      B("An objection with no honest answer is an offer question, not a copy problem.", "Une objection sans réponse honnête est une question d'offre, pas un problème de texte."),
+    ],
+    further: B("Look at the frequently asked questions of three shops in your sector. List the objections they answer and those they avoid. Compare with your own table: the objections nobody answers are often an opportunity.",
+      "Regardez les questions fréquentes de trois boutiques de votre secteur. Listez les objections auxquelles elles répondent et celles qu'elles évitent. Comparez avec votre tableau : les objections auxquelles personne ne répond sont souvent une occasion à saisir."),
+    more: [
+      { q: B("Buyers who live far away cannot come for a test ride, and no fact answers this. What does Claire do?",
+          "Les acheteurs éloignés ne peuvent pas venir essayer, et aucun fait n'y répond. Que fait Claire ?"),
+        options: [
+          B("She writes that distance is never a problem for a good bike", "Elle écrit que la distance n'est jamais un problème pour un bon vélo"),
+          B("She treats it as an offer question for whoever decides the offer", "Elle la traite comme une question d'offre pour qui décide de l'offre"),
+          B("She removes all mention of test rides from the page entirely", "Elle retire de la page toute mention des essais"),
+        ],
+        answer: 1,
+        why: B("When no honest fact answers an objection, words cannot fix it. The offer may change, for example with a remote sizing call or an exchange policy, and only then can the text answer.",
+          "Quand aucun fait honnête ne répond à une objection, les mots ne peuvent rien. L'offre peut changer, par exemple avec un appel pour choisir la taille ou une politique d'échange, et alors seulement le texte peut répondre.") },
+      { q: B("Which of these is a social desire for a Merle buyer?",
+          "Lequel de ces désirs est un désir social pour un acheteur de Merle ?"),
+        options: [
+          B("Arriving at work on time, without depending on the bus", "Arriver à l'heure au travail, sans dépendre du bus"),
+          B("Feeling free and no longer stuck in traffic every morning", "Se sentir libre et ne plus être coincé dans les bouchons"),
+          B("Being seen by colleagues as someone who handles things well", "Être vu par ses collègues comme quelqu'un qui s'organise bien"),
+        ],
+        answer: 2,
+        why: B("A social desire concerns how others see the reader. Arriving on time is functional, feeling free is emotional. The three often coexist, and the reader's quotes show which one weighs most.",
+          "Un désir social concerne le regard des autres sur le lecteur. Arriver à l'heure est fonctionnel, se sentir libre est émotionnel. Les trois coexistent souvent, et les citations du lecteur montrent lequel pèse le plus.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE LA PARTIE A                                          */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'target', tint: '#db2777', at: [12, 82], levels: READER,
+    title: B('Understand the reader', 'Comprendre le lecteur'),
+    blurb: B('What copy is and is not, the voice of the customer sorted with AI, the levels of awareness, and the map of desires and objections.',
+      "Ce qu'est un texte de vente et ce qu'il n'est pas, la voix du client triée avec l'IA, les niveaux de conscience, et la carte des désirs et des objections."),
+  },
+]
+
+export const COPY_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...READER_ENRICH },
+  deep: { ...READER_DEEP },
+}
