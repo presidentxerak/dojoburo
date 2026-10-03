@@ -1,6 +1,6 @@
 // L'APPROFONDISSEMENT D'UN DOJO · ce qui fait d'un niveau un vrai cours.
 //
-// POURQUOI CE N'EST PLUS « UNE PHRASE PAR CHOSE ». Un dojo tenait en six
+// POURQUOI CE N'EST PLUS « UNE PHRASE PAR CHOSE ». Un cours tenait en six
 // lignes : ce qu'on apprend, ce qu'on fait, trois gestes, un piège, une
 // question, un badge. C'était la règle, écrite pour que la prose ne repousse
 // pas. À l'écran, c'était trop mince : « les cours sont trop basiques et les
@@ -29,10 +29,10 @@ export interface Enrichment {
   /** L'EXERCICE · un objectif, un prompt à copier (les [CROCHETS] sont à
    *  remplacer), trois ou quatre points pour se corriger, un bonus */
   exercise: { goal: Bi; prompt: Bi; check: Bi[]; bonus: Bi }
-  /** DEUX QUESTIONS DE PLUS · même forme que la question du dojo */
+  /** DEUX QUESTIONS DE PLUS · même forme que la question du cours */
   more: Quiz[]
 }
 
-/** La clé d'un dojo · la cité et le niveau, parce qu'un identifiant de niveau
+/** La clé d'un cours · la cité et le niveau, parce qu'un identifiant de niveau
  *  n'est unique que dans sa cité. */
 export const enrichKey = (moduleId: string, levelId: string) => `${moduleId}/${levelId}`

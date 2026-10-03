@@ -44,6 +44,7 @@ import { RANKS, rankOf, nextRank } from './ranks'
 import { GradeChibi } from '../pixel/GradeChibi'
 import { PixelIcon, type PixelIconName } from '../pixel/PixelIcon'
 import { AvatarPicker } from '../pixel/AvatarPicker'
+import { ChibiSprite } from '../pixel/ChibiSprite'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { TT } from '../temple/templeText'
 import { useSettings, setSetting, resetSettings, systemReducesMotion, useLook, setLook, type Look } from '../lib/settings'
@@ -189,9 +190,22 @@ function Hero() {
             ? (gap === 1 ? t('pr.nextGrade1') : t('pr.nextGrade').replace('{n}', String(gap))).replace('{belt}', belt)
             : t('pr.topGrade')}
         </p>
-        {/* LE PERSONNAGE · celui des temples et de la communauté, modifiable ici. */}
-        {!picking && <button className="cc-btn cc-slate pf-hero-edit" onClick={() => setPicking(true)}>{say(TT.editCharacter, lang)}</button>}
+        {/* LE PERSONNAGE · celui de la carte et de la communauté, modifiable ici. */}
+        {!picking && avatar.chosen && <button className="cc-btn cc-slate pf-hero-edit" onClick={() => setPicking(true)}>{say(TT.editCharacter, lang)}</button>}
       </div>
+      {/* LA CRÉATION DU PERSONNAGE · demandé : « masque la card Choisissez
+          votre personnage déplace là dans le profil pendant sa création ».
+          Tant qu'aucun personnage n'est créé, le profil le propose ici. */}
+      {!picking && !avatar.chosen && (
+        <div className="cy-card tw-choose pf-hero-picker">
+          <ChibiSprite spec={avatar.spec} scale={4} />
+          <div>
+            <b>{say(TT.chooseTitle, lang)}</b>
+            <p className="cy-sub">{say(TT.chooseLead, lang)}</p>
+          </div>
+          <button className="gm-cta" onClick={() => setPicking(true)}>{say(TT.choose, lang)}</button>
+        </div>
+      )}
       {picking && (
         <div className="cy-card pf-hero-picker">
           <AvatarPicker initial={avatar.spec} onCancel={() => setPicking(false)} onSave={(sp) => { saveAvatar(sp); setPicking(false) }} />

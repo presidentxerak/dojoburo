@@ -5,8 +5,8 @@
 import { B, type Bi } from '../data/bilingual'
 
 export const DAILY_CHALLENGES: Bi[] = [
-  B('Take the exercise of the floor you are on and redo it with a real case from your week. Share the before and after.',
-    "Reprenez l'exercice de l'étage où vous êtes avec un cas réel de votre semaine. Partagez la version avant et la version après."),
+  B('Take the exercise of the lesson you are on and redo it with a real case from your week. Share the before and after.',
+    "Reprenez l'exercice du cours que vous suivez avec un cas réel de votre semaine. Partagez la version avant et la version après."),
   B('Write a prompt in four parts (context, task, constraints, format) for a task you do every week.',
     'Rédigez un prompt en quatre parties (contexte, tâche, contraintes, format) pour une tâche que vous faites chaque semaine.'),
   B('Ask the AI to list what it is unsure about in its last answer, then check one of those points yourself.',
@@ -31,8 +31,8 @@ export const DAILY_CHALLENGES: Bi[] = [
     "Mesurez : chronométrez une tâche faite sans IA, puis avec. Partagez le résultat honnête, même si l'IA n'a pas aidé."),
   B('Ask the AI to play a demanding reviewer of your last piece of work, then fix the two most serious points.',
     "Demandez à l'IA de jouer un relecteur exigeant de votre dernier travail, puis corrigez les deux points les plus sérieux."),
-  B('Help one member: answer a question in the community or in a temple chat, in a few sentences.',
-    'Aidez un membre : répondez à une question dans la communauté ou dans le chat d\'un temple, en quelques phrases.'),
+  B('Help one member: answer a question in the community or in a course chat, in a few sentences.',
+    'Aidez un membre : répondez à une question dans la communauté ou dans le chat d\'une formation, en quelques phrases.'),
 ]
 
 /** le défi du jour · le même pour tous, il change à minuit (heure de Paris) */

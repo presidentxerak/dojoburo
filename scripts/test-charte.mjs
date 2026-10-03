@@ -341,11 +341,14 @@ ok('aucun palier ne la rabat à deux colonnes',
 // dojoburo avec la page des temples [...] Le deuxième bouton c'est la
 // communauté et le 3e le profil ». Trois boutons, Dojoburo porte la marque et
 // mène aux temples, l'onglet IA Training et l'ancien jeu sont partis.
+// RÉPARÉE À NOUVEAU · « Créé une page Formations avec les cards de formations
+// et leur maîtres avec leur pricing ». Quatre boutons : Dojoburo (la carte),
+// Formations (la liste et les prix), Communauté, Profil.
 const TAB_KEYS = [...SHELL.matchAll(/key:\s*'(nav\.[a-z]+)'/g)].map((m) => m[1])
-ok('la barre : Dojoburo, Communauté, Profil', TAB_KEYS.join(',') === 'nav.game,nav.clan,nav.profile', TAB_KEYS.join(','))
+ok('la barre : Dojoburo, Formations, Communauté, Profil', TAB_KEYS.join(',') === 'nav.game,nav.training,nav.clan,nav.profile', TAB_KEYS.join(','))
 ok('Dojoburo porte la marque et mène aux temples', /\{ to: '\/', key: 'nav\.game', glyph: null \}/.test(SHELL))
 ok('Dojoburo s\'allume dans un temple et ses leçons', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
-ok('plus d\'onglet IA Training', !/nav\.training/.test(SHELL))
+ok('l\'onglet Formations mène à la page des formations', /\{ to: '\/formations', key: 'nav\.training', glyph: 'training' \}/.test(SHELL) && /path === '\/formations'\) return <FormationsPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
 // L'ONGLET MÈNE QUELQUE PART · un onglet vers une adresse que le routeur ne
 // sert pas retombe sur l'écran par défaut, sans erreur nulle part.
 ok('l\'onglet Dojoburo ouvre la carte des temples', /path === '\/' && !isAppRoute\(route\)\) return <WorldPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
@@ -424,7 +427,7 @@ ok('le ressort des cartes et des boutons aussi',
 // n'applique n'est pas une animation, c'est une intention, et un commentaire
 // qui décrit une intention comme si elle était faite est un mensonge.
 const SOURCES = ['src/game/Shell.tsx', 'src/temple/World.tsx', 'src/game/Profil.tsx', 'src/temple/Temple.tsx',
-  'src/game/Lesson.tsx', 'src/game/Community.tsx']
+  'src/game/Lesson.tsx', 'src/game/Community.tsx', 'src/game/Formations.tsx']
   .map((f) => readFileSync(f, 'utf8')).join('\n')
 const classesOf = (sel) => [...sel.matchAll(/\.([a-z][a-z0-9-]*)/g)].map((m) => m[1])
 const orphan = KEYFRAMES.filter((k) => {

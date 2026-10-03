@@ -22,7 +22,7 @@ export const ENRICH: Record<string, Enrichment> = {
   ...COURSE_ENRICH,
 }
 
-/** L'approfondissement d'un dojo, ou rien · un dojo sans le sien s'affiche
+/** L'approfondissement d'un cours, ou rien · un cours sans le sien s'affiche
  *  quand même, avec son squelette. scripts/test-enrich empêche que ça arrive
  *  en production. */
 export const enrichmentOf = (moduleId: string, levelId: string): Enrichment | null =>

@@ -106,9 +106,12 @@ export interface Pack {
 const WEEKEND: Pack = {
   id: 'weekend',
   door: 'free',
-  title: B('The AI weekend!', "Le week-end de l'IA"),
-  blurb: B('Seven lessons, under an hour, free. Finally speak AI: the words, the limits, the cost.',
-    "Sept leçons, moins d'une heure, gratuitement. Maîtrisez le langage de l'IA : les mots, les limites, le coût."),
+  // LES TITRES ET LES PHRASES DES FORMATIONS · demandé : « Revois tous les
+  // textes des formations et leur titres pour les rendre plus compréhensifs :
+  // parle que de formation et cours plus de temples avec des analogies ».
+  title: B('AI basics, free', "Les bases de l'IA, gratuit"),
+  blurb: B('Like the highway code before driving: seven short free lessons to understand the words, the limits and the cost of AI.',
+    "Comme le code de la route avant de conduire : sept cours courts et gratuits pour comprendre les mots, les limites et le coût de l'IA."),
   glyph: 'peak',
   tint: '#7b5cff',
   kit: 'course',
@@ -118,9 +121,9 @@ const WEEKEND: Pack = {
 const GENERAL: Pack = {
   id: 'generaliste',
   door: 'path',
-  title: B('The full path', 'La formation complète'),
-  blurb: B('Thirteen dojo cities to finally put AI to work: prompting, the models, the assistants, agents, design, cost.',
-    "Treize cités dojo pour apprendre à faire travailler l'IA pour vous : le prompt, les modèles, les assistants, les agents, le design, le coût."),
+  title: B('Put AI to work: the complete course', "Faire travailler l'IA : la formation complète"),
+  blurb: B('Like training a very fast but literal assistant: thirteen modules to write clear prompts, pick the right tool, delegate to agents and keep the cost down.',
+    "Comme former un assistant très rapide mais qui prend tout au pied de la lettre : treize modules pour écrire des prompts clairs, choisir le bon outil, déléguer à des agents et maîtriser le coût."),
   glyph: 'diamond',
   tint: '#0ea5e9',
   kit: 'study',
@@ -151,10 +154,29 @@ const TRADE_KIT: Record<string, DojoKit> = {
   consultant: 'consult', // l'atelier au tableau
 }
 
+/** LE TITRE D'UNE FORMATION MÉTIER · le nom du métier seul (« Commercial »)
+ *  ne dit pas qu'il s'agit d'une formation ; le titre dit ce qu'on apprend. */
+const TRADE_TITLE: Record<string, Bi> = {
+  growth: B('AI for growth marketers', "L'IA pour les growth marketers"),
+  comms: B('AI for communications', "L'IA pour la communication"),
+  founder: B('AI for founders', "L'IA pour les fondateurs"),
+  product: B('AI for product managers', "L'IA pour les chefs de produit"),
+  sales: B('AI for sales', "L'IA pour les commerciaux"),
+  assistant: B('AI for executive assistants', "L'IA pour les assistants de direction"),
+  designer: B('AI for designers', "L'IA pour les designers"),
+  teacher: B('AI for teachers', "L'IA pour les enseignants"),
+  student: B('AI for students', "L'IA pour les étudiants"),
+  scientist: B('AI for scientists', "L'IA pour les scientifiques"),
+  developer: B('AI for developers', "L'IA pour les développeurs"),
+  recruiter: B('AI for recruiters', "L'IA pour les recruteurs"),
+  lawyer: B('AI for legal counsel', "L'IA pour les juristes"),
+  consultant: B('AI for consultants', "L'IA pour les consultants"),
+}
+
 const TRADE_PACKS: Pack[] = TRADES.map((t) => ({
   id: `metier-${t.id}`,
   door: 'trade' as Door,
-  title: t.label,
+  title: TRADE_TITLE[t.id] ?? t.label,
   blurb: t.who,
   glyph: t.glyph,
   tint: t.tint,
@@ -169,17 +191,17 @@ const TRADE_PACKS: Pack[] = TRADES.map((t) => ({
  *  texte n'est pas encore écrit n'a pas de cité et n'est pas publié. */
 const COURSE_META: Record<CourseId, Omit<Pack, 'id' | 'door' | 'modules' | 'course'>> = {
   'coder-une-app': {
-    title: B('Code an app', 'Coder une app'),
-    blurb: B('Build a real app from A to Z with Claude Code, the terminal, GitHub, Supabase and Vercel.',
-      'Construisez une vraie app de A à Z avec Claude Code, le terminal, GitHub, Supabase et Vercel.'),
+    title: B('Code an app with Claude Code', 'Coder une app avec Claude Code'),
+    blurb: B('Like building a house with a very fast builder: you draw the plan, Claude Code writes the code, from GitHub and Supabase to going live on Vercel.',
+      'Comme construire une maison avec un artisan très rapide : vous dessinez le plan, Claude Code écrit le code, de GitHub et Supabase jusqu\'à la mise en ligne sur Vercel.'),
     glyph: 'frame',
     tint: '#f97316',
     kit: 'code',
   },
   'coder-avec-lovable': {
-    title: B('Build an app with Lovable', 'Coder une app avec Lovable'),
-    blurb: B('From the first prompt to the published app: Lovable, its backend and GitHub, explained from A to Z.',
-      "Du premier prompt à l'app publiée : Lovable, son backend et GitHub, expliqués de A à Z."),
+    title: B('Build an app without code using Lovable', 'Créer une app sans coder avec Lovable'),
+    blurb: B('Like ordering from a caterer: you describe the app, Lovable prepares it, and you learn to check it, connect its data and publish it.',
+      "Comme passer commande à un traiteur : vous décrivez l'app, Lovable la prépare, et vous apprenez à la vérifier, à brancher ses données et à la publier."),
     glyph: 'smile',
     tint: '#ec4899',
     kit: 'app',

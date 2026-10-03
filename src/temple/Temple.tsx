@@ -243,7 +243,7 @@ export function TemplePage({ packId }: { packId: string }) {
                   aria-label={`${s(TT.floor)} ${i + 1} · ${say(level.title, lang)}`}>
                   {floorUrl && <img className="tp-floor-img" src={floorUrl} alt="" aria-hidden="true" />}
                   <span className="tp-sign">
-                    <b>{i + 1}F</b> {say(level.title, lang)}
+                    <b>{s(TT.floor)} {i + 1}</b> {say(level.title, lang)}
                     {done && <i className="tp-done"><BauhausIcon name="check" size={10} /> {s(TT.done)}</i>}
                   </span>
 

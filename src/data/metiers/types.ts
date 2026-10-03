@@ -1,5 +1,5 @@
 // UNE FORMATION MÉTIER COMPLÈTE, DANS UN SEUL FICHIER · le métier, ses trois
-// cités et leurs neuf dojos, l'approfondissement de chaque dojo (data/enrich)
+// cités et leurs neuf dojos, l'approfondissement de chaque cours (data/enrich)
 // et sa couche pédagogique (data/deep). Un fichier par métier, pour que
 // plusieurs mains écrivent en même temps sans se gêner.
 import type { Module } from '../curriculum'

@@ -6,7 +6,7 @@
 // puis le projet fil rouge construit de bout en bout et les bonnes pratiques
 // pour le tenir dans la durée.
 //
-// LE FIL ROUGE est le même dans chaque dojo : « Habitudes », un petit suivi
+// LE FIL ROUGE est le même dans chaque cours : « Habitudes », un petit suivi
 // d'habitudes (React + Vite + TypeScript, Supabase pour les comptes et les
 // données, Vercel pour la mise en ligne, le code sur GitHub, écrit avec Claude
 // Code). Chaque mission (`act`) est une étape réelle de sa construction, de sa
@@ -470,8 +470,8 @@ const SB_DEEP: Record<string, Deepening> = {
     mistakes: [
       { wrong: B("Using the secret key in the front end because the publishable key returns empty results.",
           "Utiliser la clé secrète dans le front parce que la clé publishable renvoie des résultats vides."),
-        fix: B("Empty results mean the database rules refuse access, which is expected before policies exist. Write the policies (the last lesson of this city) instead of bypassing them.",
-          "Des résultats vides signifient que les règles de la base refusent l'accès, ce qui est normal avant les policies. Écrivez les policies (dernière leçon de cette cité) au lieu de les contourner.") },
+        fix: B("Empty results mean the database rules refuse access, which is expected before policies exist. Write the policies (the last lesson of this module) instead of bypassing them.",
+          "Des résultats vides signifient que les règles de la base refusent l'accès, ce qui est normal avant les policies. Écrivez les policies (dernière leçon de ce module) au lieu de les contourner.") },
       { wrong: B("Committing .env.local once \"by mistake\", then deleting it in the next commit.",
           "Committer .env.local une fois « par erreur », puis le supprimer au commit suivant."),
         fix: B("The value stays in the Git history and in every clone. Treat any committed secret as leaked: rotate it in the dashboard, then fix .gitignore.",
@@ -545,8 +545,8 @@ const SB_DEEP: Record<string, Deepening> = {
           "Elle exécute le SQL dans l'éditeur SQL, puis insère volontairement deux fois le même check-in. Pourquoi : voir la violation d'unicité prouve que la contrainte fonctionne, au lieu de le supposer."),
         B("She installs @supabase/supabase-js and asks for a HabitList component that selects id and name, ordered by created_at, and handles the error case. Why: naming columns keeps responses small, and an unhandled error shows as an empty list.",
           "Elle installe @supabase/supabase-js et demande un composant HabitList qui sélectionne id et name, triés par created_at, et traite le cas d'erreur. Pourquoi : nommer les colonnes allège les réponses, et une erreur non traitée se déguise en liste vide."),
-        B("She saves the SQL in a file of the repo, knowing the last lesson of this city will turn it into a migration. Why: a schema that exists only in the dashboard cannot be reviewed or rebuilt.",
-          "Elle enregistre le SQL dans un fichier du dépôt, sachant que la dernière leçon de cette cité le transformera en migration. Pourquoi : un schéma qui n'existe que dans le tableau de bord ne peut être ni relu ni reconstruit."),
+        B("She saves the SQL in a file of the repo, knowing the last lesson of this module will turn it into a migration. Why: a schema that exists only in the dashboard cannot be reviewed or rebuilt.",
+          "Elle enregistre le SQL dans un fichier du dépôt, sachant que la dernière leçon de ce module le transformera en migration. Pourquoi : un schéma qui n'existe que dans le tableau de bord ne peut être ni relu ni reconstruit."),
       ],
     },
     mistakes: [
@@ -679,7 +679,7 @@ const SB_DEEP: Record<string, Deepening> = {
 
   [deepKey(SB, 'cb-sb-rls')]: {
     intro: B("This is the most important lesson of the Supabase city. Because the browser talks to the database with a public key, Row Level Security is the only thing standing between one user and the data of another. You will enable RLS on every table of Habitudes, write owner-only policies, test them with two accounts, and keep the whole schema in the repo with the Supabase CLI, so that every change is reviewed and can be replayed.",
-      "C'est la leçon la plus importante de la cité Supabase. Parce que le navigateur parle à la base avec une clé publique, Row Level Security est la seule chose qui sépare une personne des données d'une autre. Vous activerez RLS sur chaque table d'Habitudes, écrirez des policies réservées au propriétaire, les testerez à deux comptes, et garderez tout le schéma dans le dépôt avec la CLI Supabase, pour que chaque changement soit relu et puisse être rejoué."),
+      "C'est la leçon la plus importante de le module Supabase. Parce que le navigateur parle à la base avec une clé publique, Row Level Security est la seule chose qui sépare une personne des données d'une autre. Vous activerez RLS sur chaque table d'Habitudes, écrirez des policies réservées au propriétaire, les testerez à deux comptes, et garderez tout le schéma dans le dépôt avec la CLI Supabase, pour que chaque changement soit relu et puisse être rejoué."),
     concepts: [
       { term: B('Row Level Security (RLS)', 'RLS, la sécurité au niveau des lignes'),
         def: B("A Postgres feature that checks each row against policies before returning or writing it. Once enabled on a table, everything is denied until a policy allows it.",
@@ -1056,8 +1056,8 @@ const VC_ENRICH: Record<string, Enrichment> = {
           B("In the browser console, by reproducing the steps the user describes", "Dans la console du navigateur, en reproduisant les étapes décrites"),
         ],
         answer: 2,
-        why: B("The code of a static app runs in the browser, so its errors appear there, not on Vercel's servers. An error monitoring service collects them from real users, which the last city covers.",
-          "Le code d'une app statique tourne dans le navigateur : ses erreurs y apparaissent, pas sur les serveurs de Vercel. Un service de suivi d'erreurs les recueille chez les vrais utilisateurs, ce que traite la dernière cité.") },
+        why: B("The code of a static app runs in the browser, so its errors appear there, not on Vercel's servers. An error monitoring service collects them from real users, which the last module covers.",
+          "Le code d'une app statique tourne dans le navigateur : ses erreurs y apparaissent, pas sur les serveurs de Vercel. Un service de suivi d'erreurs les recueille chez les vrais utilisateurs, ce que traite le dernier module.") },
     ],
   },
 }
@@ -1695,8 +1695,8 @@ const PJ_ENRICH: Record<string, Enrichment> = {
 
   [enrichKey(PJ, 'cb-pj-deploy')]: {
     why: [
-      B("Deploying Habitudes joins the pieces of the two previous cities: the GitHub repo, the Vercel project, its environment variables and the Supabase Auth configuration. Each piece can be correct on its own while the whole fails, which is why the lesson ends with a real journey on the production URL, not with a green build.",
-        "Déployer Habitudes assemble les pièces des deux cités précédentes : le dépôt GitHub, le projet Vercel, ses variables d'environnement et la configuration de Supabase Auth. Chaque pièce peut être juste isolément alors que l'ensemble échoue, c'est pourquoi la leçon se termine par un vrai parcours sur l'URL de production, et non par un build vert."),
+      B("Deploying Habitudes joins the pieces of the two previous modules: the GitHub repo, the Vercel project, its environment variables and the Supabase Auth configuration. Each piece can be correct on its own while the whole fails, which is why the lesson ends with a real journey on the production URL, not with a green build.",
+        "Déployer Habitudes assemble les pièces des deux modules précédents : le dépôt GitHub, le projet Vercel, ses variables d'environnement et la configuration de Supabase Auth. Chaque pièce peut être juste isolément alors que l'ensemble échoue, c'est pourquoi la leçon se termine par un vrai parcours sur l'URL de production, et non par un build vert."),
       B("The order matters. Variables first, because the build reads them; then the Auth redirect URLs, because the first magic link needs them; then a redeploy, because the existing deployment was built without the variables. Skipping one step gives a symptom far from its cause: an app that loads but cannot sign in, or signs in and sends people to localhost.",
         "L'ordre compte. Les variables d'abord, car le build les lit ; puis les redirect URLs d'Auth, car le premier lien magique en a besoin ; puis un redéploiement, car le déploiement existant a été compilé sans les variables. Sauter une étape donne un symptôme loin de sa cause : une app qui s'affiche mais ne connecte pas, ou qui connecte et renvoie vers localhost."),
       B("The first pull request after going live sets the routine for the rest of the project: branch, push, preview, test, review, merge. Vercel reports the preview URL on the pull request, so the change can be tried on real infrastructure before it reaches users. From now on, main only receives what has been seen working.",
@@ -1810,8 +1810,8 @@ const PJ_ENRICH: Record<string, Enrichment> = {
 
 const PJ_DEEP: Record<string, Deepening> = {
   [deepKey(PJ, 'cb-pj-spec')]: {
-    intro: B("This city builds Habitudes from start to finish, and it starts without code. You will write the spec with Claude Code: the user stories, the acceptance criteria that will become tests, the data model that will become tables, and the list of what version 1 will not do. Saved as SPEC.md, it becomes the reference that every later session reads and every pull request is reviewed against. One hour here saves days of undoing decisions you never made.",
-      "Cette cité construit Habitudes du début à la fin, et elle commence sans code. Vous écrirez la spécification avec Claude Code : les user stories, les critères d'acceptation qui deviendront des tests, le modèle de données qui deviendra des tables, et la liste de ce que la version 1 ne fera pas. Enregistrée en SPEC.md, elle devient la référence que lit chaque session suivante et à laquelle se confronte chaque pull request. Une heure ici épargne des jours passés à défaire des décisions jamais prises."),
+    intro: B("This module builds Habitudes from start to finish, and it starts without code. You will write the spec with Claude Code: the user stories, the acceptance criteria that will become tests, the data model that will become tables, and the list of what version 1 will not do. Saved as SPEC.md, it becomes the reference that every later session reads and every pull request is reviewed against. One hour here saves days of undoing decisions you never made.",
+      "Ce module construit Habitudes du début à la fin, et elle commence sans code. Vous écrirez la spécification avec Claude Code : les user stories, les critères d'acceptation qui deviendront des tests, le modèle de données qui deviendra des tables, et la liste de ce que la version 1 ne fera pas. Enregistrée en SPEC.md, elle devient la référence que lit chaque session suivante et à laquelle se confronte chaque pull request. Une heure ici épargne des jours passés à défaire des décisions jamais prises."),
     concepts: [
       { term: B('User story', 'User story'),
         def: B("A need written from the user's side: 'As a user, I want to check a habit for today, so that I can keep my streak.' It says who, what and why, not how.",
@@ -2047,8 +2047,8 @@ const PJ_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(PJ, 'cb-pj-deploy')]: {
-    intro: B("Habitudes works locally; this lesson puts it in the hands of real users. You will connect the repo to Vercel, declare the Supabase variables for each environment, configure the Auth redirect URLs, redeploy, and walk through the app on the production URL as a new user would. Then you will open a first pull request and test it on its preview. This is where the work of the two previous cities comes together, and where the routine of the rest of the project begins.",
-      "Habitudes fonctionne en local ; cette leçon la met entre les mains de vrais utilisateurs. Vous relierez le dépôt à Vercel, déclarerez les variables Supabase pour chaque environnement, configurerez les redirect URLs d'Auth, redéploierez, puis parcourrez l'app sur l'URL de production comme une nouvelle personne. Vous ouvrirez ensuite une première pull request et la testerez sur sa preview. C'est ici que se rejoint le travail des deux cités précédentes, et que commence la routine du reste du projet."),
+    intro: B("Habitudes works locally; this lesson puts it in the hands of real users. You will connect the repo to Vercel, declare the Supabase variables for each environment, configure the Auth redirect URLs, redeploy, and walk through the app on the production URL as a new user would. Then you will open a first pull request and test it on its preview. This is where the work of the two previous modules comes together, and where the routine of the rest of the project begins.",
+      "Habitudes fonctionne en local ; cette leçon la met entre les mains de vrais utilisateurs. Vous relierez le dépôt à Vercel, déclarerez les variables Supabase pour chaque environnement, configurerez les redirect URLs d'Auth, redéploierez, puis parcourrez l'app sur l'URL de production comme une nouvelle personne. Vous ouvrirez ensuite une première pull request et la testerez sur sa preview. C'est ici que se rejoint le travail des deux modules précédents, et que commence la routine du reste du projet."),
     concepts: [
       { term: B('Go-live checklist', 'Liste de mise en ligne'),
         def: B("The ordered list of what must be true before announcing the app: variables, redirects, redeploy, smoke test. Written once, reused for every new environment.",
@@ -2510,7 +2510,7 @@ const PR_ENRICH: Record<string, Enrichment> = {
 
 const PR_DEEP: Record<string, Deepening> = {
   [deepKey(PR, 'cb-pr-security')]: {
-    intro: B("Habitudes is built, deployed and used. This last city gathers the habits that keep it safe, affordable and alive. This first lesson turns everything you learnt about security into one checklist, run before each release: secrets out of the code and its history, RLS on every table, inputs validated by the database, dependencies audited, each key used with the least privilege it needs, and only the redirect URLs you actually use.",
+    intro: B("Habitudes is built, deployed and used. This last module gathers the habits that keep it safe, affordable and alive. This first lesson turns everything you learnt about security into one checklist, run before each release: secrets out of the code and its history, RLS on every table, inputs validated by the database, dependencies audited, each key used with the least privilege it needs, and only the redirect URLs you actually use.",
       "Habitudes est construite, déployée et utilisée. Cette dernière cité réunit les habitudes qui la gardent sûre, économe et vivante. Cette première leçon rassemble tout ce que vous avez appris sur la sécurité en une liste, passée avant chaque version : les secrets hors du code et de son historique, RLS sur chaque table, des entrées validées par la base, des dépendances auditées, chaque clé employée avec le moindre privilège nécessaire, et seulement les redirect URLs réellement utilisées."),
     concepts: [
       { term: B('Least privilege', 'Moindre privilège'),

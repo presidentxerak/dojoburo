@@ -79,13 +79,13 @@ export const FOR_WHOM: { glyph: string; title: Bi; body: Bi }[] = [
 export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
   {
     glyph: 'grid',
-    title: B('A map of cities', 'Une carte de cités'),
-    body: B('Each city is a module. You go where you want, in any order.',
-      "Chaque cité correspond à un module. Vous les parcourez dans l'ordre de votre choix."),
+    title: B('A map of modules', 'Une carte de modules'),
+    body: B('Like the chapters of a manual, the modules can be read in any order.',
+      "Comme les chapitres d'un manuel, les modules se suivent dans l'ordre de votre choix."),
   },
   {
     glyph: 'house',
-    title: B('A master in each dojo', 'Un maître dans chaque dojo'),
+    title: B('A master for each lesson', 'Un maître pour chaque cours'),
     body: B('The essentials, the key concepts, a case solved step by step, the common mistakes, then something to do in your own AI tool.',
       "L'essentiel, les notions clés, un cas résolu pas à pas, les erreurs fréquentes, puis un exercice à réaliser dans votre propre outil d'IA."),
   },
@@ -98,8 +98,8 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
   {
     glyph: 'star4',
     title: B('A badge, and it stays', 'Un badge, acquis durablement'),
-    body: B('Every dojo gives one. You can redo any of them, any time.',
-      "Chaque dojo en délivre un. Vous pouvez refaire chacun d'eux à tout moment."),
+    body: B('Every lesson gives one. You can redo any of them, any time.',
+      "Chaque cours en délivre un. Vous pouvez refaire chacun d'eux à tout moment."),
   },
 ]
 
@@ -117,15 +117,15 @@ export const FAQ: Qa[] = [
   {
     q: B('How long does it take?', 'Combien de temps cela demande-t-il ?'),
     a: B(
-      `The free AI weekend is ${DISCOVERY_LEVEL_COUNT} lessons, about ${DISCOVERY_MINUTES} minutes in total. The full training is about ${PATH_HOURS} hours, and it is built to be taken one dojo at a time. Each of the ${TRADE_COUNT} trade trainings comes on top of it.`,
-      `Le week-end de l'IA gratuit comprend ${DISCOVERY_LEVEL_COUNT} leçons, soit environ ${DISCOVERY_MINUTES} minutes au total. La formation complète dure environ ${HOURS_FR} heures et se suit un dojo à la fois. Chacune des ${TRADE_COUNT} formations métier s'y ajoute.`,
+      `The free AI weekend is ${DISCOVERY_LEVEL_COUNT} lessons, about ${DISCOVERY_MINUTES} minutes in total. The full training is about ${PATH_HOURS} hours, and it is built to be taken one lesson at a time. Each of the ${TRADE_COUNT} trade trainings comes on top of it.`,
+      `Le week-end de l'IA gratuit comprend ${DISCOVERY_LEVEL_COUNT} leçons, soit environ ${DISCOVERY_MINUTES} minutes au total. La formation complète dure environ ${HOURS_FR} heures et se suit un cours à la fois. Chacune des ${TRADE_COUNT} formations métier s'y ajoute.`,
     ),
   },
   {
     q: B('What is in a lesson?', 'Que contient une leçon ?'),
     a: B(
-      'Each dojo, in AI Training, runs in the same order: the essentials, what you do, key concepts, why it works, the steps, a worked example solved step by step, a prompt before and after, common mistakes and how to fix them, the trap, an exercise to do in your own AI tool, a recap and a step to go further. It ends with a five question quiz, then a badge and some XP.',
-      "Chaque dojo, dans IA Training, suit le même ordre : l'essentiel, ce que vous faites, les notions clés, pourquoi cela fonctionne, les étapes, un exemple résolu pas à pas, un prompt avant et après, les erreurs fréquentes et leur correction, le piège, un exercice à réaliser dans votre propre outil d'IA, un récapitulatif et une étape pour aller plus loin. Il se conclut par un quiz de cinq questions, puis par un badge et de l'XP.",
+      'Each lesson, in every course, runs in the same order: the essentials, what you do, key concepts, why it works, the steps, a worked example solved step by step, a prompt before and after, common mistakes and how to fix them, the trap, an exercise to do in your own AI tool, a recap and a step to go further. It ends with a five question quiz, then a badge and some XP.',
+      "Chaque cours, dans chaque formation, suit le même ordre : l'essentiel, ce que vous faites, les notions clés, pourquoi cela fonctionne, les étapes, un exemple résolu pas à pas, un prompt avant et après, les erreurs fréquentes et leur correction, le piège, un exercice à réaliser dans votre propre outil d'IA, un récapitulatif et une étape pour aller plus loin. Il se conclut par un quiz de cinq questions, puis par un badge et de l'XP.",
     ),
   },
   {
@@ -159,8 +159,8 @@ export const FAQ: Qa[] = [
   {
     q: B('What are the belts?', 'À quoi correspondent les ceintures ?'),
     a: B(
-      `Your grade is a belt, from white to black, among ${RANK_COUNT}. It follows your level, and your level follows the XP of the dojos you actually finished: one level every ${XP_PER_LEVEL} XP. Nothing can be bought. Each belt has its own 3D character, which becomes your profile icon. The black belt starts at level ${BLACK_FROM}, which roughly means the AI weekend, the full training and one trade training.`,
-      `Votre grade est une ceinture, de la blanche à la noire, parmi ${RANK_COUNT}. Il suit votre niveau, lequel suit l'XP des dojos que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète. Chaque ceinture possède son propre personnage en trois dimensions, qui devient votre icône de profil. La ceinture noire commence au niveau ${BLACK_FROM}, ce qui correspond à peu près au week-end de l'IA, à la formation complète et à une formation métier.`,
+      `Your grade is a belt, from white to black, among ${RANK_COUNT}. It follows your level, and your level follows the XP of the lessons you actually finished: one level every ${XP_PER_LEVEL} XP. Nothing can be bought. Each belt has its own 3D character, which becomes your profile icon. The black belt starts at level ${BLACK_FROM}, which roughly means the AI weekend, the full training and one trade training.`,
+      `Votre grade est une ceinture, de la blanche à la noire, parmi ${RANK_COUNT}. Il suit votre niveau, lequel suit l'XP des cours que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète. Chaque ceinture possède son propre personnage en trois dimensions, qui devient votre icône de profil. La ceinture noire commence au niveau ${BLACK_FROM}, ce qui correspond à peu près au week-end de l'IA, à la formation complète et à une formation métier.`,
     ),
   },
   {

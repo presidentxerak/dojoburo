@@ -7,7 +7,6 @@ import { useLang, type Lang } from './lang'
 import { translate, type Key } from './dict'
 
 export { LANGS, LANG_LABEL, baseLang, getLang, setLang, useLang, type Lang } from './lang'
-import { fromCatalog } from './catalog'
 export { DICT, KEY_COUNT, translate, type Key, type Entry } from './dict'
 
 /** Le traducteur, lié à la langue courante. */
@@ -27,6 +26,5 @@ export function useT(): (key: Key | string) => string {
 export function pick(v: { en: string; fr?: string } | string, lang: Lang): string {
   if (typeof v === 'string') return v
   if (lang === 'fr') return v.fr || v.en
-  if (lang === 'en') return v.en
-  return fromCatalog(lang, v.en) ?? v.en
+  return v.en
 }

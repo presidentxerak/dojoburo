@@ -24,7 +24,7 @@
 //
 //   node scripts/test-i18n.mjs
 import { build } from 'esbuild'
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -830,28 +830,26 @@ ok('morsure · une expression JSX ne l\'est pas', !HARDCODED.test("<a href='/'>{
 ok('morsure · un mot seul ne l\'est pas', !HARDCODED.test('<span>Beta</span>'))
 ok('morsure · une copie serait vue', ['x'].filter(() => 'Menu' === 'Menu').length === 1)
 
-/* --- LES SEPT LANGUES ------------------------------------------------------ */
-// Demandé : « mets en place la traduction en fonction de la langue du user
-// (français, anglais, espagnol, italien, allemand, portugais, japonais
-// etc...) ». Ce qui la rend vraie :
-//   · les sept langues sont proposées, et la première visite suit le navigateur ;
-//   · chaque langue à catalogue couvre au moins 95 % des textes d'interface,
-//     sans marqueur perdu ni tiret long (scripts/i18n-check.mjs) ;
-//   · la source des traductions est à jour avec le dictionnaire.
+/* --- DEUX LANGUES, LE RESTE PAR LE NAVIGATEUR ----------------------------- */
+// RÉPARÉE · la garde affirmait sept langues servies par des catalogues
+// (« mets en place la traduction en fonction de la langue du user ... »).
+// Nouvelle demande : « On va stopper la traduction d'ailleurs à ce sujet on
+// peut pas utiliser la traduction automatique des navigateurs au lieu de tout
+// traduire ?… On va garder par défaut les versions françaises et anglaises. »
+// Ce qui la rend vraie :
+//   · seuls le français et l'anglais sont proposés, la première visite suit le
+//     navigateur (français s'il est français, anglais sinon) ;
+//   · aucun catalogue n'est chargé et aucun texte ne passe par un catalogue ;
+//   · rien n'interdit la traduction du navigateur (pas de translate="no" ni de
+//     classe notranslate sur la page), et le document annonce sa langue.
 {
   const L = readFileSync('src/i18n/lang.ts', 'utf8')
-  ok('les sept langues sont proposées', /LANGS = \['fr', 'en', 'es', 'it', 'de', 'pt', 'ja'\] as const/.test(L))
+  ok('seuls le français et l\'anglais sont proposés', /LANGS = \['fr', 'en'\] as const/.test(L))
   ok('la première visite suit la langue du navigateur', /navigator\.language/.test(L))
-  ok('une langue à catalogue retombe sur l\'anglais, jamais sur du vide', /fromCatalog\(lang, b\.en\) \?\? b\.en/.test(readFileSync('src/data/bilingual.ts', 'utf8')))
-  const SRC = JSON.parse(readFileSync('src/i18n/source-ui.json', 'utf8'))
-  const inSrc = new Set(SRC.map((x) => x.en))
-  const missing = Object.values(DICT).filter((e) => !inSrc.has(e.en.trim())).length
-  ok('la source des traductions couvre tout le dictionnaire (relancer scripts/i18n-extract.mjs)', missing === 0, `${missing} absent(s)`)
-  const { execFileSync } = await import('node:child_process')
-  let report = ''
-  let code = 0
-  try { report = execFileSync('node', ['scripts/i18n-check.mjs'], { encoding: 'utf8' }) } catch (e) { report = String(e.stdout || ''); code = 1 }
-  ok('chaque langue à catalogue couvre l\'interface', code === 0, report.trim().split('\n').filter((l) => /^(ok|FAIL)/.test(l)).join(' | '))
+  ok('le document annonce sa langue', /documentElement\.lang = l/.test(L))
+  ok('aucun catalogue de traduction ne subsiste', !existsSync('src/i18n/catalog.ts') && !existsSync('src/i18n/locales'))
+  const html = readFileSync('index.html', 'utf8')
+  ok('la traduction du navigateur n\'est pas bloquée', !/translate="no"|notranslate/.test(html))
 }
 
 console.log(fails ? `\ntest-i18n · ${fails} problème(s)` : `\ntest-i18n · ${keys.length} clés, ${PILLARS.filter((p) => p.fr).length}/${PILLARS.length} piliers, prose ${proseWithFr}/${proseFiles.length}`)

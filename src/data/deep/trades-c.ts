@@ -1,4 +1,4 @@
-// L'approfondissement pédagogique des dojos couverts par data/enrich/trades-c · voir ./types.
+// L'approfondissement pédagogique des cours couverts par data/enrich/trades-c · voir ./types.
 import { B } from '../bilingual'
 import type { Deepening } from './types'
 
@@ -8,8 +8,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'sa-prospect/sa-brief': {
-    intro: B("Before writing to a prospect, you need one fact about them that is recent, true and relevant to their role. An AI tool with web search finds candidate facts in minutes, but it can also produce a precise-looking fact that does not exist. This dojo gives you a three-minute routine: ask for dated facts with sources, ask what each fact changes for the person's role, then open the source of the one you will quote. At the end, you have a checked fact and a first sentence built on it.",
-      "Avant d'écrire à un prospect, il vous faut un fait le concernant qui soit récent, vrai et utile pour son poste. Un outil d'IA doté de la recherche web trouve des faits candidats en quelques minutes, mais il peut aussi produire un fait d'apparence précise qui n'existe pas. Ce dojo vous propose une routine de trois minutes : demander des faits datés et sourcés, demander ce que chaque fait change pour le poste de la personne, puis ouvrir la source de celui que vous citerez. À la fin, vous disposez d'un fait vérifié et d'une première phrase construite sur lui."),
+    intro: B("Before writing to a prospect, you need one fact about them that is recent, true and relevant to their role. An AI tool with web search finds candidate facts in minutes, but it can also produce a precise-looking fact that does not exist. This lesson gives you a three-minute routine: ask for dated facts with sources, ask what each fact changes for the person's role, then open the source of the one you will quote. At the end, you have a checked fact and a first sentence built on it.",
+      "Avant d'écrire à un prospect, il vous faut un fait le concernant qui soit récent, vrai et utile pour son poste. Un outil d'IA doté de la recherche web trouve des faits candidats en quelques minutes, mais il peut aussi produire un fait d'apparence précise qui n'existe pas. Ce cours vous propose une routine de trois minutes : demander des faits datés et sourcés, demander ce que chaque fait change pour le poste de la personne, puis ouvrir la source de celui que vous citerez. À la fin, vous disposez d'un fait vérifié et d'une première phrase construite sur lui."),
     concepts: [
       {
         term: B("Dated fact", "Fait daté"),
@@ -109,8 +109,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-prospect/sa-first': {
-    intro: B("A first prospecting message has one job: get a short reply from someone who does not know you. This dojo shows how to make the AI write a six-line message built on a checked fact, a comparable case and a closed question that can be answered in five words. You will also learn to cut every sentence about you, because those are the ones the prospect skips. At the end, you have a message you can send today and a structure you can reuse.",
-      "Un premier message de prospection n'a qu'une mission : obtenir une réponse courte de la part de quelqu'un qui ne vous connaît pas. Ce dojo vous montre comment faire rédiger à l'IA un message de six lignes fondé sur un fait vérifié, un cas comparable et une question fermée à laquelle on répond en cinq mots. Vous apprendrez aussi à supprimer chaque phrase qui parle de vous, car ce sont celles que le prospect saute. À la fin, vous disposez d'un message à envoyer aujourd'hui et d'une structure réutilisable."),
+    intro: B("A first prospecting message has one job: get a short reply from someone who does not know you. This lesson shows how to make the AI write a six-line message built on a checked fact, a comparable case and a closed question that can be answered in five words. You will also learn to cut every sentence about you, because those are the ones the prospect skips. At the end, you have a message you can send today and a structure you can reuse.",
+      "Un premier message de prospection n'a qu'une mission : obtenir une réponse courte de la part de quelqu'un qui ne vous connaît pas. Ce cours vous montre comment faire rédiger à l'IA un message de six lignes fondé sur un fait vérifié, un cas comparable et une question fermée à laquelle on répond en cinq mots. Vous apprendrez aussi à supprimer chaque phrase qui parle de vous, car ce sont celles que le prospect saute. À la fin, vous disposez d'un message à envoyer aujourd'hui et d'une structure réutilisable."),
     concepts: [
       {
         term: B("Size of the ask", "Taille de la demande"),
@@ -211,8 +211,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-prospect/sa-follow': {
-    intro: B("Many replies to prospecting come after a follow-up rather than after the first message. But a follow-up that only reminds the prospect of your first email gives them no new reason to answer. This dojo teaches a three-step sequence: each follow-up brings one new element (a fact, a client case, an answer to a likely objection), each one can be read alone, and the last one closes the file politely. You will leave with a sequence ready to schedule.",
-      "Bien des réponses en prospection arrivent après une relance plutôt qu'après le premier message. Mais une relance qui se contente de rappeler votre premier email ne donne au prospect aucune nouvelle raison de répondre. Ce dojo enseigne une séquence en trois temps : chaque relance apporte un élément nouveau (un fait, un cas client, la réponse à une objection probable), chacune se lit isolément, et la dernière clôt le dossier avec courtoisie. Vous repartez avec une séquence prête à programmer."),
+    intro: B("Many replies to prospecting come after a follow-up rather than after the first message. But a follow-up that only reminds the prospect of your first email gives them no new reason to answer. This lesson teaches a three-step sequence: each follow-up brings one new element (a fact, a client case, an answer to a likely objection), each one can be read alone, and the last one closes the file politely. You will leave with a sequence ready to schedule.",
+      "Bien des réponses en prospection arrivent après une relance plutôt qu'après le premier message. Mais une relance qui se contente de rappeler votre premier email ne donne au prospect aucune nouvelle raison de répondre. Ce cours enseigne une séquence en trois temps : chaque relance apporte un élément nouveau (un fait, un cas client, la réponse à une objection probable), chacune se lit isolément, et la dernière clôt le dossier avec courtoisie. Vous repartez avec une séquence prête à programmer."),
     concepts: [
       {
         term: B("Standalone message", "Message autonome"),
@@ -317,8 +317,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'sa-meeting/sa-prep': {
-    intro: B("A discovery meeting is useful when the client talks and you learn things you could not have found alone. This dojo shows how to prepare five questions with AI: questions their website does not answer, questions about a precise past event, and one question about the cost of doing nothing. You will also prepare the follow-up to ask when an answer stays vague. At the end, you walk in with a card of questions instead of a demo.",
-      "Un rendez-vous de découverte est utile lorsque le client parle et que vous apprenez ce que vous n'auriez pas trouvé seul. Ce dojo vous montre comment préparer cinq questions avec l'IA : des questions auxquelles leur site ne répond pas, des questions sur un événement passé précis, et une question sur le coût de l'inaction. Vous préparerez aussi la relance à poser lorsqu'une réponse reste vague. À la fin, vous entrez dans la salle avec une fiche de questions plutôt qu'avec une démonstration."),
+    intro: B("A discovery meeting is useful when the client talks and you learn things you could not have found alone. This lesson shows how to prepare five questions with AI: questions their website does not answer, questions about a precise past event, and one question about the cost of doing nothing. You will also prepare the follow-up to ask when an answer stays vague. At the end, you walk in with a card of questions instead of a demo.",
+      "Un rendez-vous de découverte est utile lorsque le client parle et que vous apprenez ce que vous n'auriez pas trouvé seul. Ce cours vous montre comment préparer cinq questions avec l'IA : des questions auxquelles leur site ne répond pas, des questions sur un événement passé précis, et une question sur le coût de l'inaction. Vous préparerez aussi la relance à poser lorsqu'une réponse reste vague. À la fin, vous entrez dans la salle avec une fiche de questions plutôt qu'avec une démonstration."),
     concepts: [
       {
         term: B("Discovery meeting", "Rendez-vous de découverte"),
@@ -419,8 +419,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-meeting/sa-notes': {
-    intro: B("Right after a sales meeting, your notes are messy, full of abbreviations and question marks. Those question marks are valuable: they show what is still uncertain in the deal. This dojo teaches you to turn raw notes into a three-part report (what was said, what was agreed, what is unclear) without the AI smoothing the doubts away. You finish with a record a colleague could act on, and a follow-up email that settles the main doubt the same day.",
-      "Juste après un rendez-vous commercial, vos notes sont en désordre, pleines d'abréviations et de points d'interrogation. Ces points d'interrogation ont de la valeur : ils montrent ce qui reste incertain dans l'affaire. Ce dojo vous apprend à transformer des notes brutes en compte rendu en trois parties (ce qui a été dit, ce qui a été convenu, ce qui reste flou) sans que l'IA efface les doutes. Vous terminez avec une trace sur laquelle un collègue pourrait agir, et un email de suivi qui lève le doute principal le jour même."),
+    intro: B("Right after a sales meeting, your notes are messy, full of abbreviations and question marks. Those question marks are valuable: they show what is still uncertain in the deal. This lesson teaches you to turn raw notes into a three-part report (what was said, what was agreed, what is unclear) without the AI smoothing the doubts away. You finish with a record a colleague could act on, and a follow-up email that settles the main doubt the same day.",
+      "Juste après un rendez-vous commercial, vos notes sont en désordre, pleines d'abréviations et de points d'interrogation. Ces points d'interrogation ont de la valeur : ils montrent ce qui reste incertain dans l'affaire. Ce cours vous apprend à transformer des notes brutes en compte rendu en trois parties (ce qui a été dit, ce qui a été convenu, ce qui reste flou) sans que l'IA efface les doutes. Vous terminez avec une trace sur laquelle un collègue pourrait agir, et un email de suivi qui lève le doute principal le jour même."),
     concepts: [
       {
         term: B("Raw notes", "Notes brutes"),
@@ -520,8 +520,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-meeting/sa-object': {
-    intro: B("An objection is a short sentence that can hide very different problems: no budget, no priority, not enough trust yet, or someone else to convince. Answering the wrong problem, for example with a discount when the real issue is a partner's approval, weakens your position. This dojo teaches you to note the client's exact words, ask the AI for three possible meanings and the clue that separates them, then ask one question before answering anything.",
-      "Une objection est une phrase courte qui peut masquer des problèmes très différents : pas de budget, pas de priorité, pas encore assez de confiance, ou une autre personne à convaincre. Répondre au mauvais problème, par exemple par une remise alors que l'enjeu réel est l'accord d'un associé, affaiblit votre position. Ce dojo vous apprend à noter les mots exacts du client, à demander à l'IA trois significations possibles et l'indice qui les distingue, puis à poser une question avant de répondre quoi que ce soit."),
+    intro: B("An objection is a short sentence that can hide very different problems: no budget, no priority, not enough trust yet, or someone else to convince. Answering the wrong problem, for example with a discount when the real issue is a partner's approval, weakens your position. This lesson teaches you to note the client's exact words, ask the AI for three possible meanings and the clue that separates them, then ask one question before answering anything.",
+      "Une objection est une phrase courte qui peut masquer des problèmes très différents : pas de budget, pas de priorité, pas encore assez de confiance, ou une autre personne à convaincre. Répondre au mauvais problème, par exemple par une remise alors que l'enjeu réel est l'accord d'un associé, affaiblit votre position. Ce cours vous apprend à noter les mots exacts du client, à demander à l'IA trois significations possibles et l'indice qui les distingue, puis à poser une question avant de répondre quoi que ce soit."),
     concepts: [
       {
         term: B("Objection", "Objection"),
@@ -626,8 +626,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'sa-close/sa-proposal': {
-    intro: B("A sales proposal is often read by someone who was not in the meeting: a finance director, a partner, a board. They read it quickly, often on a phone, and decide from the first paragraph whether to go on. This dojo teaches you to write a one-page proposal for that absent reader: their problem in their words with their number, what you do, what it costs, and the first step with a date. The AI drafts; you supply the facts and check that the page stands on its own.",
-      "Une proposition commerciale est souvent lue par une personne absente du rendez-vous : un directeur financier, un associé, un conseil. Elle la lit vite, souvent sur un téléphone, et décide dès le premier paragraphe si elle poursuit. Ce dojo vous apprend à rédiger une proposition d'une page pour ce lecteur absent : son problème avec ses mots et son chiffre, ce que vous faites, ce que cela coûte, et la première étape avec une date. L'IA rédige le brouillon ; vous fournissez les faits et vérifiez que la page se suffit à elle-même."),
+    intro: B("A sales proposal is often read by someone who was not in the meeting: a finance director, a partner, a board. They read it quickly, often on a phone, and decide from the first paragraph whether to go on. This lesson teaches you to write a one-page proposal for that absent reader: their problem in their words with their number, what you do, what it costs, and the first step with a date. The AI drafts; you supply the facts and check that the page stands on its own.",
+      "Une proposition commerciale est souvent lue par une personne absente du rendez-vous : un directeur financier, un associé, un conseil. Elle la lit vite, souvent sur un téléphone, et décide dès le premier paragraphe si elle poursuit. Ce cours vous apprend à rédiger une proposition d'une page pour ce lecteur absent : son problème avec ses mots et son chiffre, ce que vous faites, ce que cela coûte, et la première étape avec une date. L'IA rédige le brouillon ; vous fournissez les faits et vérifiez que la page se suffit à elle-même."),
     concepts: [
       {
         term: B("Absent reader", "Lecteur absent"),
@@ -727,8 +727,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-close/sa-price': {
-    intro: B("Announcing a price is the moment many salespeople rush: they justify it, add a discount, or fill the silence. Each of these tells the client that the price is open to discussion. This dojo teaches a simple sequence: say the number and its unit in one sentence, stop talking, and answer the client's first reaction by going back to what the offer replaces. You rehearse it with the AI playing the client, so the first time you hold the silence is not in front of a real buyer.",
-      "L'annonce du prix est le moment où bien des commerciaux se précipitent : ils justifient, ajoutent une remise ou comblent le silence. Chacun de ces réflexes indique au client que le prix est négociable. Ce dojo enseigne une séquence simple : énoncer le chiffre et son unité en une phrase, se taire, puis répondre à la première réaction du client en revenant à ce que l'offre remplace. Vous la répétez avec l'IA dans le rôle du client, afin que la première fois où vous tenez le silence ne soit pas face à un véritable acheteur."),
+    intro: B("Announcing a price is the moment many salespeople rush: they justify it, add a discount, or fill the silence. Each of these tells the client that the price is open to discussion. This lesson teaches a simple sequence: say the number and its unit in one sentence, stop talking, and answer the client's first reaction by going back to what the offer replaces. You rehearse it with the AI playing the client, so the first time you hold the silence is not in front of a real buyer.",
+      "L'annonce du prix est le moment où bien des commerciaux se précipitent : ils justifient, ajoutent une remise ou comblent le silence. Chacun de ces réflexes indique au client que le prix est négociable. Ce cours enseigne une séquence simple : énoncer le chiffre et son unité en une phrase, se taire, puis répondre à la première réaction du client en revenant à ce que l'offre remplace. Vous la répétez avec l'IA dans le rôle du client, afin que la première fois où vous tenez le silence ne soit pas face à un véritable acheteur."),
     concepts: [
       {
         term: B("Price sentence", "Phrase de prix"),
@@ -828,8 +828,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'sa-close/sa-after': {
-    intro: B("Signing is not the end of a sale: whether the client renews is largely decided in the first month, by whether something really changes for them. This dojo teaches you to structure the first thirty days as three dates (day 7, day 15, day 30), each with one concrete action and a named person. The AI drafts the plan and the email that books the dates; you supply the names and the client's own goal. You leave with a start-up plan that you and the client can both check.",
-      "La signature ne clôt pas la vente : le renouvellement se décide en grande partie pendant le premier mois, selon que quelque chose change réellement pour le client. Ce dojo vous apprend à structurer les trente premiers jours en trois dates (J+7, J+15, J+30), chacune avec une action concrète et une personne nommée. L'IA rédige le plan et l'email qui fixe les dates ; vous fournissez les noms et l'objectif du client, formulé avec ses mots. Vous repartez avec un plan de démarrage que vous et le client pouvez vérifier."),
+    intro: B("Signing is not the end of a sale: whether the client renews is largely decided in the first month, by whether something really changes for them. This lesson teaches you to structure the first thirty days as three dates (day 7, day 15, day 30), each with one concrete action and a named person. The AI drafts the plan and the email that books the dates; you supply the names and the client's own goal. You leave with a start-up plan that you and the client can both check.",
+      "La signature ne clôt pas la vente : le renouvellement se décide en grande partie pendant le premier mois, selon que quelque chose change réellement pour le client. Ce cours vous apprend à structurer les trente premiers jours en trois dates (J+7, J+15, J+30), chacune avec une action concrète et une personne nommée. L'IA rédige le plan et l'email qui fixe les dates ; vous fournissez les noms et l'objectif du client, formulé avec ses mots. Vous repartez avec un plan de démarrage que vous et le client pouvez vérifier."),
     concepts: [
       {
         term: B("Onboarding", "Onboarding"),
@@ -934,8 +934,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'as-flow/as-inbox': {
-    intro: B("An overflowing inbox is hard to face because every email looks like a decision. This dojo teaches you to sort by what each message asks of you, not by who sent it, using four closed piles: reply, do, wait for someone, nothing. The AI sorts a list of emails into the piles with a four-word action for each; you clear the \"nothing\" pile first, then work through a short list. You will also learn what not to paste, and how to check the sorting.",
-      "Une boîte de réception qui déborde est difficile à affronter, car chaque email ressemble à une décision. Ce dojo vous apprend à trier selon ce que chaque message vous demande, et non selon son expéditeur, à l'aide de quatre tas fermés : répondre, faire, attendre quelqu'un, rien. L'IA répartit une liste d'emails dans ces tas, avec une action en quatre mots pour chacun ; vous videz d'abord le tas « rien », puis traitez une liste courte. Vous apprendrez aussi ce qu'il ne faut pas coller, et comment contrôler le tri."),
+    intro: B("An overflowing inbox is hard to face because every email looks like a decision. This lesson teaches you to sort by what each message asks of you, not by who sent it, using four closed piles: reply, do, wait for someone, nothing. The AI sorts a list of emails into the piles with a four-word action for each; you clear the \"nothing\" pile first, then work through a short list. You will also learn what not to paste, and how to check the sorting.",
+      "Une boîte de réception qui déborde est difficile à affronter, car chaque email ressemble à une décision. Ce cours vous apprend à trier selon ce que chaque message vous demande, et non selon son expéditeur, à l'aide de quatre tas fermés : répondre, faire, attendre quelqu'un, rien. L'IA répartit une liste d'emails dans ces tas, avec une action en quatre mots pour chacun ; vous videz d'abord le tas « rien », puis traitez une liste courte. Vous apprendrez aussi ce qu'il ne faut pas coller, et comment contrôler le tri."),
     concepts: [
       {
         term: B("Sorting by request", "Tri par demande"),
@@ -1036,8 +1036,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-flow/as-agenda': {
-    intro: B("A meeting ends when its time runs out, unless its agenda gives it a way to end earlier. This dojo teaches you to turn a list of topics into a list of questions to settle, each with the one person who decides and a planned number of minutes. Topics that need no decision leave the meeting and become a short note sent the day before. The AI does the rewriting; you supply the context and check that each line can really be answered.",
-      "Une réunion s'arrête lorsque son temps est écoulé, sauf si son ordre du jour lui donne un moyen de finir plus tôt. Ce dojo vous apprend à transformer une liste de sujets en liste de questions à trancher, chacune avec la personne qui décide et une durée prévue en minutes. Les sujets qui n'appellent aucune décision sortent de la réunion et deviennent une note courte envoyée la veille. L'IA reformule ; vous fournissez le contexte et vérifiez que chaque ligne peut réellement recevoir une réponse."),
+    intro: B("A meeting ends when its time runs out, unless its agenda gives it a way to end earlier. This lesson teaches you to turn a list of topics into a list of questions to settle, each with the one person who decides and a planned number of minutes. Topics that need no decision leave the meeting and become a short note sent the day before. The AI does the rewriting; you supply the context and check that each line can really be answered.",
+      "Une réunion s'arrête lorsque son temps est écoulé, sauf si son ordre du jour lui donne un moyen de finir plus tôt. Ce cours vous apprend à transformer une liste de sujets en liste de questions à trancher, chacune avec la personne qui décide et une durée prévue en minutes. Les sujets qui n'appellent aucune décision sortent de la réunion et deviennent une note courte envoyée la veille. L'IA reformule ; vous fournissez le contexte et vérifiez que chaque ligne peut réellement recevoir une réponse."),
     concepts: [
       {
         term: B("Topic or question", "Sujet ou question"),
@@ -1137,8 +1137,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-flow/as-minutes': {
-    intro: B("Meeting minutes are useful when they record the decisions and who owns them, and when they go out the same day. This dojo teaches a simple method: during the meeting, note only decisions and owners; read them aloud before the end; then let the AI expand your notes into a clean record, adding nothing. You will learn why an automatic transcript is not enough on its own, and how to keep gaps visible instead of filled.",
-      "Un compte rendu est utile lorsqu'il consigne les décisions et leurs responsables, et qu'il part le jour même. Ce dojo enseigne une méthode simple : pendant la réunion, ne noter que les décisions et les responsables ; les relire à voix haute avant la fin ; puis laisser l'IA développer vos notes en un compte rendu soigné, sans rien ajouter. Vous comprendrez pourquoi une transcription automatique ne suffit pas à elle seule, et comment garder les lacunes visibles au lieu de les combler."),
+    intro: B("Meeting minutes are useful when they record the decisions and who owns them, and when they go out the same day. This lesson teaches a simple method: during the meeting, note only decisions and owners; read them aloud before the end; then let the AI expand your notes into a clean record, adding nothing. You will learn why an automatic transcript is not enough on its own, and how to keep gaps visible instead of filled.",
+      "Un compte rendu est utile lorsqu'il consigne les décisions et leurs responsables, et qu'il part le jour même. Ce cours enseigne une méthode simple : pendant la réunion, ne noter que les décisions et les responsables ; les relire à voix haute avant la fin ; puis laisser l'IA développer vos notes en un compte rendu soigné, sans rien ajouter. Vous comprendrez pourquoi une transcription automatique ne suffit pas à elle seule, et comment garder les lacunes visibles au lieu de les combler."),
     concepts: [
       {
         term: B("Decision log", "Relevé de décisions"),
@@ -1242,8 +1242,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'as-docs/as-extract': {
-    intro: B("Extraction means pulling the same fields out of many documents laid out differently: invoices, contracts, quotes, CVs. AI tools do it quickly, but they tend to fill an empty field with a plausible value that looks exactly like a real one. This dojo teaches you to define the fields and their format, demand \"absent\" when information is missing, ask where each value was read, and check three documents by hand before trusting the rest.",
-      "L'extraction consiste à relever les mêmes champs dans de nombreux documents de présentation différente : factures, contrats, devis, CV. Les outils d'IA le font rapidement, mais ils tendent à remplir un champ vide avec une valeur plausible, en tout point semblable à une valeur réelle. Ce dojo vous apprend à définir les champs et leur format, à exiger « absent » lorsqu'une information manque, à demander où chaque valeur a été lue, et à vérifier trois documents à la main avant de vous fier au reste."),
+    intro: B("Extraction means pulling the same fields out of many documents laid out differently: invoices, contracts, quotes, CVs. AI tools do it quickly, but they tend to fill an empty field with a plausible value that looks exactly like a real one. This lesson teaches you to define the fields and their format, demand \"absent\" when information is missing, ask where each value was read, and check three documents by hand before trusting the rest.",
+      "L'extraction consiste à relever les mêmes champs dans de nombreux documents de présentation différente : factures, contrats, devis, CV. Les outils d'IA le font rapidement, mais ils tendent à remplir un champ vide avec une valeur plausible, en tout point semblable à une valeur réelle. Ce cours vous apprend à définir les champs et leur format, à exiger « absent » lorsqu'une information manque, à demander où chaque valeur a été lue, et à vérifier trois documents à la main avant de vous fier au reste."),
     concepts: [
       {
         term: B("Field", "Champ"),
@@ -1349,8 +1349,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-docs/as-table': {
-    intro: B("Free text such as call notes, requests or customer feedback cannot be counted as it is: the same thing appears under many spellings. This dojo teaches you to turn it into a table with a closed list of values per column, plus one \"other\" value that you read carefully. The AI fills the table; you design the lists, check the \"other\" rows, and fix the list rather than the rows. You finish with a table you can count and follow month after month.",
-      "Du texte libre, comme des notes d'appels, des demandes ou des retours clients, ne se compte pas en l'état : une même chose y apparaît sous de nombreuses graphies. Ce dojo vous apprend à le transformer en tableau, avec une liste fermée de valeurs par colonne et une valeur « autre » que vous lisez attentivement. L'IA remplit le tableau ; vous concevez les listes, contrôlez les lignes « autre » et corrigez la liste plutôt que les lignes. Vous terminez avec un tableau dénombrable, que vous pouvez suivre de mois en mois."),
+    intro: B("Free text such as call notes, requests or customer feedback cannot be counted as it is: the same thing appears under many spellings. This lesson teaches you to turn it into a table with a closed list of values per column, plus one \"other\" value that you read carefully. The AI fills the table; you design the lists, check the \"other\" rows, and fix the list rather than the rows. You finish with a table you can count and follow month after month.",
+      "Du texte libre, comme des notes d'appels, des demandes ou des retours clients, ne se compte pas en l'état : une même chose y apparaît sous de nombreuses graphies. Ce cours vous apprend à le transformer en tableau, avec une liste fermée de valeurs par colonne et une valeur « autre » que vous lisez attentivement. L'IA remplit le tableau ; vous concevez les listes, contrôlez les lignes « autre » et corrigez la liste plutôt que les lignes. Vous terminez avec un tableau dénombrable, que vous pouvez suivre de mois en mois."),
     concepts: [
       {
         term: B("Closed list", "Liste fermée"),
@@ -1451,8 +1451,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-docs/as-template': {
-    intro: B("Many documents an assistant writes are rebuilt from scratch each time: a welcome email, a notice to participants, a supplier reminder. This dojo teaches you to build a template from three of your past versions: the AI compares them, keeps what is identical as fixed text, turns what changes into named blanks, and writes one filled example to keep next to the template. You finish with a template your colleagues can fill in the same way without asking you.",
-      "Bien des documents qu'écrit un assistant sont refaits de zéro à chaque fois : un email d'accueil, une convocation, une relance fournisseur. Ce dojo vous apprend à bâtir un modèle à partir de trois de vos versions passées : l'IA les compare, conserve ce qui est identique comme texte fixe, transforme ce qui change en champs nommés, et rédige un exemple rempli à ranger à côté du modèle. Vous terminez avec un modèle que vos collègues remplissent de la même façon sans avoir à vous questionner."),
+    intro: B("Many documents an assistant writes are rebuilt from scratch each time: a welcome email, a notice to participants, a supplier reminder. This lesson teaches you to build a template from three of your past versions: the AI compares them, keeps what is identical as fixed text, turns what changes into named blanks, and writes one filled example to keep next to the template. You finish with a template your colleagues can fill in the same way without asking you.",
+      "Bien des documents qu'écrit un assistant sont refaits de zéro à chaque fois : un email d'accueil, une convocation, une relance fournisseur. Ce cours vous apprend à bâtir un modèle à partir de trois de vos versions passées : l'IA les compare, conserve ce qui est identique comme texte fixe, transforme ce qui change en champs nommés, et rédige un exemple rempli à ranger à côté du modèle. Vous terminez avec un modèle que vos collègues remplissent de la même façon sans avoir à vous questionner."),
     concepts: [
       {
         term: B("Fixed text", "Texte fixe"),
@@ -1556,8 +1556,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   /* ================================================================ */
 
   'as-time/as-schedule': {
-    intro: B("Finding a slot for several people by email often takes several rounds of messages. This dojo treats scheduling as a constraint problem: you write down who must attend, who may miss it, the busy slots and the travel, and the AI proposes three ranked slots, each with the people it inconveniences. You then send the first slot as a decision, with the second as a fallback. You will also learn to check every date and weekday yourself, because a model does not look at a calendar.",
-      "Trouver un créneau commun à plusieurs personnes par email demande souvent plusieurs tours de messages. Ce dojo traite la planification comme un problème de contraintes : vous écrivez qui doit être présent, qui peut s'absenter, les créneaux pris et les déplacements, et l'IA propose trois créneaux classés, chacun avec les personnes qu'il gêne. Vous envoyez ensuite le premier sous forme de décision, avec le deuxième en repli. Vous apprendrez aussi à vérifier vous-même chaque date et chaque jour de la semaine, car un modèle ne consulte pas de calendrier."),
+    intro: B("Finding a slot for several people by email often takes several rounds of messages. This lesson treats scheduling as a constraint problem: you write down who must attend, who may miss it, the busy slots and the travel, and the AI proposes three ranked slots, each with the people it inconveniences. You then send the first slot as a decision, with the second as a fallback. You will also learn to check every date and weekday yourself, because a model does not look at a calendar.",
+      "Trouver un créneau commun à plusieurs personnes par email demande souvent plusieurs tours de messages. Ce cours traite la planification comme un problème de contraintes : vous écrivez qui doit être présent, qui peut s'absenter, les créneaux pris et les déplacements, et l'IA propose trois créneaux classés, chacun avec les personnes qu'il gêne. Vous envoyez ensuite le premier sous forme de décision, avec le deuxième en repli. Vous apprendrez aussi à vérifier vous-même chaque date et chaque jour de la semaine, car un modèle ne consulte pas de calendrier."),
     concepts: [
       {
         term: B("Must-attend and nice-to-have", "Indispensable et souhaitable"),
@@ -1657,8 +1657,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-time/as-voice': {
-    intro: B("Assistants often write on behalf of someone else: replies to clients, invitations, thank-you notes. A model asked to write \"professionally\" uses its own smooth, polished voice, which people who know the sender notice within two lines. This dojo teaches you to draw the real rules of the person's style from five messages they wrote themselves, have them approve those rules once, and apply them to every draft. Writing for someone is legitimate when they agree to it and know you do it.",
-      "Un assistant écrit souvent au nom d'un autre : réponses aux clients, invitations, remerciements. Un modèle à qui l'on demande d'écrire « de façon professionnelle » adopte sa propre voix, lisse et soignée, que les proches de l'expéditeur remarquent en deux lignes. Ce dojo vous apprend à dégager les véritables règles du style de la personne à partir de cinq messages qu'elle a rédigés elle-même, à les lui faire valider une fois, puis à les appliquer à chaque brouillon. Écrire au nom de quelqu'un est légitime lorsqu'il y consent et sait que vous le faites."),
+    intro: B("Assistants often write on behalf of someone else: replies to clients, invitations, thank-you notes. A model asked to write \"professionally\" uses its own smooth, polished voice, which people who know the sender notice within two lines. This lesson teaches you to draw the real rules of the person's style from five messages they wrote themselves, have them approve those rules once, and apply them to every draft. Writing for someone is legitimate when they agree to it and know you do it.",
+      "Un assistant écrit souvent au nom d'un autre : réponses aux clients, invitations, remerciements. Un modèle à qui l'on demande d'écrire « de façon professionnelle » adopte sa propre voix, lisse et soignée, que les proches de l'expéditeur remarquent en deux lignes. Ce cours vous apprend à dégager les véritables règles du style de la personne à partir de cinq messages qu'elle a rédigés elle-même, à les lui faire valider une fois, puis à les appliquer à chaque brouillon. Écrire au nom de quelqu'un est légitime lorsqu'il y consent et sait que vous le faites."),
     concepts: [
       {
         term: B("Default voice", "Voix par défaut"),
@@ -1758,8 +1758,8 @@ export const DEEP_TRADES_C: Record<string, Deepening> = {
   },
 
   'as-time/as-never': {
-    intro: B("When you paste a document into an AI tool, it leaves your computer and goes to the provider's servers; what happens next depends on the tool, the account and its settings. Some documents must never go there, others only once anonymised, others are fine with an approved tool. This dojo teaches you to decide in advance, in writing and by document type, so that on a rushed afternoon you apply a list instead of making a judgment call. The list does not replace your company's policy or legal advice: it applies them to your daily work.",
-      "Lorsque vous collez un document dans un outil d'IA, il quitte votre ordinateur pour les serveurs du provider ; la suite dépend de l'outil, du compte et de ses réglages. Certains documents ne doivent jamais y aller, d'autres seulement une fois anonymisés, d'autres le peuvent avec un outil autorisé. Ce dojo vous apprend à décider à l'avance, par écrit et par type de document, afin qu'un après-midi chargé vous appliquiez une liste au lieu de juger au cas par cas. La liste ne remplace ni la politique de votre entreprise ni un avis juridique : elle les applique à votre travail quotidien."),
+    intro: B("When you paste a document into an AI tool, it leaves your computer and goes to the provider's servers; what happens next depends on the tool, the account and its settings. Some documents must never go there, others only once anonymised, others are fine with an approved tool. This lesson teaches you to decide in advance, in writing and by document type, so that on a rushed afternoon you apply a list instead of making a judgment call. The list does not replace your company's policy or legal advice: it applies them to your daily work.",
+      "Lorsque vous collez un document dans un outil d'IA, il quitte votre ordinateur pour les serveurs du provider ; la suite dépend de l'outil, du compte et de ses réglages. Certains documents ne doivent jamais y aller, d'autres seulement une fois anonymisés, d'autres le peuvent avec un outil autorisé. Ce cours vous apprend à décider à l'avance, par écrit et par type de document, afin qu'un après-midi chargé vous appliquiez une liste au lieu de juger au cas par cas. La liste ne remplace ni la politique de votre entreprise ni un avis juridique : elle les applique à votre travail quotidien."),
     concepts: [
       {
         term: B("Personal data", "Données personnelles"),

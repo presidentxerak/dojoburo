@@ -9,7 +9,7 @@
 // progression, et aucune d'elles ne savait dire à quelle CITÉ elle appartient.
 //
 // Le produit est maintenant un parcours : une semaine gratuite, puis des cités
-// dojo qu'on visite dans l'ordre qu'on veut. Une cité par module, un dojo par
+// dojo qu'on visite dans l'ordre qu'on veut. Une cité par module, un cours par
 // niveau, un maître par dojo. Il faut donc une seule structure qui porte ça,
 // sinon la carte du jeu et la page de vente comptent chacune de leur côté.
 //
@@ -89,7 +89,7 @@ export interface Level {
   title: Bi
   /** une phrase · ce qu'on saura faire en sortant */
   learn: Bi
-  /** une phrase à l'impératif · ce qu'on FAIT dans ce dojo */
+  /** une phrase à l'impératif · ce qu'on FAIT dans ce cours */
   act: Bi
   /** trois ou quatre gestes · pas des chemins de menu, voir plus bas */
   steps: Bi[]
@@ -99,7 +99,7 @@ export interface Level {
   quiz: Quiz
   /** le nom du badge gagné en finissant · court, il s'affiche sur une carte */
   badge: Bi
-  /** le maître qui attend dans ce dojo · un identifiant de data/agentUseCases,
+  /** le maître qui attend dans ce cours · un identifiant de data/agentUseCases,
    *  jamais un nom recopié : les noms sont traduits, les identifiants non */
   master: string
   minutes: number
@@ -2185,7 +2185,7 @@ export const ALL_LEVELS: { module: Module; level: Level }[] =
  *  d'une liste tenue à part qui finirait par en promettre un de plus. */
 export const BADGE_COUNT = ALL_LEVELS.length
 
-/** L'adresse d'une cité et d'un dojo. */
+/** L'adresse d'une cité et d'un cours. */
 export const modulePath = (m: string) => `/formation/${m}`
 export const levelPath = (m: string, l: string) => `/formation/${m}/${l}`
 

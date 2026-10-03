@@ -27,8 +27,13 @@ Prévenir avant de lancer quoi que ce soit qui dure plus de 5 minutes.
 - Ne jamais inventer de témoignages, chiffres ou références.
 - Une garde dont la prémisse a changé est réparée pour affirmer la nouvelle règle (avec la demande citée en commentaire), jamais supprimée.
 
+## Langues
+
+- L'app est en français et en anglais, écrits côte à côte dans le code (`B(en, fr)`, `src/i18n/dict.ts`). Les autres langues passent par la traduction automatique du navigateur (voir `docs/I18N.md`) : ne rien ajouter qui la bloque.
+- Tout nouveau cours ou texte d'interface est écrit dans les deux langues.
+
 ## Charte
 
 - Violet sombre par défaut (#0a0514), affichage clair au choix (Profil > Paramètres > Affichage, `html[data-look="light"]`, règles dans `src/styles/look-light.css`).
 - Police Outfit. Boutons violets (#7c3aed) avec une légère touche skeuomorphe partagée (`--sk-grad`, `--sk-btn`, `--sk-press`), sans bordure.
-- Barre du bas : Dojoburo, IA Training, Clan, Profil.
+- Barre du bas : Dojoburo, Formations, Communauté, Profil.

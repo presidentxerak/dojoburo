@@ -210,7 +210,10 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('le temple et la leçon appliquent la même règle', /a\.opensPack\(pack!\) \|\| isFreeLesson\(i\)/.test(TP) && /a\.opensPack\(pack\) \|\| isFreeLesson\(i\)/.test(LS))
   const WD = readFileSync('src/temple/World.tsx', 'utf8')
   ok('le cadenas de la carte suit l\'achat, pas le passe-droit d\'essai', /lockedOf = \(p: Pack\) => eurOf\(p\) > 0 && !a\.ownsPack\(p\)/.test(WD) && !/ownsPack[\s\S]{0,120}tester/.test(ACC.match(/const ownsPack[\s\S]*?\n  \}/)?.[0] ?? 'tester'))
-  ok('un compte d\'essai est prévenu', /a\.tester && [\s\S]{0,80}TT\.testerNote/.test(WD))
+  // RÉPARÉE · demandé : « Efface la phrase « L'accès d'essai est actif sur ce
+  // navigateur : tous les temples vous sont ouverts, les cadenas montrent ce
+  // que voit un élève. » de la page Dojoburo ». La carte ne l'affiche plus.
+  ok('la phrase d\'accès d\'essai n\'est plus sur la carte', !/testerNote/.test(WD) && !/testerNote/.test(readFileSync('src/temple/templeText.ts', 'utf8')))
   // LE DÉCOR DU TEMPLE · « un ciel bleu avec des nuages et en bas des jardins
   // zen avec un chemin »
   const SK = await load('src/temple/art/sky.ts', 'sky.mjs')
@@ -244,11 +247,15 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
     for (let y = 0; y < CS.CARD_H; y++) for (let x = 0; x < CS.CARD_W; x++) if (a.get(x, y) !== b.get(x, y)) diff++
     ok('chaque carte a son propre paysage', diff > 50, `${diff} pixels différents`)
     const CSS2 = readFileSync('src/index.css', 'utf8')
-    ok('la carte porte le décor, le temple, le maître et le panneau', /className="tw-card-scene"/.test(WD) && /drawTempleIcon\(p\.tint, k, locked\)/.test(WD) && /className="tw-card-sign"/.test(WD))
+    // RÉPARÉE · « Créé une page Formations avec les cards de formations et
+    // leur maîtres avec leur pricing (déplace les card formation sur la page
+    // carte dans cette page) ». Les cartes vivent dans game/Formations.
+    const FM = readFileSync('src/game/Formations.tsx', 'utf8')
+    ok('la carte porte le décor, le temple, le maître et le panneau', /className="tw-card-scene"/.test(FM) && /drawTempleIcon\(p\.tint, k, locked\)/.test(FM) && /className="tw-card-sign"/.test(FM))
     ok('au survol, un reflet balaie le décor et le temple s\'éclaire', /\.tw-card:hover \.tw-card-shine/.test(CSS2) && /\.tw-card:hover \.tw-card-temple/.test(CSS2))
     ok('les survols se coupent au mouvement réduit', /html\.calm \.tw-card-shine/.test(CSS2))
   }
-  ok('les maîtres des cartes sont animés', /<LiveChibi spec=\{m\.spec\}/.test(WD) && /lc-blink/.test(readFileSync('src/index.css', 'utf8')))
+  ok('les maîtres des cartes sont animés', /<LiveChibi spec=\{m\.spec\}/.test(readFileSync('src/game/Formations.tsx', 'utf8')) && /lc-blink/.test(readFileSync('src/index.css', 'utf8')))
   const icon = W.drawTempleIcon('#7c3aed', 0, false)
   let grey = 0
   for (let y = 38; y < 44; y++) for (let x = 0; x < 40; x++) { const c = icon.get(x, y); if (c && /^#(b9b4c4|dcd8e4|8f8aa0)$/i.test(c)) grey++ }

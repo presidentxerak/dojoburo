@@ -76,7 +76,10 @@ ok('l\'en-tête montre le personnage de l\'élève', /<ChibiSprite spec=\{avatar
 ok('… et plus l\'initiale de l\'adresse', !/initialOf\(/.test(SHELL))
 ok('plus aucune fabrique de portraits 3D dans la coquille', !/SnapshotFactory/.test(SHELL))
 const TAB_TO = [...SHELL.matchAll(/\{ to: '([^']+)', key: '(nav\.[a-z]+)'/g)].map((m) => `${m[1]} ${m[2]}`)
-ok('trois boutons : Dojoburo, Communauté, Profil', TAB_TO.join(' | ') === '/ nav.game | /clan nav.clan | /profil nav.profile', TAB_TO.join(' | '))
+// RÉPARÉE À NOUVEAU · « Créé une page Formations avec les cards de formations
+// et leur maîtres avec leur pricing ». Quatre boutons, la page Formations en
+// deuxième.
+ok('quatre boutons : Dojoburo, Formations, Communauté, Profil', TAB_TO.join(' | ') === '/ nav.game | /formations nav.training | /clan nav.clan | /profil nav.profile', TAB_TO.join(' | '))
 
 /* --- 4 · le profil a ses onglets, et plus la carte ----------------------- */
 

@@ -40,6 +40,7 @@ import { apiFetch } from '../lib/apiFetch'
 import { addReceipt } from '../lib/account'
 import { useAccess, grant, grantCourse, chooseTrade, FREE_LESSONS } from './access'
 import { Shell } from './Shell'
+import { masterOf } from '../pixel/masters'
 
 type Buy = { plan: 'path' } | { plan: 'trade'; trade: string } | { plan: 'course'; course: string } | { plan: 'pass' }
 
@@ -201,6 +202,76 @@ export function TarifsPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* LE PRIX DE CHAQUE FORMATION · demandé : « créé une page pricing
+          détaillée ». Une ligne par formation : son maître, ses cours, ce qui
+          est offert, son prix seule et avec le Pass. */}
+      <section className="gm-sec">
+        <h2 className="pf-h2">{t('tf.listH')}</h2>
+        <p className="gm-lead">{t('tf.listLead')}</p>
+        <div className="tf-table-wrap">
+          <table className="tf-table tf-list">
+            <thead>
+              <tr>
+                <th scope="col">{t('tf.colCourse')}</th>
+                <th scope="col">{t('tf.colMaster')}</th>
+                <th scope="col">{t('tf.colLessons')}</th>
+                <th scope="col">{t('tf.colFree')}</th>
+                <th scope="col">{t('tf.colAlone')}</th>
+                <th scope="col" className="main">{t('tf.colPass')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PACKS.map((p) => {
+                const n = levelsOf(p).length
+                const eur = eurOf(p)
+                return (
+                  <tr key={p.id}>
+                    <th scope="row"><Lnk href={packPath(p.id)} style={{ ['--ac' as string]: p.tint }} className="tf-list-name">{say(p.title, lang)}</Lnk></th>
+                    <td data-label={t('tf.colMaster')}>{masterOf(p.id).name}</td>
+                    <td data-label={t('tf.colLessons')}>{n}</td>
+                    <td data-label={t('tf.colFree')}>{eur === 0 ? t('tf.all') : Math.min(FREE_LESSONS, n)}</td>
+                    <td data-label={t('tf.colAlone')}>{priceTag(eur)}</td>
+                    <td data-label={t('tf.colPass')} className="main">{yes}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* CE QUE CONTIENT UNE FORMATION, ET LE PAIEMENT EN TROIS TEMPS */}
+      <section className="gm-sec">
+        <div className="tf-duo">
+          <div className="cy-card">
+            <h2 className="pf-h2">{t('tf.inclH')}</h2>
+            <ul className="tf-incl">
+              {(['tf.incl1', 'tf.incl2', 'tf.incl3', 'tf.incl4', 'tf.incl5'] as const).map((k) => <li key={k}><BauhausIcon name="check" size={13} />{t(k)}</li>)}
+            </ul>
+          </div>
+          <div className="cy-card">
+            <h2 className="pf-h2">{t('tf.howH')}</h2>
+            <ol className="tf-steps">
+              {(['tf.how1', 'tf.how2', 'tf.how3'] as const).map((k, i) => <li key={k}><b>{i + 1}</b><span>{t(k)}</span></li>)}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* LES QUESTIONS FRÉQUENTES · seulement ce que le produit fait vraiment */}
+      <section className="gm-sec">
+        <h2 className="pf-h2">{t('tf.faqH')}</h2>
+        <div className="tf-faq">
+          {([['tf.q1', 'tf.a1'], ['tf.q2', 'tf.a2'], ['tf.q3', 'tf.a3'], ['tf.q4', 'tf.a4']] as const).map(([q, r]) => (
+            <details key={q} className="cy-card">
+              <summary>{t(q)}</summary>
+              <p>{t(r).replace('{n}', String(PASS_PAYS_FROM))}</p>
+            </details>
+          ))}
+        </div>
+        <p><Lnk href="/cgv">{t('tf.terms')} →</Lnk></p>
       </section>
 
       <section className="gm-sec">

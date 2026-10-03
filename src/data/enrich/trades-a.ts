@@ -1,4 +1,4 @@
-// L'approfondissement des dojos de ce groupe · voir ./types.
+// L'approfondissement des cours de ce groupe · voir ./types.
 // Growth marketer (gr-acquisition, gr-lifecycle, gr-measure) puis
 // communicant (co-voice, co-formats, co-press).
 import { B } from '../bilingual'
