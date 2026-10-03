@@ -1,5 +1,769 @@
-// LE COURS « Storyboard pour le cinéma et la pub », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Storyboard pour le cinéma et la pub », PARTIE A · voir ./types et ./index.
+//
+// UN FIL ROUGE POUR LES DEUX CITÉS · « Marée basse », un court métrage fictif
+// de douze minutes que prépare Camille, réalisatrice indépendante. Jeanne, la
+// trentaine, ciré rouge, revient dans le port breton de son père Yves, marin à
+// la retraite. Quatre séquences : l'arrivée sur le quai à l'aube, un dialogue
+// tendu dans la cuisine, la grève à marée basse où le bateau est échoué, la
+// cuisine la nuit. On lit le script, on le découpe, on nomme les plans, puis
+// on génère des cases cohérentes : personnages, cadre, lumière, raccords.
+//
+// CE QUE LE COURS AFFIRME DES OUTILS, ET CE QU'IL S'INTERDIT. Il s'en tient aux
+// principes stables : une seed fixe le point de départ aléatoire, une image de
+// référence guide un personnage ou un style, une esquisse peut guider une
+// composition. Les noms exacts des paramètres, les offres, les prix et les
+// conditions d'usage changent : le cours renvoie à la documentation officielle
+// de chaque outil (Midjourney, Adobe Firefly, Stable Diffusion, etc.), sans
+// jamais citer de chiffre.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const STORYBOARD_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* CITÉ 1 · DU SCRIPT AU DÉCOUPAGE                                     */
+/* ================================================================== */
+
+const M1 = 'sb-m1'
+
+const SCRIPT: Level[] = [
+  {
+    id: 'sb-role',
+    master: 'research',
+    minutes: 9,
+    title: B('What a storyboard is for, in film and advertising', 'Le rôle du storyboard au cinéma et en pub'),
+    learn: B(
+      'You will know what a storyboard decides, who reads it, and how its role differs between a film shoot and an ad.',
+      "Vous saurez ce qu'un storyboard décide, qui le lit, et en quoi son rôle diffère entre un tournage de film et une pub.",
+    ),
+    act: B('List the readers of the Marée basse storyboard and choose which sequences really need one.',
+      "Listez les lecteurs du storyboard de « Marée basse » et choisissez les séquences qui en ont vraiment besoin."),
+    steps: [
+      B('Name who reads the storyboard: director, director of photography, first assistant, art department, producer.',
+        'Nommez qui lit le storyboard : réalisatrice, chef opérateur, premier assistant, décoration, production.'),
+      B('For an ad, add the agency and the client, who approve each frame before the shoot is paid for.',
+        "Pour une pub, ajoutez l'agence et le client, qui valident chaque case avant que le tournage soit engagé."),
+      B('Score each sequence of the film: number of shots, stunts or effects, cost of a mistake on set.',
+        "Notez chaque séquence du film : nombre de plans, cascades ou effets, coût d'une erreur sur le plateau."),
+      B('Keep the storyboard for the sequences where a drawing saves a decision on set, and write why.',
+        'Réservez le storyboard aux séquences où un dessin épargne une décision sur le plateau, et écrivez pourquoi.'),
+    ],
+    trap: B(
+      'Treating the storyboard as artwork: a beautiful frame in which the crew reads neither framing, nor movement, nor duration is useless.',
+      "Traiter le storyboard comme une illustration : une belle image où l'équipe ne lit ni le cadre, ni le mouvement, ni la durée ne sert à rien.",
+    ),
+    quiz: {
+      q: B('The client of a 30-second ad rejects the product shot after the shoot. What did a validated storyboard offer?',
+        'Le client d\'un spot de 30 secondes refuse le plan produit après le tournage. Que permettait un storyboard validé ?'),
+      options: [
+        B('A legal guarantee that the client can no longer ask for changes', 'Une garantie juridique que le client ne peut plus rien changer'),
+        B('Settling that framing on paper, before the shoot was paid for', 'Trancher ce cadrage sur papier, avant de payer le tournage'),
+        B('A final image that could replace the missing shot in the edit', 'Une image finale capable de remplacer le plan manquant'),
+      ],
+      answer: 1,
+      why: B(
+        'In advertising, the storyboard is the document the client approves: a disagreement costs a redrawn panel instead of a reshoot. It is neither a contract clause nor a final image.',
+        'En publicité, le storyboard est le document que le client valide : un désaccord coûte une case redessinée au lieu d\'un nouveau tournage. Ce n\'est ni une clause de contrat, ni une image finale.',
+      ),
+    },
+    badge: B('Knows what a storyboard decides', 'Sait ce que décide un storyboard'),
+  },
+  {
+    id: 'sb-script',
+    master: 'extraction',
+    minutes: 10,
+    title: B('Read a script and break it into sequences', 'Lire un script et le découper en séquences'),
+    learn: B(
+      'You will break a script into numbered sequences, each with its place, time, characters and dramatic intent.',
+      'Vous saurez découper un script en séquences numérotées, avec pour chacune son lieu, son moment, ses personnages, son intention.',
+    ),
+    act: B('Turn the script of Marée basse into a sequence table with an AI, then check every row against the text.',
+      "Transformez le script de « Marée basse » en tableau de séquences avec une IA, puis vérifiez chaque ligne sur le texte."),
+    steps: [
+      B('Spot each scene heading: INT. or EXT., the place, DAY or NIGHT. A new heading opens a new sequence.',
+        'Repérez chaque en-tête : INT. ou EXT., le lieu, JOUR ou NUIT. Un nouvel en-tête ouvre une nouvelle séquence.'),
+      B('Have the AI fill one row per sequence: number, place, time, characters, summary, intent, props.',
+        "Faites remplir par l'IA une ligne par séquence : numéro, lieu, moment, personnages, résumé, intention, accessoires."),
+      B('Check each row against the page: anything not written in the script is flagged as an invention.',
+        "Vérifiez chaque ligne sur la page : tout ce qui n'est pas écrit dans le script est signalé comme invention."),
+      B('Mark the turning point of each sequence, the moment something shifts: the shot breakdown will serve it.',
+        "Marquez le temps fort de chaque séquence, l'instant où quelque chose bascule : le découpage le servira."),
+    ],
+    trap: B(
+      'Letting the AI summarise freely: it smooths the scene, adds motives or props, and you storyboard a film nobody wrote.',
+      "Laisser l'IA résumer librement : elle lisse la scène, ajoute des motifs ou des accessoires, et vous dessinez un film que personne n'a écrit.",
+    ),
+    quiz: {
+      q: B("A scene starts in Yves's kitchen and goes on, without any time jump, on the doorstep outside. How many sequences?",
+        "Une scène commence dans la cuisine d'Yves et se poursuit, sans ellipse, sur le seuil dehors. Combien de séquences ?"),
+      options: [
+        B('One, because the action and the time are continuous', "Une seule, puisque l'action et le temps sont continus"),
+        B('None until the director has picked her shots', "Aucune tant que la réalisatrice n'a pas choisi ses plans"),
+        B('Two, because the place changes from INT. to EXT.', 'Deux, parce que le lieu passe de INT. à EXT.'),
+      ],
+      answer: 2,
+      why: B(
+        'A sequence is a unit of place and time. Moving from the kitchen (INT.) to the doorstep (EXT.) needs a new heading, even with continuous action: set, light and setup change.',
+        "Une séquence est une unité de lieu et de temps. Passer de la cuisine (INT.) au seuil (EXT.) demande un nouvel en-tête, même si l'action continue : décor, lumière et installation changent.",
+      ),
+    },
+    badge: B('Breaks a script into sequences', 'Découpe un script en séquences'),
+  },
+  {
+    id: 'sb-shots',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Shot vocabulary: sizes, angles, movements', 'Le vocabulaire des plans : valeurs, angles, mouvements'),
+    learn: B(
+      'You will name a shot by its size, angle and movement, and choose each one for what it makes the viewer feel.',
+      "Vous saurez nommer un plan par sa valeur, son angle et son mouvement, et choisir chacun pour ce qu'il fait ressentir.",
+    ),
+    act: B('Describe three different breakdowns of the kitchen scene, then keep the one that serves its intent.',
+      'Décrivez trois découpages différents de la scène de cuisine, puis gardez celui qui sert son intention.'),
+    steps: [
+      B('Learn the scale from wide to tight: extreme wide, wide, full, medium, close-up, extreme close-up, insert.',
+        "Apprenez l'échelle du large au serré : plan d'ensemble, plan général, plan moyen, plan rapproché, gros plan, insert."),
+      B('Add the angle: eye level, high angle that crushes, low angle that enlarges, tilted angle for unease.',
+        "Ajoutez l'angle : à hauteur d'yeux, plongée qui écrase, contre-plongée qui grandit, cadre incliné pour le malaise."),
+      B('Add the movement and the transition: pan, dolly, handheld, zoom; cut, dissolve, fade to black.',
+        'Ajoutez le mouvement et la transition : panoramique, travelling, caméra épaule, zoom ; cut, fondu enchaîné, fondu au noir.'),
+      B('Draw the 180-degree line between Jeanne and Yves and keep every camera on the same side of it.',
+        'Tracez la ligne des 180 degrés entre Jeanne et Yves et gardez toutes les caméras du même côté.'),
+    ],
+    trap: B(
+      'Choosing shots for variety alone: a close-up with no reason weakens the one that matters, and crossing the line flips the eyelines.',
+      "Choisir les plans pour varier : un gros plan sans raison affaiblit celui qui compte, et franchir l'axe inverse les regards des personnages.",
+    ),
+    quiz: {
+      q: B('Jeanne finds her father\'s boat stranded on the empty shore. You want her to look small and alone. Which shot?',
+        'Jeanne découvre le bateau de son père échoué sur la grève vide. Elle doit paraître petite et seule. Quel plan ?'),
+      options: [
+        B('A high-angle wide shot with the shore all around', "Un plan d'ensemble en plongée, la grève tout autour"),
+        B('An extreme close-up on her eyes, shot at eye level', "Un très gros plan sur ses yeux, à hauteur de regard"),
+        B('A low-angle medium shot that makes her look taller', 'Un plan moyen en contre-plongée qui la grandit'),
+      ],
+      answer: 0,
+      why: B(
+        'A wide shot makes her small in a vast space, and the high angle crushes her further. The close-up gives emotion without space; the low angle enlarges her, the opposite intent.',
+        "Le plan d'ensemble la rend petite dans un vaste espace, et la plongée l'écrase davantage. Le gros plan donne l'émotion sans l'espace ; la contre-plongée la grandit, l'intention inverse.",
+      ),
+    },
+    badge: B('Speaks the language of shots', 'Parle la langue des plans'),
+  },
+  {
+    id: 'sb-shotlist',
+    master: 'planning',
+    minutes: 12,
+    title: B('The shot list and the technical breakdown', 'La liste des plans et le découpage technique'),
+    learn: B(
+      'You will turn a sequence into a numbered technical breakdown, then reorder it into a shot list grouped by setup.',
+      'Vous saurez transformer une séquence en découpage technique numéroté, puis le réordonner en liste de plans par installation.',
+    ),
+    act: B('Write the technical breakdown of sequence 2 of Marée basse, then derive the shot list for the shoot.',
+      "Rédigez le découpage technique de la séquence 2 de « Marée basse », puis tirez-en la liste de plans du tournage."),
+    steps: [
+      B('Number each shot by sequence and order: 2.1, 2.2, 2.3, so every panel can be found from any document.',
+        'Numérotez chaque plan par séquence et par ordre : 2.1, 2.2, 2.3, pour retrouver chaque case depuis tout document.'),
+      B('Fill the columns: size, angle, movement, lens, action, dialogue, sound, estimated duration.',
+        'Remplissez les colonnes : valeur, angle, mouvement, focale, action, dialogue, son, durée estimée.'),
+      B('Add up the durations and compare with the length of the pages: a gap means shots are missing or extra.',
+        'Additionnez les durées et comparez à la longueur des pages : un écart signale des plans manquants ou en trop.'),
+      B('Regroup the shots by camera position and light into a shot list: that is the order of the shoot.',
+        'Regroupez les plans par position de caméra et par lumière dans la liste de plans : c\'est l\'ordre du tournage.'),
+    ],
+    trap: B(
+      'Shooting in story order: the crew relights and moves the camera back and forth, and the day ends before the sequence does.',
+      "Tourner dans l'ordre du récit : l'équipe rééclaire et déplace la caméra sans cesse, et la journée finit avant la séquence.",
+    ),
+    quiz: {
+      q: B("Shots 2.1, 2.4 and 2.7 are all filmed over Jeanne's shoulder toward Yves. How do you order them for the shoot?",
+        "Les plans 2.1, 2.4 et 2.7 sont filmés par-dessus l'épaule de Jeanne vers Yves. Comment les ordonner au tournage ?"),
+      options: [
+        B('Keep story order so the actors stay in the emotion', "Garder l'ordre du récit pour l'émotion des acteurs"),
+        B('Merge them into a single shot to save time on set', 'Les fusionner en un seul plan pour gagner du temps'),
+        B('Group them in one setup, shot one after the other', "Les grouper en une installation, l'un après l'autre"),
+      ],
+      answer: 2,
+      why: B(
+        'Same position, same direction, same light: grouping them avoids relighting each time. The numbers 2.1, 2.4, 2.7 keep their place in the edit. Merging them would lose the cuts you chose.',
+        'Même position, même axe, même lumière : les grouper évite de rééclairer à chaque fois. Les numéros 2.1, 2.4, 2.7 gardent leur place au montage. Les fusionner perdrait les coupes choisies.',
+      ),
+    },
+    badge: B('Writes a technical breakdown', 'Rédige un découpage technique'),
+  },
+]
+
+const SCRIPT_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'sb-role')]: {
+    why: [
+      B("A storyboard is a sequence of panels showing how a script will be filmed: what is in the frame, from where, with which movement, for how long. It turns a text that everyone imagines differently into one shared picture. Its value is not the drawing but the decisions taken before the shoot, when changing your mind costs an eraser rather than a crew day.",
+        "Un storyboard est une suite de cases qui montre comment un script sera filmé : ce qui est dans le cadre, depuis où, avec quel mouvement, pendant combien de temps. Il transforme un texte que chacun imagine à sa façon en une image commune. Sa valeur n'est pas le dessin, mais les décisions prises avant le tournage, quand changer d'avis coûte un coup de gomme et non une journée d'équipe."),
+      B("Its readers differ. In film, the director uses it to think, the director of photography to plan lenses and light, the first assistant to schedule, the art department to know which parts of the set will be seen. In advertising, the agency and the client also approve it: it becomes the reference against which the finished spot will be judged.",
+        "Ses lecteurs diffèrent. Au cinéma, la réalisatrice s'en sert pour penser, le chef opérateur pour prévoir focales et lumière, le premier assistant pour bâtir le planning, la décoration pour savoir quelles parties du décor seront vues. En publicité, l'agence et le client le valident aussi : il devient la référence à laquelle le film terminé sera comparé."),
+      B("This is why not everything gets storyboarded. A dialogue between two chairs is often decided on set with the actors; a stunt, an effect, a child, an animal, a car, or a spot where each second is paid for deserves frames. AI lowers the cost of drawing, not this logic: you still choose where a frame saves a decision.",
+        "C'est pourquoi tout ne se storyboarde pas. Un dialogue entre deux chaises se décide souvent sur le plateau avec les comédiens ; une cascade, un effet, un enfant, un animal, une voiture, ou un spot dont chaque seconde est payée, méritent des cases. L'IA baisse le coût du dessin, pas cette logique : c'est toujours vous qui choisissez où une case épargne une décision."),
+    ],
+    example: {
+      context: B("Camille, an independent director, prepares her fictional short film Marée basse. She asks an AI to storyboard the whole script and receives forty polished images that her crew cannot use.",
+        "Camille, réalisatrice indépendante, prépare son court métrage fictif « Marée basse ». Elle demande à une IA de storyboarder tout le script et reçoit quarante images léchées dont son équipe ne peut rien faire."),
+      before: B("Storyboard my short film. Here is the script: [pasted script].",
+        "Fais le storyboard de mon court métrage. Voici le script : [script collé]."),
+      after: B("You are helping me prepare the storyboard of a 12-minute short film, Marée basse. Do not draw anything yet.\nReaders of the storyboard: me (director), the director of photography, the first assistant, the art department.\nHere are the 4 sequences:\n1. EXT. QUAY, DAWN: Jeanne gets off the bus and walks along the quay.\n2. INT. YVES'S KITCHEN, DAY: tense dialogue at the table.\n3. EXT. SHORE, LATE AFTERNOON: low tide, they walk out to the stranded boat.\n4. INT. KITCHEN, NIGHT: reconciliation, almost without words.\nFor each sequence, give: the number of shots you foresee, what is technically hard (movement, low light, water, effects), what a mistake on set would cost, and a decision (full storyboard, partial, none) justified in one sentence.\nPresent a table. Flag your doubts instead of guessing.",
+        "Tu m'aides à préparer le storyboard d'un court métrage de 12 minutes, « Marée basse ». Ne dessine rien pour l'instant.\nLecteurs du storyboard : moi (réalisatrice), le chef opérateur, le premier assistant, la décoration.\nVoici les 4 séquences :\n1. EXT. QUAI, AUBE : Jeanne descend du car et longe le quai.\n2. INT. CUISINE D'YVES, JOUR : dialogue tendu à table.\n3. EXT. GRÈVE, FIN D'APRÈS-MIDI : marée basse, ils marchent jusqu'au bateau échoué.\n4. INT. CUISINE, NUIT : réconciliation, presque sans paroles.\nPour chaque séquence, donne : le nombre de plans que tu prévois, ce qui est techniquement difficile (mouvement, faible lumière, eau, effets), ce que coûterait une erreur au tournage, et une décision (storyboard complet, partiel, aucun) justifiée en une phrase.\nPrésente un tableau. Signale tes doutes au lieu de deviner."),
+      takeaway: B("The second prompt names the readers and asks for one decision per sequence before any image. Camille learns that sequence 3, on wet sand in fading light, needs full frames, while sequence 4 can be decided with the actors.",
+        "Le second prompt nomme les lecteurs et demande une décision par séquence avant toute image. Camille apprend que la séquence 3, sur le sable mouillé et dans une lumière déclinante, demande des cases complètes, alors que la 4 se décidera avec les comédiens."),
+    },
+    exercise: {
+      goal: B("A table of the sequences of your own project, with the readers of the storyboard and a justified decision for each: full, partial or no storyboard.",
+        "Un tableau des séquences de votre propre projet, avec les lecteurs du storyboard et une décision justifiée pour chacune : storyboard complet, partiel ou aucun."),
+      prompt: B("You are helping me prepare the storyboard of [TYPE OF PROJECT: SHORT FILM, AD, MUSIC VIDEO] called [TITLE]. Do not draw anything.\nReaders of the storyboard: [LIST OF READERS: DIRECTION, CAMERA, ASSISTANTS, ART DEPARTMENT, CLIENT].\nFor each sequence below, give: the number of shots you foresee, what is technically hard, what a mistake on set would cost, and a decision (full storyboard, partial, none) justified in one sentence.\nPresent a table. Flag your doubts instead of guessing.\n[YOUR SEQUENCES, ONE LINE EACH]",
+        "Tu m'aides à préparer le storyboard de [TYPE DE PROJET : COURT MÉTRAGE, SPOT, CLIP] intitulé [TITRE]. Ne dessine rien.\nLecteurs du storyboard : [LISTE DES LECTEURS : RÉALISATION, IMAGE, ASSISTANAT, DÉCORATION, CLIENT].\nPour chaque séquence ci-dessous, donne : le nombre de plans que tu prévois, ce qui est techniquement difficile, ce que coûterait une erreur au tournage, et une décision (storyboard complet, partiel, aucun) justifiée en une phrase.\nPrésente un tableau. Signale tes doutes au lieu de deviner.\n[VOS SÉQUENCES, UNE LIGNE CHACUNE]"),
+      check: [
+        B("Every reader of the storyboard is named, with what they will look for in it", "Chaque lecteur du storyboard est nommé, avec ce qu'il y cherchera"),
+        B("Each sequence has a decision and a reason tied to cost or difficulty", "Chaque séquence a une décision et une raison liée au coût ou à la difficulté"),
+        B("You corrected at least one AI estimate with your own knowledge of the shoot", "Vous avez corrigé au moins une estimation de l'IA avec votre connaissance du tournage"),
+        B("No image was generated at this stage", "Aucune image n'a été générée à ce stade"),
+      ],
+      bonus: B("Run the same prompt on a 30-second ad brief instead of a film. Compare the readers and the decisions: who approves, and why almost every second ends up storyboarded.",
+        "Lancez le même prompt sur un brief de spot de 30 secondes au lieu d'un film. Comparez les lecteurs et les décisions : qui valide, et pourquoi presque chaque seconde finit storyboardée."),
+    },
+    more: [
+      { q: B("Sequence 4 of Marée basse is a quiet scene at a table, two actors, one light. Why might Camille not storyboard it fully?",
+          "La séquence 4 est une scène calme à table, deux comédiens, une lumière. Pourquoi Camille ne la storyboarderait-elle pas en entier ?"),
+        options: [
+          B("Because AI image tools cannot draw interiors lit at night", "Parce que les outils d'image IA ne savent pas dessiner un intérieur de nuit"),
+          B("Because its shots are best found on set with the actors", "Parce que ses plans se trouvent mieux sur le plateau avec les comédiens"),
+          B("Because a storyboard is only legally required for exteriors", "Parce qu'un storyboard n'est exigé légalement que pour les extérieurs"),
+        ],
+        answer: 1,
+        why: B("Few setups, little risk, and a performance that will shape the framing: a few reference frames are enough. Full frames are kept where a mistake on set is costly.",
+          "Peu d'installations, peu de risque, et un jeu d'acteurs qui orientera le cadre : quelques cases de référence suffisent. Les cases complètes sont réservées aux endroits où une erreur coûte cher.") },
+      { q: B("For an ad, why is the storyboard usually more complete than for a short film?",
+          "Pour une pub, pourquoi le storyboard est-il en général plus complet que pour un court métrage ?"),
+        options: [
+          B("Because the client approves each frame before the shoot", "Parce que le client valide chaque case avant de payer le tournage"),
+          B("Because ad crews never read the script and only follow drawings", "Parce que les équipes de pub ne lisent jamais le script"),
+          B("Because ad storyboards are broadcast alongside the finished spot", "Parce que le storyboard publicitaire est diffusé avec le spot"),
+        ],
+        answer: 0,
+        why: B("In advertising, the storyboard is the shared reference between agency, client and production. Every second is paid for and judged, so each one is decided and approved on paper first.",
+          "En publicité, le storyboard est la référence commune de l'agence, du client et de la production. Chaque seconde est payée et jugée, donc chacune est décidée et validée sur papier d'abord.") },
+    ],
+  },
+
+  [enrichKey(M1, 'sb-script')]: {
+    why: [
+      B("A screenplay is written in sequences. Each one opens with a heading that gives the inside or outside, the place and the time of day: INT. YVES'S KITCHEN, DAY. This is not decoration: everything the crew prepares, set, light, costumes, depends on that line. Breaking a script into sequences is the first act of the storyboard, because a panel always belongs to one of them.",
+        "Un scénario s'écrit en séquences. Chacune s'ouvre par un en-tête qui donne l'intérieur ou l'extérieur, le lieu et le moment : INT. CUISINE D'YVES, JOUR. Ce n'est pas un ornement : tout ce que l'équipe prépare, décor, lumière, costumes, dépend de cette ligne. Découper un script en séquences est le premier geste du storyboard, car une case appartient toujours à l'une d'elles."),
+      B("A table makes the script operable. One row per sequence, with number, place, time, characters, summary, dramatic intent and props, lets you see at a glance where the story turns, which sets return, which scenes are heavy. A language model is good at this extraction, provided it only reports what the page says.",
+        "Un tableau rend le script exploitable. Une ligne par séquence, avec numéro, lieu, moment, personnages, résumé, intention dramatique et accessoires, montre d'un coup d'oeil où l'histoire bascule, quels décors reviennent, quelles scènes sont lourdes. Un modèle de langue excelle dans cette extraction, à condition qu'il ne rapporte que ce que dit la page."),
+      B("That condition is the whole method. A model asked to summarise fills gaps: it gives Jeanne a motive, adds a prop, softens a conflict. Asking it to quote the line that justifies each cell, and to write « not in the script » otherwise, turns a summary into a checkable extraction.",
+        "Cette condition est toute la méthode. Un modèle à qui l'on demande de résumer comble les vides : il prête un motif à Jeanne, ajoute un accessoire, adoucit un conflit. Lui demander de citer la ligne qui justifie chaque case du tableau, et d'écrire « absent du script » sinon, transforme un résumé en extraction vérifiable."),
+    ],
+    example: {
+      context: B("Camille pastes the eleven pages of Marée basse into an assistant and asks for a summary per scene. The result reads well, but mentions a letter Yves never wrote.",
+        "Camille colle les onze pages de « Marée basse » dans un assistant et demande un résumé par scène. Le résultat se lit bien, mais mentionne une lettre qu'Yves n'a jamais écrite."),
+      before: B("Summarise each scene of this script for my storyboard.\n[SCRIPT]",
+        "Résume chaque scène de ce script pour mon storyboard.\n[SCRIPT]"),
+      after: B("Here is the script of my short film. Break it into sequences: a new heading (INT./EXT., place, time) opens a new sequence.\nFor each sequence, fill one row of a table with these columns: number, heading as written, characters present, action in two sentences, dramatic intent, turning point, props mentioned, page range.\nRules:\n- Report only what is written. For each cell except the intent, quote the short line that justifies it.\n- If information is missing, write \"not in the script\".\n- Write the intent as a hypothesis, marked \"to confirm\".\nAt the end, list the sets that return and the props that must stay consistent.\n[SCRIPT]",
+        "Voici le script de mon court métrage. Découpe-le en séquences : un nouvel en-tête (INT./EXT., lieu, moment) ouvre une nouvelle séquence.\nPour chaque séquence, remplis une ligne d'un tableau avec ces colonnes : numéro, en-tête tel qu'écrit, personnages présents, action en deux phrases, intention dramatique, temps fort, accessoires cités, pages.\nRègles :\n- Ne rapporte que ce qui est écrit. Pour chaque case sauf l'intention, cite la courte ligne qui la justifie.\n- Si une information manque, écris « absent du script ».\n- Formule l'intention comme une hypothèse, marquée « à confirmer ».\nÀ la fin, liste les décors qui reviennent et les accessoires qui doivent rester cohérents.\n[SCRIPT]"),
+      takeaway: B("The second prompt forbids invention and demands a quote per cell. The letter disappears, the intent is marked as a hypothesis for Camille to confirm, and the list of recurring props, the red raincoat, the boat, prepares continuity.",
+        "Le second prompt interdit l'invention et exige une citation par case. La lettre disparaît, l'intention est marquée comme hypothèse que Camille confirmera, et la liste des accessoires récurrents, le ciré rouge, le bateau, prépare la continuité."),
+    },
+    exercise: {
+      goal: B("A sequence table of a script you know, where every cell can be traced to a line of the text and every intent is confirmed or corrected by you.",
+        "Un tableau des séquences d'un script que vous connaissez, où chaque case renvoie à une ligne du texte et où chaque intention est confirmée ou corrigée par vous."),
+      prompt: B("Here is the script of [TITLE, AND WHETHER YOU HAVE THE RIGHT TO SHARE IT]. Break it into sequences: a new heading (INT./EXT., place, time) opens a new sequence.\nColumns: number, heading as written, characters, action in two sentences, dramatic intent, turning point, props, pages.\nRules: report only what is written; quote the line that justifies each cell except the intent; write \"not in the script\" when information is missing; mark each intent \"to confirm\".\nThen list the recurring sets and the props that must stay consistent.\n[SCRIPT OR EXCERPT]",
+        "Voici le script de [TITRE, ET SI VOUS AVEZ LE DROIT DE LE PARTAGER]. Découpe-le en séquences : un nouvel en-tête (INT./EXT., lieu, moment) ouvre une nouvelle séquence.\nColonnes : numéro, en-tête tel qu'écrit, personnages, action en deux phrases, intention dramatique, temps fort, accessoires, pages.\nRègles : ne rapporte que ce qui est écrit ; cite la ligne qui justifie chaque case sauf l'intention ; écris « absent du script » quand une information manque ; marque chaque intention « à confirmer ».\nListe ensuite les décors récurrents et les accessoires qui doivent rester cohérents.\n[SCRIPT OU EXTRAIT]"),
+      check: [
+        B("The number of sequences matches the number of headings in the script", "Le nombre de séquences correspond au nombre d'en-têtes du script"),
+        B("You checked three quotes at random and found them on the page", "Vous avez vérifié trois citations au hasard et les avez retrouvées sur la page"),
+        B("Every intent is either confirmed or rewritten in your own words", "Chaque intention est confirmée ou réécrite avec vos propres mots"),
+        B("The props list contains nothing that the script does not mention", "La liste des accessoires ne contient rien que le script ne mentionne pas"),
+      ],
+      bonus: B("Before pasting a script that is not yours, check the data use terms of the assistant and ask the author or the production for permission. For a confidential project, work on an excerpt or anonymise names.",
+        "Avant de coller un script qui n'est pas le vôtre, vérifiez les conditions d'usage des données de l'assistant et demandez l'accord de l'auteur ou de la production. Pour un projet confidentiel, travaillez sur un extrait ou anonymisez les noms."),
+    },
+    more: [
+      { q: B("The AI table says Jeanne arrives « worried about her father's health ». The script only says she gets off the bus. What do you do?",
+          "Selon le tableau de l'IA, Jeanne arrive « inquiète pour son père ». Le script dit seulement qu'elle descend du car. Que faites-vous ?"),
+        options: [
+          B("Keep it, since it gives the actors a useful motive", "Vous le gardez, cela donne un motif utile aux comédiens"),
+          B("Ask the AI to rewrite it in a more neutral tone", "Vous demandez à l'IA de le reformuler plus sobrement"),
+          B("Remove it and mark the cell « not in the script »", "Vous le retirez et marquez la case « absent du script »"),
+        ],
+        answer: 2,
+        why: B("A motive the script does not give is an invention, and it would steer framing choices. The intent belongs to the director; the table only reports what is written.",
+          "Un motif que le script ne donne pas est une invention, et il orienterait les choix de cadre. L'intention appartient à la réalisatrice ; le tableau ne rapporte que ce qui est écrit.") },
+      { q: B("Why list the turning point of each sequence before cutting it into shots?",
+          "Pourquoi noter le temps fort de chaque séquence avant de la découper en plans ?"),
+        options: [
+          B("Because the breakdown is built to serve that moment", "Parce que le découpage se construit pour servir ce moment"),
+          B("Because the turning point decides the length of the film", "Parce que le temps fort fixe la durée totale du film"),
+          B("Because the image tool needs it to choose a visual style", "Parce que l'outil d'image en a besoin pour choisir un style"),
+        ],
+        answer: 0,
+        why: B("Shot sizes and rhythm are chosen relative to the moment that matters: you hold the wide shots before it and tighten on it. Without it, the breakdown is a list of equal shots.",
+          "Valeurs de plan et rythme se choisissent par rapport au moment qui compte : on tient le large avant, on resserre dessus. Sans lui, le découpage est une liste de plans équivalents.") },
+    ],
+  },
+
+  [enrichKey(M1, 'sb-shots')]: {
+    why: [
+      B("A shot is described by three choices. Its size, from extreme wide to insert, sets the distance between the viewer and the character: wide shows a place and a relation, tight shows an emotion or a detail. Its angle, eye level, high, low or tilted, sets a judgement: a high angle diminishes, a low angle gives power. Its movement, or its stillness, sets a rhythm.",
+        "Un plan se décrit par trois choix. Sa valeur, du plan d'ensemble à l'insert, fixe la distance entre le spectateur et le personnage : le large montre un lieu et une relation, le serré montre une émotion ou un détail. Son angle, à hauteur d'yeux, plongée, contre-plongée ou incliné, porte un jugement : la plongée diminue, la contre-plongée donne de la puissance. Son mouvement, ou son immobilité, fixe un rythme."),
+      B("These words are shared by the whole crew and by image models. « Close-up, low angle, slow push in » is understood the same way by a director of photography and, approximately, by an image generator. Using the exact term rather than « a nice shot of her face » removes ambiguity, on set as in a prompt.",
+        "Ces mots sont communs à toute l'équipe et aux modèles d'image. « Gros plan, contre-plongée, lent travelling avant » se comprend de la même façon pour un chef opérateur et, approximativement, pour un générateur d'images. Employer le terme exact plutôt que « un joli plan de son visage » supprime l'ambiguïté, sur le plateau comme dans un prompt."),
+      B("The 180-degree rule keeps space readable. Draw a line between two characters who face each other: as long as the camera stays on one side, one looks right and the other left, and the viewer understands they face each other. Crossing it without showing the move inverts the eyelines. Transitions, cut, dissolve, fade, then link the shots in time.",
+        "La règle des 180 degrés garde l'espace lisible. Tracez une ligne entre deux personnages qui se font face : tant que la caméra reste d'un côté, l'un regarde à droite et l'autre à gauche, et le spectateur comprend qu'ils se font face. La franchir sans montrer le déplacement inverse les regards. Les transitions, cut, fondu enchaîné, fondu au noir, relient ensuite les plans dans le temps."),
+    ],
+    example: {
+      context: B("Camille asks an AI to propose the shots of the kitchen dialogue. The answer is a list of « beautiful shots » with no size, no angle and no link to what the scene must make felt.",
+        "Camille demande à une IA de proposer les plans du dialogue de la cuisine. La réponse est une liste de « beaux plans » sans valeur, sans angle et sans lien avec ce que la scène doit faire ressentir."),
+      before: B("Give me some nice shots for a kitchen dialogue between a daughter and her father.",
+        "Donne-moi quelques beaux plans pour un dialogue de cuisine entre une fille et son père."),
+      after: B("Scene: INT. YVES'S KITCHEN, DAY. Jeanne (34) and her father Yves (70) face each other across a table. Intent: the distance between them, then a crack when Yves mentions the boat.\nPropose three different breakdowns of 6 to 8 shots each:\nA. restrained (static, eye level, few close-ups),\nB. oppressive (tight, high angle on Jeanne),\nC. progressive (wide at first, tightening toward the turning point).\nFor each shot give: number, size (extreme wide, wide, full, medium, close-up, extreme close-up, insert), angle, movement or static, who is in the frame, the line of dialogue it covers, and one sentence on what it makes the viewer feel.\nKeep all cameras on the same side of the line between Jeanne and Yves, and say which side.",
+        "Scène : INT. CUISINE D'YVES, JOUR. Jeanne (34 ans) et son père Yves (70 ans) se font face de part et d'autre d'une table. Intention : la distance entre eux, puis une fissure quand Yves parle du bateau.\nPropose trois découpages différents de 6 à 8 plans chacun :\nA. retenu (fixe, hauteur d'yeux, peu de gros plans),\nB. oppressant (serré, plongée sur Jeanne),\nC. progressif (large au début, resserré vers le temps fort).\nPour chaque plan, donne : numéro, valeur (plan d'ensemble, plan général, plan moyen, plan rapproché, gros plan, très gros plan, insert), angle, mouvement ou fixe, qui est dans le cadre, la réplique couverte, et une phrase sur ce qu'il fait ressentir.\nGarde toutes les caméras du même côté de la ligne entre Jeanne et Yves, et précise lequel."),
+      takeaway: B("The second prompt gives the intent, imposes the vocabulary and asks for contrasting options tied to feeling. Camille keeps breakdown C, where the only close-up of the scene lands on Yves's hands when he speaks of the boat.",
+        "Le second prompt donne l'intention, impose le vocabulaire et demande des options contrastées reliées à l'effet produit. Camille retient le découpage C, où l'unique gros plan de la scène tombe sur les mains d'Yves quand il parle du bateau."),
+    },
+    exercise: {
+      goal: B("Three contrasting breakdowns of one scene of your project, described with exact terms, and a written choice of the one that serves the intent.",
+        "Trois découpages contrastés d'une scène de votre projet, décrits avec les termes exacts, et le choix écrit de celui qui sert l'intention."),
+      prompt: B("Scene: [HEADING, CHARACTERS, WHAT HAPPENS]. Intent: [WHAT THE VIEWER MUST FEEL, AND THE TURNING POINT].\nPropose three different breakdowns of [NUMBER] shots: A. [FIRST APPROACH], B. [SECOND APPROACH], C. [THIRD APPROACH].\nFor each shot: number, size, angle, movement or static, who is in the frame, the line or action covered, and one sentence on its effect.\nKeep every camera on one side of the line between [CHARACTER 1] and [CHARACTER 2], and say which side.\nEnd with the transition you suggest into the next scene.",
+        "Scène : [EN-TÊTE, PERSONNAGES, CE QUI SE PASSE]. Intention : [CE QUE LE SPECTATEUR DOIT RESSENTIR, ET LE TEMPS FORT].\nPropose trois découpages différents de [NOMBRE] plans : A. [PREMIÈRE APPROCHE], B. [DEUXIÈME APPROCHE], C. [TROISIÈME APPROCHE].\nPour chaque plan : numéro, valeur, angle, mouvement ou fixe, qui est dans le cadre, la réplique ou l'action couverte, et une phrase sur son effet.\nGarde toutes les caméras d'un même côté de la ligne entre [PERSONNAGE 1] et [PERSONNAGE 2], et précise lequel.\nTermine par la transition que tu proposes vers la scène suivante."),
+      check: [
+        B("Every shot has a size, an angle and a movement named with the exact term", "Chaque plan a une valeur, un angle et un mouvement nommés avec le terme exact"),
+        B("The tightest shot of the scene falls on the turning point", "Le plan le plus serré de la scène tombe sur le temps fort"),
+        B("On a quick sketch from above, all cameras are on the same side of the line", "Sur un croquis vu de dessus, toutes les caméras sont du même côté de la ligne"),
+        B("You wrote two sentences explaining why you kept one breakdown", "Vous avez écrit deux phrases expliquant pourquoi vous gardez un découpage"),
+      ],
+      bonus: B("Take a scene of a film you admire and write its breakdown shot by shot with the same columns. Then compare with your own: where does the film tighten, and why there?",
+        "Prenez une scène d'un film que vous admirez et écrivez son découpage plan par plan avec les mêmes colonnes. Comparez ensuite avec le vôtre : où le film resserre-t-il, et pourquoi à cet endroit ?"),
+    },
+    more: [
+      { q: B("Yves raises his voice and dominates the scene. Which angle on him best supports this?",
+          "Yves hausse le ton et domine la scène. Quel angle sur lui soutient le mieux ce moment ?"),
+        options: [
+          B("A high angle, looking down on him from above the table", "Une plongée, qui le regarde d'au-dessus de la table"),
+          B("A slight low angle, the camera below his eye line", "Une légère contre-plongée, caméra sous sa ligne de regard"),
+          B("A top shot, the camera pointing straight down at the table", "Une vue zénithale, caméra à la verticale de la table"),
+        ],
+        answer: 1,
+        why: B("A low angle enlarges a character and gives him weight. A high angle would diminish Yves, the opposite intent, and a top shot shows the layout rather than his power.",
+          "La contre-plongée grandit un personnage et lui donne du poids. La plongée diminuerait Yves, l'intention inverse, et la vue zénithale montre la disposition plutôt que sa puissance.") },
+      { q: B("In the shot-reverse-shot, the camera moves to the other side of the table for Yves's close-up. What does the viewer perceive?",
+          "Dans le champ-contrechamp, la caméra passe de l'autre côté de la table pour le gros plan d'Yves. Que perçoit le spectateur ?"),
+        options: [
+          B("That Jeanne and Yves now seem to look the same way", "Que Jeanne et Yves semblent regarder du même côté"),
+          B("Nothing, the eye never notices where the camera stands", "Rien, l'oeil ne remarque jamais la place de la caméra"),
+          B("A deliberate effect of intimacy between the two characters", "Un effet voulu d'intimité entre les deux personnages"),
+        ],
+        answer: 0,
+        why: B("Crossing the 180-degree line inverts screen direction: both now look toward the same side of the frame, and the viewer loses the sense that they face each other.",
+          "Franchir la ligne des 180 degrés inverse la direction à l'écran : les deux regardent désormais vers le même bord du cadre, et le spectateur perd l'impression qu'ils se font face.") },
+    ],
+  },
+
+  [enrichKey(M1, 'sb-shotlist')]: {
+    why: [
+      B("The technical breakdown, the « découpage technique » of French crews, is the script rewritten as shots. Each shot gets a number (sequence then order, 2.1, 2.2), a size, an angle, a movement, a lens, the action, the dialogue, the sound and an estimated duration. It is written in story order, because it describes the film as it will be edited.",
+        "Le découpage technique est le script réécrit en plans. Chaque plan reçoit un numéro (séquence puis ordre, 2.1, 2.2), une valeur, un angle, un mouvement, une focale, l'action, le dialogue, le son et une durée estimée. Il s'écrit dans l'ordre du récit, parce qu'il décrit le film tel qu'il sera monté."),
+      B("The shot list reorders the same shots for the shoot. Moving the camera and relighting take time, so shots that share a position and a light are grouped into one setup, even if they are far apart in the story. The numbers do not change: they link the panel, the breakdown, the shot list, the clapperboard and the edit.",
+        "La liste des plans réordonne les mêmes plans pour le tournage. Déplacer la caméra et rééclairer prend du temps : les plans qui partagent une position et une lumière sont regroupés en une installation, même s'ils sont éloignés dans le récit. Les numéros ne changent pas : ils relient la case, le découpage, la liste des plans, le clap et le montage."),
+      B("A common rule of thumb says one page of screenplay lasts about one minute on screen. It is only an approximation, but comparing the total of the estimated durations with the page count reveals a breakdown that is too thin or too rich. An AI drafts these tables fast; you check the counts, the numbers and the setups.",
+        "Une convention répandue veut qu'une page de scénario dure environ une minute à l'écran. Ce n'est qu'une approximation, mais comparer le total des durées estimées au nombre de pages révèle un découpage trop maigre ou trop riche. Une IA ébauche vite ces tableaux ; c'est vous qui vérifiez les totaux, les numéros et les installations."),
+    ],
+    example: {
+      context: B("Camille has chosen breakdown C for the kitchen scene. She asks an AI to « make a shot list », and gets a list in story order, without numbers or durations, unusable for the first assistant.",
+        "Camille a retenu le découpage C pour la scène de cuisine. Elle demande à une IA de « faire une liste de plans » et obtient une liste dans l'ordre du récit, sans numéros ni durées, inutilisable pour le premier assistant."),
+      before: B("Make a shot list for my kitchen scene.",
+        "Fais une liste de plans pour ma scène de cuisine."),
+      after: B("Here is the breakdown I chose for sequence 2 of Marée basse (INT. YVES'S KITCHEN, DAY, about 2 pages): [BREAKDOWN C].\n1. Write the technical breakdown as a table in story order, with columns: number (2.1, 2.2...), size, angle, movement, suggested lens (wide, normal, long), action, dialogue covered, sound, estimated duration in seconds.\n2. Give the total duration and compare it with the page count, using one page as roughly one minute. Say if shots seem missing or redundant.\n3. Then write the shot list: the same shots regrouped into setups (camera position and light direction), each setup named A, B, C, with the shots it covers. Keep the original numbers.\nOutput both tables in CSV so I can paste them into a spreadsheet.",
+        "Voici le découpage retenu pour la séquence 2 de « Marée basse » (INT. CUISINE D'YVES, JOUR, environ 2 pages) : [DÉCOUPAGE C].\n1. Rédige le découpage technique en tableau, dans l'ordre du récit, avec les colonnes : numéro (2.1, 2.2...), valeur, angle, mouvement, focale suggérée (courte, normale, longue), action, réplique couverte, son, durée estimée en secondes.\n2. Donne la durée totale et compare-la au nombre de pages, en comptant une page pour environ une minute. Signale les plans qui semblent manquer ou faire double emploi.\n3. Rédige ensuite la liste des plans : les mêmes plans regroupés par installation (position de caméra et direction de la lumière), chaque installation nommée A, B, C, avec les plans qu'elle couvre. Garde les numéros d'origine.\nDonne les deux tableaux en CSV pour que je les colle dans un tableur."),
+      takeaway: B("The second prompt separates the two documents, keeps the numbers, checks the total against the pages and groups by setup. The first assistant receives three setups instead of eight camera moves, and every panel can be found by its number.",
+        "Le second prompt sépare les deux documents, garde les numéros, contrôle le total au regard des pages et regroupe par installation. L'assistant reçoit trois installations au lieu de huit déplacements de caméra, et chaque case se retrouve par son numéro."),
+    },
+    exercise: {
+      goal: B("The technical breakdown of one sequence of your project, its duration checked against the pages, and the shot list grouped by setup, in a spreadsheet.",
+        "Le découpage technique d'une séquence de votre projet, sa durée contrôlée par rapport aux pages, et la liste des plans groupée par installation, dans un tableur."),
+      prompt: B("Here is my breakdown of sequence [NUMBER] ([HEADING], about [NUMBER OF PAGES] pages): [YOUR BREAKDOWN].\n1. Technical breakdown in story order, columns: number ([SEQUENCE].1, [SEQUENCE].2...), size, angle, movement, lens, action, dialogue, sound, duration in seconds.\n2. Total duration compared with the pages (one page is roughly one minute, an approximation). Flag missing or redundant shots.\n3. Shot list: the same shots grouped into setups by camera position and light direction, named A, B, C, numbers unchanged.\nCSV output for both tables.",
+        "Voici mon découpage de la séquence [NUMÉRO] ([EN-TÊTE], environ [NOMBRE DE PAGES] pages) : [VOTRE DÉCOUPAGE].\n1. Découpage technique dans l'ordre du récit, colonnes : numéro ([SÉQUENCE].1, [SÉQUENCE].2...), valeur, angle, mouvement, focale, action, dialogue, son, durée en secondes.\n2. Durée totale comparée aux pages (une page vaut environ une minute, c'est une approximation). Signale les plans manquants ou redondants.\n3. Liste des plans : les mêmes plans groupés par installation selon la position de caméra et la direction de la lumière, nommées A, B, C, numéros inchangés.\nSortie en CSV pour les deux tableaux."),
+      check: [
+        B("Every shot has a unique number made of the sequence and its order", "Chaque plan a un numéro unique formé de la séquence et de son ordre"),
+        B("The total duration is plausible for the page count, or the gap is explained", "La durée totale est plausible pour le nombre de pages, ou l'écart est expliqué"),
+        B("The shot list contains exactly the same shots as the breakdown, none lost", "La liste des plans contient exactement les mêmes plans que le découpage, sans perte"),
+        B("Each setup groups shots that share a camera position and a light direction", "Chaque installation regroupe des plans qui partagent position de caméra et lumière"),
+      ],
+      bonus: B("Import the CSV into a storyboard or shot list tool you use, such as StudioBinder, Boords or a simple spreadsheet, and check that the numbers survive the import. Features and limits change: read the tool's help pages.",
+        "Importez le CSV dans un outil de storyboard ou de liste de plans que vous utilisez, comme StudioBinder, Boords ou un simple tableur, et vérifiez que les numéros survivent à l'import. Fonctions et limites changent : lisez l'aide de l'outil."),
+    },
+    more: [
+      { q: B("The breakdown of a 2-page sequence totals 40 seconds. What does that suggest?",
+          "Le découpage d'une séquence de 2 pages totalise 40 secondes. Qu'est-ce que cela suggère ?"),
+        options: [
+          B("That the actors will have to speak much faster", "Que les comédiens devront parler beaucoup plus vite"),
+          B("Nothing, since durations are only decided in the edit", "Rien, puisque les durées ne se décident qu'au montage"),
+          B("That shots or reaction moments are probably missing", "Qu'il manque sans doute des plans ou des réactions"),
+        ],
+        answer: 2,
+        why: B("With the approximate convention of one page per minute, 40 seconds for 2 pages is far too short. Check for dialogue not covered, silences and reactions left out of the breakdown.",
+          "Avec la convention approximative d'une page par minute, 40 secondes pour 2 pages, c'est bien trop court. Cherchez les répliques non couvertes, les silences et les réactions oubliés.") },
+      { q: B("Why must the shot list keep the numbers of the technical breakdown?",
+          "Pourquoi la liste des plans doit-elle garder les numéros du découpage technique ?"),
+        options: [
+          B("So that panel, slate and edit refer to the same shot", "Pour que case, clap et montage désignent le même plan"),
+          B("Because the numbers set the order of the shooting days", "Parce que les numéros fixent l'ordre des jours de tournage"),
+          B("Because spreadsheets cannot sort shots without them", "Parce que les tableurs ne savent pas trier sans eux"),
+        ],
+        answer: 0,
+        why: B("The number is the shot's identity. The shooting order changes, but 2.4 stays 2.4 on the panel, the clapperboard and in the editing room, so nothing is lost between departments.",
+          "Le numéro est l'identité du plan. L'ordre de tournage change, mais 2.4 reste 2.4 sur la case, sur le clap et en salle de montage : rien ne se perd entre les équipes.") },
+    ],
+  },
+}
+
+const SCRIPT_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'sb-role')]: {
+    intro: B("Before drawing a single panel, you need to know what a storyboard is for and who will read it. A storyboard decides, in advance, what each shot shows and how: framing, angle, movement, duration. In film, it serves the director and the crew; in advertising, it is also the document the agency and the client approve. This lesson introduces Marée basse, the fictional short film that runs through this course, and teaches you to choose where a storyboard saves time and money, and where it would be wasted effort.",
+      "Avant de dessiner la moindre case, il faut savoir à quoi sert un storyboard et qui le lira. Un storyboard décide à l'avance ce que montre chaque plan et comment : cadre, angle, mouvement, durée. Au cinéma, il sert la réalisation et l'équipe ; en publicité, il est aussi le document que l'agence et le client valident. Ce cours présente « Marée basse », le court métrage fictif qui sert de fil rouge à cette formation, et vous apprend à choisir où un storyboard fait gagner du temps et de l'argent, et où il serait un effort perdu."),
+    concepts: [
+      { term: B('Storyboard', 'Storyboard'),
+        def: B("A sequence of panels that shows how a script will be filmed, shot by shot. It records decisions, not artistic ambitions.",
+          "Une suite de cases qui montre comment un script sera filmé, plan par plan. Il consigne des décisions, pas des ambitions artistiques.") },
+      { term: B('Panel', 'Case'),
+        def: B("One drawing of the storyboard, usually one shot or one key moment of a shot, with its number and its notes.",
+          "Un dessin du storyboard, en général un plan ou un moment clé d'un plan, avec son numéro et ses annotations.") },
+      { term: B('Readers of the storyboard', 'Lecteurs du storyboard'),
+        def: B("The people who use it: director, director of photography, first assistant, art department, production, and in advertising the agency and the client.",
+          "Les personnes qui s'en servent : réalisation, chef opérateur, premier assistant, décoration, production, et en publicité l'agence et le client.") },
+      { term: B('Approved storyboard', 'Storyboard validé'),
+        def: B("In advertising, the version accepted by the client before the shoot. It becomes the reference the finished spot is compared with.",
+          "En publicité, la version acceptée par le client avant le tournage. Elle devient la référence à laquelle le spot terminé est comparé.") },
+    ],
+    walkthrough: {
+      title: B("Camille decides which sequences of Marée basse deserve a full storyboard.",
+        "Camille décide quelles séquences de « Marée basse » méritent un storyboard complet."),
+      steps: [
+        B("She lists the readers: herself, the director of photography, the first assistant and the art department. Why: each one will look for something different, framing, lenses, schedule, visible parts of the set.",
+          "Elle liste les lecteurs : elle-même, le chef opérateur, le premier assistant et la décoration. Pourquoi : chacun y cherchera autre chose, le cadre, les focales, le planning, les parties visibles du décor."),
+        B("She scores the four sequences on three criteria: number of shots, technical difficulty, cost of a mistake. Why: these criteria measure what a panel can save, not how attractive a scene is.",
+          "Elle note les quatre séquences sur trois critères : nombre de plans, difficulté technique, coût d'une erreur. Pourquoi : ces critères mesurent ce qu'une case peut épargner, pas l'attrait d'une scène."),
+        B("Sequence 3, on wet sand at low tide with fading light, scores highest: the window of light is short and the tide does not wait. Why: on such a day, a decision taken on set eats the light.",
+          "La séquence 3, sur le sable mouillé à marée basse dans une lumière déclinante, obtient la note la plus haute : la fenêtre de lumière est courte et la marée n'attend pas. Pourquoi : ce jour-là, une décision prise sur le plateau dévore la lumière."),
+        B("Sequence 4, a quiet scene at the kitchen table, gets two reference panels only. Why: the framing will follow the actors' performance, which is found in rehearsal.",
+          "La séquence 4, une scène calme à la table de la cuisine, ne reçoit que deux cases de référence. Pourquoi : le cadre suivra le jeu des comédiens, qui se trouve en répétition."),
+        B("She writes one sentence per decision in the preparation file. Why: the crew understands the choice, and if the plan changes, the reason can be revisited.",
+          "Elle écrit une phrase par décision dans le dossier de préparation. Pourquoi : l'équipe comprend le choix, et si le plan change, la raison peut être réexaminée."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Generating a polished image for every line of the script because AI makes it fast.",
+          "Générer une image léchée pour chaque ligne du script parce que l'IA le fait vite."),
+        fix: B("Decide first which sequences need panels, using cost and difficulty. Speed of drawing does not change what deserves to be decided in advance.",
+          "Décidez d'abord quelles séquences demandent des cases, selon le coût et la difficulté. La vitesse du dessin ne change pas ce qui mérite d'être décidé à l'avance.") },
+      { wrong: B("Showing an ad client a storyboard whose frames look like the finished film.",
+          "Montrer à un client de pub un storyboard dont les cases ressemblent au film fini."),
+        fix: B("Keep a sketch style and say in writing that the look, the casting and the light will be decided later. A final-looking image creates expectations the shoot may not meet.",
+          "Gardez un style d'esquisse et précisez par écrit que le look, le casting et la lumière seront décidés plus tard. Une image d'apparence finale crée des attentes que le tournage risque de décevoir.") },
+      { wrong: B("Drawing the storyboard alone and handing it over at the last minute.",
+          "Dessiner le storyboard seul et le remettre à la dernière minute."),
+        fix: B("Share early drafts with the director of photography and the first assistant. Their remarks on lenses, light and schedule are cheapest while the panels are rough.",
+          "Partagez les premières ébauches avec le chef opérateur et le premier assistant. Leurs remarques sur les focales, la lumière et le planning coûtent le moins cher tant que les cases sont brutes.") },
+    ],
+    recap: [
+      B("A storyboard records shot decisions taken before the shoot.", "Un storyboard consigne des décisions de plan prises avant le tournage."),
+      B("Its readers differ, and in advertising the client approves it.", "Ses lecteurs diffèrent, et en publicité le client le valide."),
+      B("Storyboard first where a mistake on set is costly or hard to fix.", "Storyboardez d'abord là où une erreur au tournage coûte cher ou se rattrape mal."),
+      B("AI lowers the cost of drawing, not the need to choose what to draw.", "L'IA baisse le coût du dessin, pas la nécessité de choisir quoi dessiner."),
+    ],
+    further: B("Look for published storyboards of films you know, often found in making-of books or in the extras of film editions, and compare a few panels with the finished shots. Note what was kept, what changed on set, and what the panels never tried to show.",
+      "Cherchez des storyboards publiés de films que vous connaissez, souvent présents dans des livres sur les coulisses ou dans les bonus d'éditions vidéo, et comparez quelques cases aux plans terminés. Notez ce qui a été gardé, ce qui a changé au tournage, et ce que les cases n'ont jamais cherché à montrer."),
+    more: [
+      { q: B("The first assistant reads the storyboard of Marée basse. What is he mainly looking for?",
+          "Le premier assistant lit le storyboard de « Marée basse ». Qu'y cherche-t-il surtout ?"),
+        options: [
+          B("The colour palette of the final grade", "La palette de couleurs de l'étalonnage final"),
+          B("The number of shots and setups, to build the schedule", "Le nombre de plans et d'installations, pour le planning"),
+          B("The music that will accompany each sequence", "La musique qui accompagnera chaque séquence"),
+        ],
+        answer: 1,
+        why: B("The first assistant builds the shooting schedule. The number of shots and setups per sequence tells him how long each one will take; the grade and the music come much later.",
+          "Le premier assistant bâtit le planning de tournage. Le nombre de plans et d'installations par séquence lui dit combien de temps chacune prendra ; l'étalonnage et la musique viennent bien plus tard.") },
+      { q: B("Which sequence most deserves a full storyboard?",
+          "Quelle séquence mérite le plus un storyboard complet ?"),
+        options: [
+          B("A night car chase with a stunt and two cameras", "Une poursuite en voiture de nuit, avec cascade et deux caméras"),
+          B("A phone call filmed in one static medium shot", "Un appel téléphonique filmé en un plan moyen fixe"),
+          B("A rehearsed dialogue between two actors on a sofa", "Un dialogue répété entre deux comédiens sur un canapé"),
+        ],
+        answer: 0,
+        why: B("A stunt at night with two cameras combines risk, cost and coordination: every position must be decided in advance. The other two can be settled on set in minutes.",
+          "Une cascade de nuit à deux caméras cumule risque, coût et coordination : chaque position doit être décidée à l'avance. Les deux autres se règlent sur le plateau en quelques minutes.") },
+    ],
+  },
+
+  [deepKey(M1, 'sb-script')]: {
+    intro: B("A storyboard starts from a text. Before imagining a single shot, you need to read the script as a technician: where does each sequence start and end, where does it take place, at what time, with whom, and what changes during it. This lesson teaches you to break a script into numbered sequences and to build a table that the whole preparation will rely on. You will use an AI for the extraction, with rules that forbid it to invent, and you will check every line against the page.",
+      "Un storyboard part d'un texte. Avant d'imaginer le moindre plan, il faut lire le script en technicien : où chaque séquence commence et finit, où elle se passe, à quel moment, avec qui, et ce qui change pendant qu'elle se déroule. Ce cours vous apprend à découper un script en séquences numérotées et à bâtir le tableau sur lequel reposera toute la préparation. Vous confierez l'extraction à une IA, avec des règles qui lui interdisent d'inventer, et vous vérifierez chaque ligne sur la page."),
+    concepts: [
+      { term: B('Sequence', 'Séquence'),
+        def: B("A unit of place and time in a script. A change of place or a jump in time opens a new sequence, with its own heading.",
+          "Une unité de lieu et de temps dans un script. Un changement de lieu ou un saut dans le temps ouvre une nouvelle séquence, avec son propre en-tête."),
+      },
+      { term: B('Scene heading', 'En-tête de séquence'),
+        def: B("The line that opens a sequence: INT. or EXT., the place, and DAY or NIGHT. Set, light and costume preparation depend on it.",
+          "La ligne qui ouvre une séquence : INT. ou EXT., le lieu, et JOUR ou NUIT. La préparation du décor, de la lumière et des costumes en dépend.") },
+      { term: B('Dramatic intent', 'Intention dramatique'),
+        def: B("What the sequence must make the viewer feel or understand. It belongs to the director, and the shots will serve it.",
+          "Ce que la séquence doit faire ressentir ou comprendre au spectateur. Elle appartient à la réalisation, et les plans la serviront.") },
+      { term: B('Turning point', 'Temps fort'),
+        def: B("The moment inside a sequence where something shifts: a revelation, a decision, a gesture. It often receives the tightest shot.",
+          "L'instant, dans une séquence, où quelque chose bascule : une révélation, une décision, un geste. Il reçoit souvent le plan le plus serré.") },
+    ],
+    walkthrough: {
+      title: B("Camille turns the eleven pages of Marée basse into a checked sequence table.",
+        "Camille transforme les onze pages de « Marée basse » en tableau de séquences vérifié."),
+      steps: [
+        B("She first checks that she may paste the script into the assistant: it is hers, and she has read the tool's data use terms. Why: a script is often confidential, and the decision comes before the prompt.",
+          "Elle vérifie d'abord qu'elle peut coller le script dans l'assistant : il est à elle, et elle a lu les conditions d'usage des données de l'outil. Pourquoi : un script est souvent confidentiel, et la décision précède le prompt."),
+        B("She asks for one row per heading, with a quoted line per cell and « absent du script » when information is missing. Why: the quote makes each cell checkable in seconds.",
+          "Elle demande une ligne par en-tête, avec une ligne citée par case et « absent du script » quand une information manque. Pourquoi : la citation rend chaque case vérifiable en quelques secondes."),
+        B("The table has five rows, but the script has four headings. She finds that the AI split the kitchen sequence in two at a silence. Why: counting headings is the fastest test of a breakdown.",
+          "Le tableau compte cinq lignes, mais le script n'a que quatre en-têtes. Elle constate que l'IA a coupé la séquence de cuisine en deux sur un silence. Pourquoi : compter les en-têtes est le test le plus rapide d'un découpage."),
+        B("She rewrites each intent herself. For sequence 3: « Jeanne understands that her father will never sail again ». Why: the AI proposed a hypothesis; only the director can confirm what the film means.",
+          "Elle réécrit elle-même chaque intention. Pour la séquence 3 : « Jeanne comprend que son père ne reprendra jamais la mer ». Pourquoi : l'IA proposait une hypothèse ; seule la réalisatrice peut confirmer ce que dit le film."),
+        B("She keeps the list of recurring props and sets: the red raincoat, the boat, the kitchen table, the quay. Why: these items will need to stay identical from panel to panel in the next module.",
+          "Elle garde la liste des accessoires et décors récurrents : le ciré rouge, le bateau, la table de cuisine, le quai. Pourquoi : ces éléments devront rester identiques d'une case à l'autre dans le module suivant."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking the AI for a free summary of each scene.",
+          "Demander à l'IA un résumé libre de chaque scène."),
+        fix: B("Ask for an extraction with fixed columns, a quote per cell and an explicit marker for missing information. A summary invites invention; an extraction can be checked.",
+          "Demandez une extraction à colonnes fixes, une citation par case et une mention explicite pour l'information manquante. Un résumé invite à l'invention ; une extraction se vérifie.") },
+      { wrong: B("Splitting sequences by emotion or by silence instead of by place and time.",
+          "Couper les séquences selon l'émotion ou les silences plutôt que selon le lieu et le temps."),
+        fix: B("Follow the headings: a sequence changes when the place or the time changes. Emotional shifts inside a sequence are its turning points, not new sequences.",
+          "Suivez les en-têtes : une séquence change quand le lieu ou le moment change. Les bascules d'émotion à l'intérieur d'une séquence sont ses temps forts, pas de nouvelles séquences.") },
+      { wrong: B("Pasting a client's or a producer's script into any online tool without asking.",
+          "Coller le script d'un client ou d'un producteur dans n'importe quel outil en ligne sans demander."),
+        fix: B("Read the tool's terms on data use, ask for permission, and if in doubt work on an excerpt with names replaced. Confidentiality is part of the job.",
+          "Lisez les conditions de l'outil sur l'usage des données, demandez l'autorisation, et dans le doute travaillez sur un extrait aux noms remplacés. La confidentialité fait partie du métier.") },
+    ],
+    recap: [
+      B("A sequence is a unit of place and time, opened by its heading.", "Une séquence est une unité de lieu et de temps, ouverte par son en-tête."),
+      B("The sequence table is the base of the whole preparation.", "Le tableau des séquences est la base de toute la préparation."),
+      B("Require a quote per cell so that the AI cannot invent silently.", "Exigez une citation par case pour que l'IA ne puisse pas inventer en silence."),
+      B("The intent and the turning point are decided by the director.", "L'intention et le temps fort sont décidés par la réalisation."),
+    ],
+    further: B("Read a published screenplay in its standard layout, many are available in book form, and break the first ten pages into a table by hand. Then compare with what an AI produces under the same rules: where did it miss a heading, and where did it add something?",
+      "Lisez un scénario publié dans sa mise en page standard, beaucoup existent en livre, et découpez ses dix premières pages en tableau à la main. Comparez ensuite avec ce que produit une IA sous les mêmes règles : où a-t-elle manqué un en-tête, et où a-t-elle ajouté quelque chose ?"),
+    more: [
+      { q: B("The script reads: « INT. KITCHEN, NIGHT », then later « INT. KITCHEN, DAY », with nothing else between. How many sequences?",
+          "Le script indique « INT. CUISINE, NUIT », puis plus loin « INT. CUISINE, JOUR », sans rien d'autre entre les deux. Combien de séquences ?"),
+        options: [
+          B("One, since the place is the same kitchen", "Une seule, puisque le lieu est la même cuisine"),
+          B("None, since nothing happens between the two", "Aucune, puisqu'il ne se passe rien entre les deux"),
+          B("Two, since the time of day has changed", "Deux, puisque le moment de la journée a changé"),
+        ],
+        answer: 2,
+        why: B("A sequence is a unit of place and time. The same kitchen at night and by day means a time jump, a new heading and a different light setup.",
+          "Une séquence est une unité de lieu et de temps. La même cuisine la nuit puis le jour suppose un saut dans le temps, un nouvel en-tête et une autre installation de lumière.") },
+      { q: B("Why ask the AI to quote the line of the script that justifies each cell?",
+          "Pourquoi demander à l'IA de citer la ligne du script qui justifie chaque case ?"),
+        options: [
+          B("To make the table longer and more convincing to read", "Pour rendre le tableau plus long et plus convaincant"),
+          B("So that each cell can be checked and inventions exposed", "Pour que chaque case se vérifie et que les inventions se voient"),
+          B("Because the model cannot read a script without quoting it", "Parce que le modèle ne sait pas lire un script sans le citer"),
+        ],
+        answer: 1,
+        why: B("A quote ties the cell to the text. If it cannot be found on the page, the information was invented, and you see it at once instead of drawing it.",
+          "Une citation relie la case au texte. Si elle est introuvable sur la page, l'information a été inventée, et vous le voyez aussitôt au lieu de la dessiner.") },
+    ],
+  },
+
+  [deepKey(M1, 'sb-shots')]: {
+    intro: B("Every panel of a storyboard is a shot, and a shot is described with a precise vocabulary that the whole crew shares. Its size says how close we are, its angle says how we look at the character, its movement says how the frame evolves, and the transition says how it joins the next one. This lesson gives you these words, explains the effect of each choice, and introduces the 180-degree rule that keeps a dialogue readable. You will use them to compare three breakdowns of the kitchen scene of Marée basse.",
+      "Chaque case d'un storyboard est un plan, et un plan se décrit avec un vocabulaire précis que toute l'équipe partage. Sa valeur dit à quelle distance on se trouve, son angle dit comment on regarde le personnage, son mouvement dit comment le cadre évolue, et la transition dit comment il rejoint le suivant. Ce cours vous donne ces mots, explique l'effet de chaque choix et présente la règle des 180 degrés, qui garde un dialogue lisible. Vous les emploierez pour comparer trois découpages de la scène de cuisine de « Marée basse »."),
+    concepts: [
+      { term: B('Shot size', 'Valeur de plan'),
+        def: B("The scale of the frame relative to the character: extreme wide, wide, full, medium, close-up, extreme close-up, insert on an object. Wide situates, tight moves.",
+          "L'échelle du cadre par rapport au personnage : plan d'ensemble, plan général, plan moyen, plan rapproché, gros plan, très gros plan, insert sur un objet. Le large situe, le serré émeut.") },
+      { term: B('Camera angle', 'Angle de prise de vue'),
+        def: B("The height and tilt of the camera: eye level is neutral, high angle diminishes, low angle gives power, a tilted frame creates unease, a top shot shows the layout.",
+          "La hauteur et l'inclinaison de la caméra : la hauteur d'yeux est neutre, la plongée diminue, la contre-plongée donne de la puissance, le cadre incliné crée le malaise, la vue zénithale montre la disposition.") },
+      { term: B('Camera movement', 'Mouvement de caméra'),
+        def: B("How the frame changes during the shot: pan (rotation on the spot), dolly or tracking (the camera travels), handheld, crane, zoom (change of focal length).",
+          "La façon dont le cadre évolue pendant le plan : panoramique (rotation sur place), travelling (la caméra se déplace), caméra épaule, grue, zoom (changement de focale).") },
+      { term: B('180-degree rule', 'Règle des 180 degrés'),
+        def: B("An imaginary line between two characters; keeping the camera on one side keeps their eyelines consistent, so the viewer understands who faces whom.",
+          "Une ligne imaginaire entre deux personnages ; garder la caméra d'un même côté garde leurs regards cohérents, et le spectateur comprend qui fait face à qui.") },
+      { term: B('Transition', 'Transition'),
+        def: B("The link between two shots: a cut (instant), a dissolve (one image melts into the next, often time passing), a fade to black (an ending or a long ellipsis).",
+          "Le lien entre deux plans : le cut (instantané), le fondu enchaîné (une image se fond dans la suivante, souvent un temps qui passe), le fondu au noir (une fin ou une longue ellipse).") },
+    ],
+    walkthrough: {
+      title: B("Camille compares three breakdowns of the kitchen dialogue and keeps the one that serves the intent.",
+        "Camille compare trois découpages du dialogue de cuisine et garde celui qui sert l'intention."),
+      steps: [
+        B("She restates the intent: the distance between Jeanne and Yves, then a crack when he mentions the boat. Why: shot choices are judged against an intent, never in the abstract.",
+          "Elle reformule l'intention : la distance entre Jeanne et Yves, puis une fissure quand il parle du bateau. Pourquoi : un choix de plan se juge par rapport à une intention, jamais dans l'absolu."),
+        B("She sketches the kitchen from above and draws the line between the two chairs; all cameras go on the window side. Why: deciding the side first prevents eyeline errors in every later panel.",
+          "Elle esquisse la cuisine vue de dessus et trace la ligne entre les deux chaises ; toutes les caméras se placent côté fenêtre. Pourquoi : choisir le côté d'abord évite les erreurs de regard dans toutes les cases suivantes."),
+        B("She asks the AI for three contrasting breakdowns, restrained, oppressive, progressive, each shot named with exact terms. Why: comparing options reveals what each choice adds or removes.",
+          "Elle demande à l'IA trois découpages contrastés, retenu, oppressant, progressif, chaque plan nommé avec les termes exacts. Pourquoi : comparer des options révèle ce que chaque choix ajoute ou retire."),
+        B("She rejects the oppressive version: the high angle on Jeanne makes her a victim, which the script does not say. Why: an angle carries a judgement on the character.",
+          "Elle écarte la version oppressante : la plongée sur Jeanne en fait une victime, ce que le script ne dit pas. Pourquoi : un angle porte un jugement sur le personnage."),
+        B("She keeps the progressive version: a wide two-shot at first, medium shots in shot-reverse-shot, and a single close-up on Yves's hands at the turning point, then a cut to black. Why: the only close-up of the scene gives its full weight to the crack.",
+          "Elle garde la version progressive : un plan large à deux au début, des plans rapprochés en champ-contrechamp, et un seul gros plan sur les mains d'Yves au temps fort, puis un cut au noir. Pourquoi : l'unique gros plan de la scène donne tout son poids à la fissure."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Describing a shot as « nice » or « dynamic » instead of naming its size, angle and movement.",
+          "Décrire un plan comme « beau » ou « dynamique » au lieu de nommer sa valeur, son angle et son mouvement."),
+        fix: B("Use the exact terms for each panel. The crew and the image model both understand « medium shot, eye level, static » far better than an adjective.",
+          "Employez les termes exacts pour chaque case. L'équipe comme le modèle d'image comprennent bien mieux « plan rapproché, hauteur d'yeux, fixe » qu'un adjectif.") },
+      { wrong: B("Multiplying close-ups to make a scene feel intense.",
+          "Multiplier les gros plans pour rendre une scène intense."),
+        fix: B("Keep the tightest shots for the turning point. When everything is close, nothing stands out, and the moment that matters loses its weight.",
+          "Réservez les plans les plus serrés au temps fort. Quand tout est serré, rien ne ressort, et le moment qui compte perd son poids.") },
+      { wrong: B("Placing cameras on both sides of a dialogue without noticing.",
+          "Placer des caméras des deux côtés d'un dialogue sans s'en rendre compte."),
+        fix: B("Draw a floor plan with the 180-degree line before the panels, and check each panel's eyeline against it. Cross the line only on purpose, by showing the camera move.",
+          "Dessinez un plan au sol avec la ligne des 180 degrés avant les cases, et vérifiez chaque regard par rapport à elle. Ne franchissez la ligne que volontairement, en montrant le déplacement de la caméra.") },
+    ],
+    recap: [
+      B("A shot is described by its size, angle and movement, with exact terms.", "Un plan se décrit par sa valeur, son angle et son mouvement, avec les termes exacts."),
+      B("Each choice has an effect: wide situates, tight moves, angle judges.", "Chaque choix a un effet : le large situe, le serré émeut, l'angle juge."),
+      B("The tightest shot belongs to the turning point.", "Le plan le plus serré appartient au temps fort."),
+      B("The 180-degree line keeps a dialogue readable.", "La ligne des 180 degrés garde un dialogue lisible."),
+      B("Transitions carry time: cut, dissolve, fade to black.", "Les transitions portent le temps : cut, fondu enchaîné, fondu au noir."),
+    ],
+    further: B("Choose a dialogue scene from a film you know well and pause on every cut. For each shot, write its size, angle and movement, and draw where the camera stands relative to the line. You will see where the director tightens, and whether the line is ever crossed, and how.",
+      "Choisissez une scène de dialogue d'un film que vous connaissez bien et faites une pause à chaque coupe. Pour chaque plan, notez sa valeur, son angle et son mouvement, et dessinez la place de la caméra par rapport à la ligne. Vous verrez où la réalisation resserre, et si la ligne est franchie, et comment."),
+    more: [
+      { q: B("Camille wants to show that hours pass while Jeanne waits on the quay. Which transition fits best?",
+          "Camille veut montrer que des heures passent pendant que Jeanne attend sur le quai. Quelle transition convient le mieux ?"),
+        options: [
+          B("A dissolve between two shots of the quay in different light", "Un fondu enchaîné entre deux plans du quai sous une autre lumière"),
+          B("A cut on the same frame with no visible change", "Un cut sur le même cadre sans changement visible"),
+          B("A fast whip pan toward the sea and back again", "Un panoramique filé rapide vers la mer et retour"),
+        ],
+        answer: 0,
+        why: B("A dissolve is the classic sign of time passing, and a change of light confirms it. A plain cut on the same frame reads as a jump, and a whip pan suggests speed, not waiting.",
+          "Le fondu enchaîné est le signe classique du temps qui passe, et le changement de lumière le confirme. Un cut sur le même cadre se lit comme une saute, et un panoramique filé suggère la vitesse, pas l'attente.") },
+      { q: B("In a prompt for an image tool, why write « medium shot, eye level » rather than « a shot of Jeanne »?",
+          "Dans un prompt pour un outil d'image, pourquoi écrire « plan rapproché, hauteur d'yeux » plutôt que « un plan de Jeanne » ?"),
+        options: [
+          B("Because image tools refuse prompts without technical terms", "Parce que les outils d'image refusent les prompts sans termes techniques"),
+          B("Because these terms always guarantee the exact framing", "Parce que ces termes garantissent toujours le cadrage exact"),
+          B("Because shared terms reduce ambiguity, even if checking remains", "Parce que des termes partagés réduisent l'ambiguïté, à vérifier quand même"),
+        ],
+        answer: 2,
+        why: B("Models have learned these common terms and follow them approximately. They reduce guesswork, but the framing must still be checked on each panel, and corrected if needed.",
+          "Les modèles ont appris ces termes courants et les suivent approximativement. Ils réduisent les approximations, mais le cadrage doit toujours être vérifié sur chaque case, et corrigé au besoin.") },
+    ],
+  },
+
+  [deepKey(M1, 'sb-shotlist')]: {
+    intro: B("Once the shots are chosen, they must be written down in two forms. The technical breakdown lists them in story order, with all their characteristics, and describes the film as it will be edited. The shot list reorders the same shots for the shoot, grouped by setup, so that the crew moves the camera and the lights as little as possible. This lesson teaches you to produce both from the breakdown of the kitchen scene, to check the total duration against the pages, and to keep a numbering that links every document.",
+      "Une fois les plans choisis, il faut les écrire sous deux formes. Le découpage technique les liste dans l'ordre du récit, avec toutes leurs caractéristiques, et décrit le film tel qu'il sera monté. La liste des plans réordonne ces mêmes plans pour le tournage, groupés par installation, pour que l'équipe déplace caméra et lumières le moins possible. Ce cours vous apprend à produire les deux à partir du découpage de la scène de cuisine, à contrôler la durée totale par rapport aux pages, et à garder une numérotation qui relie tous les documents."),
+    concepts: [
+      { term: B('Technical breakdown', 'Découpage technique'),
+        def: B("The script rewritten shot by shot, in story order, with number, size, angle, movement, lens, action, dialogue, sound and estimated duration.",
+          "Le script réécrit plan par plan, dans l'ordre du récit, avec numéro, valeur, angle, mouvement, focale, action, dialogue, son et durée estimée.") },
+      { term: B('Shot list', 'Liste des plans'),
+        def: B("The same shots reordered for the shoot, grouped by camera position and light. It sets the working order of the day.",
+          "Les mêmes plans réordonnés pour le tournage, groupés par position de caméra et par lumière. Elle fixe l'ordre de travail de la journée.") },
+      { term: B('Setup', 'Installation'),
+        def: B("A camera position with its lighting. Changing setup takes time; several shots can often be filmed from one setup.",
+          "Une position de caméra avec sa lumière. Changer d'installation prend du temps ; plusieurs plans se tournent souvent depuis une même installation.") },
+      { term: B('Shot number', 'Numéro de plan'),
+        def: B("The identity of a shot, made of the sequence and the order (2.4). It stays the same on the panel, the shot list, the clapperboard and in the edit.",
+          "L'identité d'un plan, formée de la séquence et de l'ordre (2.4). Elle reste la même sur la case, la liste des plans, le clap et au montage.") },
+    ],
+    walkthrough: {
+      title: B("Camille writes the technical breakdown and the shot list of sequence 2, the kitchen dialogue.",
+        "Camille rédige le découpage technique et la liste des plans de la séquence 2, le dialogue de cuisine."),
+      steps: [
+        B("She gives the AI breakdown C and asks for a table in story order, numbered 2.1 to 2.8, with all columns. Why: the breakdown describes the film as it will be seen, so it follows the story.",
+          "Elle donne à l'IA le découpage C et demande un tableau dans l'ordre du récit, numéroté de 2.1 à 2.8, avec toutes les colonnes. Pourquoi : le découpage décrit le film tel qu'il sera vu, il suit donc le récit."),
+        B("The total comes to 70 seconds for a sequence of about two pages. She notices that Jeanne's silent reaction after the line about the boat has no shot, and adds 2.6b. Why: the duration check reveals what was forgotten.",
+          "Le total atteint 70 secondes pour une séquence d'environ deux pages. Elle remarque que la réaction muette de Jeanne après la réplique sur le bateau n'a pas de plan, et ajoute un 2.6b. Pourquoi : le contrôle de durée révèle ce qui a été oublié."),
+        B("She asks for the shot list: three setups emerge, A toward Yves over Jeanne's shoulder, B the reverse toward Jeanne, C the wide shot and the insert on the hands. Why: grouping by position limits relighting.",
+          "Elle demande la liste des plans : trois installations apparaissent, A vers Yves par-dessus l'épaule de Jeanne, B le contrechamp vers Jeanne, C le plan large et l'insert sur les mains. Pourquoi : grouper par position limite les changements de lumière."),
+        B("She checks that the shot list contains exactly the nine shots of the breakdown, with the same numbers. Why: a shot lost between two documents is a shot missing in the edit.",
+          "Elle vérifie que la liste des plans contient exactement les neuf plans du découpage, avec les mêmes numéros. Pourquoi : un plan perdu entre deux documents est un plan qui manque au montage."),
+        B("She pastes both CSV tables into a shared spreadsheet and sends them to the first assistant with her questions about the window light. Why: the assistant will set the order of setups according to the sun, which the AI cannot know.",
+          "Elle colle les deux tableaux CSV dans un tableur partagé et les envoie au premier assistant avec ses questions sur la lumière de la fenêtre. Pourquoi : l'assistant fixera l'ordre des installations selon le soleil, ce que l'IA ne peut pas savoir."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Mixing the technical breakdown and the shot list in a single table.",
+          "Mélanger découpage technique et liste des plans dans un seul tableau."),
+        fix: B("Keep two documents: one in story order for editing and the storyboard, one grouped by setup for the shoot, both sharing the same numbers.",
+          "Gardez deux documents : l'un dans l'ordre du récit pour le montage et le storyboard, l'autre groupé par installation pour le tournage, tous deux avec les mêmes numéros.") },
+      { wrong: B("Renumbering the shots in shooting order.",
+          "Renuméroter les plans dans l'ordre de tournage."),
+        fix: B("Never renumber. Add a letter for an inserted shot (2.6b) and keep the original numbers, which link the panel, the slate and the edit.",
+          "Ne renumérotez jamais. Ajoutez une lettre pour un plan inséré (2.6b) et gardez les numéros d'origine, qui relient la case, le clap et le montage.") },
+      { wrong: B("Taking the page per minute convention as an exact rule.",
+          "Prendre la convention d'une page par minute pour une règle exacte."),
+        fix: B("Use it as an alarm, not a measure. A dense action page and a page of short lines differ greatly; a big gap calls for a reread, not an automatic correction.",
+          "Servez-vous-en comme d'une alarme, pas d'une mesure. Une page d'action dense et une page de répliques courtes diffèrent beaucoup ; un grand écart appelle une relecture, pas une correction automatique.") },
+    ],
+    recap: [
+      B("The technical breakdown follows the story; the shot list follows the setups.", "Le découpage technique suit le récit ; la liste des plans suit les installations."),
+      B("A shot number never changes from panel to edit.", "Un numéro de plan ne change jamais, de la case au montage."),
+      B("The total duration, compared with the pages, reveals missing shots.", "La durée totale, comparée aux pages, révèle les plans manquants."),
+      B("Grouping shots by setup saves time on set.", "Grouper les plans par installation fait gagner du temps sur le plateau."),
+    ],
+    further: B("Open the help pages of a shot list tool such as StudioBinder or of a storyboard tool such as Boords, and look at the columns they propose by default. Compare them with yours: which ones would you add for your project, and which ones would you drop?",
+      "Ouvrez l'aide d'un outil de liste de plans comme StudioBinder ou d'un outil de storyboard comme Boords, et regardez les colonnes qu'ils proposent par défaut. Comparez-les aux vôtres : lesquelles ajouteriez-vous pour votre projet, et lesquelles retireriez-vous ?"),
+    more: [
+      { q: B("A new shot must be inserted between 2.6 and 2.7 after the breakdown is shared. How do you number it?",
+          "Un nouveau plan doit s'insérer entre 2.6 et 2.7 après la diffusion du découpage. Comment le numéroter ?"),
+        options: [
+          B("Renumber everything from 2.7 onward", "Renuméroter tout à partir de 2.7"),
+          B("2.6b, so that no existing number changes", "2.6b, pour qu'aucun numéro existant ne change"),
+          B("2.99, so that it appears at the end of the list", "2.99, pour qu'il apparaisse en fin de liste"),
+        ],
+        answer: 1,
+        why: B("Other documents already use 2.7 and the following numbers. A letter suffix inserts the shot without breaking any reference already shared with the crew.",
+          "D'autres documents utilisent déjà 2.7 et les numéros suivants. Un suffixe en lettre insère le plan sans casser aucune référence déjà partagée avec l'équipe.") },
+      { q: B("Why does the first assistant, and not the AI, decide the order of the setups?",
+          "Pourquoi est-ce le premier assistant, et non l'IA, qui décide de l'ordre des installations ?"),
+        options: [
+          B("Because the AI cannot sort a table by any column", "Parce que l'IA ne sait pas trier un tableau par colonne"),
+          B("Because the order of setups is set by the contract", "Parce que l'ordre des installations est fixé par contrat"),
+          B("Because it depends on sun, actors and location he knows", "Parce qu'il dépend du soleil, des comédiens et du lieu qu'il connaît"),
+        ],
+        answer: 2,
+        why: B("The shooting order depends on real constraints: where the sun is through the window, when each actor is available, access to the location. The AI can group shots; the assistant schedules them.",
+          "L'ordre de tournage dépend de contraintes réelles : la position du soleil dans la fenêtre, la disponibilité de chaque comédien, l'accès au lieu. L'IA peut grouper les plans ; l'assistant les planifie.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES CITÉS DE CETTE PARTIE                                           */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'pen', tint: '#dc2626', at: [12, 82], levels: SCRIPT,
+    title: B('From script to shot breakdown', 'Du script au découpage'),
+    blurb: B('What a storyboard decides, how to read a script, the vocabulary of shots, and the technical breakdown.',
+      'Ce que décide un storyboard, comment lire un script, le vocabulaire des plans, et le découpage technique.'),
+  },
+]
+
+export const STORYBOARD_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...SCRIPT_ENRICH },
+  deep: { ...SCRIPT_DEEP },
+}

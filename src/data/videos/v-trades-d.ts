@@ -100,4 +100,5 @@ export const V_TRADES_D: Record<string, Video[]> = {
     { id: '5y4-0CcOpAs', title: 'Committing to clarity: The art of writing good git commit messages', channel: '', lang: 'en' },
     { id: 'WDaFN7rA7B0', title: 'GitHub Copilot for commit messages and pr code reviews', channel: '', lang: 'en' },
   ],
+  'sc-publish/sc-review': [{ id: 'PJ2hKYTMyJA', title: 'How to peer review a journal article', channel: '', lang: 'en' }],
 }

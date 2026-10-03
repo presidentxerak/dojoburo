@@ -54,4 +54,5 @@ export const V_PATH: Record<string, Video[]> = {
     { id: 'etYgu0Q50vI', title: 'The Secret to Faster & Cheaper LLM Apps, Prompt Caching Explained', channel: '', lang: 'en' },
   ],
   'cost/ct-own': [{ id: 'eG7xHxwNMFs', title: 'How to Create a Claude API Key (2026 Tutorial)', channel: '', lang: 'en' }],
+  'elements/bans': [{ id: '9GHYUKYNbag', title: 'Constraint Based Prompts Explained with Examples (No Coding!)', channel: '', lang: 'en' }],
 }
