@@ -13100,3 +13100,18 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
    badge, et le bouton qui permet de repasser le quiz. */
 .ln-gate { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 18px 0 0; font-size: 15px; line-height: 1.5; color: var(--g-sub); }
 .ln-claim:disabled { opacity: .5; cursor: not-allowed; }
+
+/* EN VIDÉO · les vidéos YouTube d'un cours, en grille fluide. La façade est à
+   nous : aucune image ni script de YouTube avant le clic. */
+.ln-videos-lead { margin: 0 0 14px; color: var(--g-sub); }
+.ln-videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.ln-video { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ln-video-frame { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #120a24; }
+.ln-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ln-video-facade { cursor: pointer; display: grid; place-items: center; color: #fff; background: radial-gradient(circle at 50% 45%, #3b1d7a, #120a24 70%); box-shadow: var(--sk-btn); }
+.ln-video-play { width: 64px; height: 64px; border-radius: 999px; display: grid; place-items: center; background: #7c3aed; box-shadow: var(--sk-btn); transition: transform .15s ease; }
+.ln-video-facade:hover .ln-video-play { transform: scale(1.08); }
+.ln-video-note { position: absolute; left: 12px; bottom: 10px; font-size: 12px; opacity: .8; }
+.ln-video figcaption { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.ln-video figcaption b { font-size: 15px; line-height: 1.35; }
+.ln-video figcaption span { font-size: 13px; color: var(--g-sub); }

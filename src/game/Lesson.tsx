@@ -42,6 +42,8 @@ import { enrichmentOf, type Enrichment } from '../data/enrich'
 import { deepeningOf, type Deepening } from '../data/deep'
 import type { Quiz as QuizData } from '../data/curriculum'
 import { Shell } from './Shell'
+import { videosFor } from '../data/videos'
+import type { Video } from '../data/videos/types'
 
 /** La part de bonnes réponses qu'il faut au quiz pour recevoir le badge. */
 const PASS_RATE = 0.6
@@ -227,6 +229,9 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
             {deep && <div data-step="exercise" data-label={t('ln.exercise')}><Exercise key={`ex-${pack.id}/${level.id}`} e={deep} /></div>}
 
             {more && <div data-step="recap" data-label={t('ln.recap')}><Recap d={more} /></div>}
+
+            {/* EN VIDÉO · des vidéos YouTube réelles sur le sujet du cours */}
+            <LessonVideos list={videosFor(module.id, level.id)} />
 
             <section className="ln-block" data-step="quiz" data-label={t('ac.check')}>
               <h2 className="ln-h2">{t('ac.check')} {streak > 1 && <span className="lq-streak">{say(QT.streak, lang)} ×{streak}</span>}</h2>
@@ -532,5 +537,56 @@ function Exercise({ e }: { e: Enrichment }) {
       </ul>
       <p className="ln-bonus"><b>{t('ln.bonus')}</b> {say(x.bonus, lang)}</p>
     </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* EN VIDÉO · demandé : « On va ajouter dans toutes nos formations des   */
+/* vidéos youtube qui traitent chacun des sujets évoqués ». Rien ne part */
+/* vers YouTube avant le clic, et le lecteur est celui sans cookie.      */
+/* ------------------------------------------------------------------ */
+
+function LessonVideos({ list }: { list: Video[] }) {
+  const t = useT()
+  if (!list.length) return null
+  return (
+    <section className="ln-block ln-videos">
+      <h2 className="ln-h2">{t('ln.videosH')}</h2>
+      <p className="ln-videos-lead">{t('ln.videosLead')}</p>
+      <div className="ln-videos-grid">{list.map((v) => <VideoBox key={v.id} v={v} />)}</div>
+    </section>
+  )
+}
+
+function VideoBox({ v }: { v: Video }) {
+  const t = useT()
+  const [on, setOn] = useState(false)
+  // L'IDENTIFIANT EST VÉRIFIÉ AVANT D'ENTRER DANS UNE ADRESSE
+  if (!/^[A-Za-z0-9_-]{11}$/.test(v.id)) return null
+  return (
+    <figure className="ln-video">
+      {on ? (
+        <div className="ln-video-frame">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`}
+            title={v.title}
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <button className="ln-video-frame ln-video-facade" onClick={() => setOn(true)} aria-label={`${t('ln.videoPlay')} · ${v.title}`}>
+          <span className="ln-video-play" aria-hidden="true"><BauhausIcon name="play" size={22} /></span>
+          <span className="ln-video-note">{t('ln.videoPrivacy')}</span>
+        </button>
+      )}
+      <figcaption>
+        <b>{v.title}</b>
+        <span>{v.channel} · {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')}</span>
+      </figcaption>
+    </figure>
   )
 }
