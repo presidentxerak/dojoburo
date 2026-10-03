@@ -68,9 +68,9 @@ export type CourseId = (typeof COURSE_IDS)[number]
 export const COURSE_READY: Record<CourseId, boolean> = {
   'coder-une-app': true,
   'coder-avec-lovable': true,
-  'ecrire-un-livre': false,
+  'ecrire-un-livre': true,
   'storyboard': true,
-  'bd-manga': false,
+  'bd-manga': true,
   'flow-ux': false,
   'architecture-logicielle': false,
   'comptabilite': false,

@@ -756,6 +756,179 @@ const PROTO_DEEP: Record<string, Deepening> = {
 }
 
 /* ================================================================== */
+/* MODULE 4 · TESTER ET LIVRER                                         */
+/* ================================================================== */
+
+const M4 = 'ux-m4'
+
+const SHIP: Level[] = [
+  {
+    id: 'ux-test',
+    master: 'research',
+    minutes: 12,
+    title: B('The usability test: scenario, observation, synthesis', 'Le test utilisateur : scénario, observation, synthèse'),
+    learn: B(
+      'You will run a usability test with real users: tasks without hints, neutral observation, and a synthesis based on evidence.',
+      'Vous saurez mener un test utilisateur réel : des tâches sans indice, une observation neutre, une synthèse fondée sur des preuves.',
+    ),
+    act: B('Test the Le Bocal prototype with five customers, take notes on a grid, then synthesise with AI and check every point.',
+      "Testez le prototype du Bocal avec cinq clients, notez sur une grille, puis synthétisez avec l'IA en vérifiant chaque point."),
+    steps: [
+      B("Write tasks as goals in the user's words ('you want to pick up your order on Saturday'), never with screen labels.",
+        "Rédigez les tâches comme des buts (« vous voulez retirer votre commande samedi »), jamais avec les libellés des écrans."),
+      B('Recruit real customers, get their consent to record, and ask them to think aloud while they use the prototype.',
+        "Recrutez de vrais clients, obtenez leur accord pour enregistrer, et demandez-leur de penser à voix haute pendant l'essai."),
+      B('Observe without helping: note what people do, say, and where they hesitate, with the timestamp of the recording.',
+        "Observez sans aider : notez ce que la personne fait, dit, et où elle hésite, avec le minutage de l'enregistrement."),
+      B('Let AI cluster your notes into issues, then trace each issue back to at least one moment in the recordings.',
+        "Laissez l'IA regrouper vos notes en problèmes, puis rattachez chaque problème à au moins un moment des enregistrements."),
+    ],
+    trap: B(
+      'Explaining the screen when the participant hesitates: you erase the very problem you came to observe, and real customers will meet it alone.',
+      "Expliquer l'écran dès que la personne hésite : vous effacez le problème même que vous veniez observer, et les vrais clients le vivront seuls.",
+    ),
+    quiz: {
+      q: B("Your AI synthesis says 'checkout feels too long', with a quote you do not remember. What do you do?",
+        "La synthèse de l'IA dit « le paiement paraît trop long », avec une citation dont vous ne vous souvenez pas. Que faire ?"),
+      options: [
+        B('Find the quote in the transcript and keep it only if it is there', "Chercher la citation dans la transcription, la garder si elle y est"),
+        B('Keep it, since the AI read every transcript more closely than you', "La garder : l'IA a lu les transcriptions plus attentivement que vous"),
+        B('Delete the whole synthesis and redo all of it by hand, without AI', "Supprimer toute la synthèse et tout refaire à la main, sans IA"),
+      ],
+      answer: 0,
+      why: B(
+        'A model summarising many notes can merge, rephrase or invent quotes. Every finding must point to a real moment in a recording; what you cannot find, you remove.',
+        "Un modèle qui résume beaucoup de notes peut fusionner, reformuler ou inventer des citations. Chaque constat doit renvoyer à un vrai moment enregistré ; ce qui est introuvable est retiré.",
+      ),
+    },
+    badge: B('Observes without leading', 'Observe sans orienter'),
+  },
+  {
+    id: 'ux-iterate',
+    master: 'triage',
+    minutes: 10,
+    title: B('Iterate: prioritise what to fix', "Itérer : prioriser ce qu'on corrige"),
+    learn: B(
+      'You will rank test findings by severity and effort, fix causes rather than symptoms, and check that the fixes work.',
+      'Vous saurez classer les constats par gravité et par effort, corriger les causes plutôt que les symptômes, et vérifier.',
+    ),
+    act: B('Rate the issues of the Le Bocal test, choose what to fix first with the developer, then retest the changed screens.',
+      'Notez la gravité des problèmes du test du Bocal, choisissez avec le développeur quoi corriger, puis retestez.'),
+    steps: [
+      B('Rate each issue on a severity scale: how many people hit it, how hard it blocks them, whether it recurs.',
+        "Notez chaque problème sur une échelle de gravité : combien de personnes, à quel point il bloque, s'il revient."),
+      B('Ask the developer for the effort of each fix: AI can sort by impact, but it does not know your codebase.',
+        "Demandez au développeur l'effort de chaque correction : l'IA peut trier par impact, mais elle ne connaît pas votre code."),
+      B('Look for the shared cause behind several issues: one confusing step often produces three symptoms.',
+        'Cherchez la cause commune derrière plusieurs problèmes : une étape confuse produit souvent trois symptômes.'),
+      B('Write each decision in a log (fixed, postponed, rejected, and why), then retest the fixed screens.',
+        'Consignez chaque décision dans un journal (corrigé, reporté, écarté, et pourquoi), puis retestez les écrans corrigés.'),
+    ],
+    trap: B(
+      'Fixing what is quickest, or what the owner noticed, instead of what stopped the most users from finishing the flow.',
+      "Corriger ce qui est le plus rapide, ou ce que la gérante a remarqué, au lieu de ce qui a empêché le plus de clients de finir le flow.",
+    ),
+    quiz: {
+      q: B('Three people missed the slot step, two misread the total, one disliked the green. What do you fix first?',
+        "Trois personnes ont manqué le créneau, deux ont mal lu le total, une n'aimait pas le vert. Que corrigez-vous d'abord ?"),
+      options: [
+        B('The green, because it is by far the quickest change of the three', "Le vert, parce que c'est de loin le changement le plus rapide"),
+        B('The total, because money errors upset customers more than others', "Le total, parce que les erreurs d'argent fâchent plus que le reste"),
+        B('The slot step, because it blocks the most people', "L'étape du créneau, parce qu'elle bloque le plus de monde"),
+      ],
+      answer: 2,
+      why: B(
+        'Severity combines frequency and impact. Missing the slot step stops people from ordering; the misread total is serious and comes next; one color preference is an opinion, not a blocking issue.',
+        "La gravité combine fréquence et impact. Manquer le créneau empêche de commander ; le total mal lu est sérieux et vient ensuite ; une préférence de couleur isolée est un avis, pas un blocage.",
+      ),
+    },
+    badge: B('Fixes what blocks first', "Corrige d'abord ce qui bloque"),
+  },
+  {
+    id: 'ux-handoff',
+    master: 'writing',
+    minutes: 11,
+    title: B('Hand off to designers and developers', 'Livrer aux designers et aux développeurs'),
+    learn: B(
+      'You will deliver a flow that others can build: annotated screens, every state, acceptance criteria and a walkthrough.',
+      'Vous saurez livrer un flow constructible par d\'autres : écrans annotés, tous les états, critères d\'acceptation, revue commune.',
+    ),
+    act: B('Prepare the handoff of the pickup flow: annotate each screen, list its states, draft acceptance criteria with AI.',
+      "Préparez la livraison du flow de retrait : annotez chaque écran, listez ses états, rédigez les critères avec l'IA."),
+    steps: [
+      B('Put the final flow diagram first, each screen linked to its step and to its error and empty states.',
+        "Placez d'abord le diagramme final du flow, chaque écran relié à son étape et à ses états d'erreur et vides."),
+      B('Annotate what a static screen cannot show: rules, limits, focus order, what happens on failure.',
+        "Annotez ce qu'un écran statique ne montre pas : règles, limites, ordre de focus, ce qui se passe en cas d'échec."),
+      B('Have AI draft acceptance criteria in Given, When, Then form from your annotations, then correct them line by line.',
+        "Faites rédiger par l'IA des critères d'acceptation (Étant donné, Quand, Alors) d'après vos annotations, puis corrigez-les."),
+      B('Walk the developer through the flow in a short meeting, and note every question as a missing annotation.',
+        'Présentez le flow au développeur en une courte réunion, et notez chaque question comme une annotation manquante.'),
+    ],
+    trap: B(
+      'Sending a Figma link with only the happy path: the developer then invents the errors, the empty states and the loading, one by one.',
+      "Envoyer un lien Figma avec le seul parcours idéal : le développeur invente alors les erreurs, les états vides et les chargements.",
+    ),
+    quiz: {
+      q: B('The developer asks what happens if payment fails after the slot is chosen. What does the question tell you?',
+        'Le développeur demande ce qui se passe si le paiement échoue une fois le créneau choisi. Qu\'en concluez-vous ?'),
+      options: [
+        B('That he did not read the Figma file carefully before the meeting', "Qu'il n'a pas lu attentivement le fichier Figma avant la réunion"),
+        B('That a state is missing from the handoff and must be designed', "Qu'un état manque à la livraison et doit être conçu"),
+        B('That payment errors are a technical topic the design can ignore', 'Que les erreurs de paiement sont un sujet technique, hors du design'),
+      ],
+      answer: 1,
+      why: B(
+        'Each question from development points to a decision not yet made. Here the flow must say whether the slot stays held, what message appears and how to retry: these are design choices.',
+        "Chaque question du développement signale une décision non prise. Ici, le flow doit dire si le créneau reste bloqué, quel message s'affiche et comment réessayer : ce sont des choix de design.",
+      ),
+    },
+    badge: B('Delivers buildable flows', 'Livre des flows constructibles'),
+  },
+  {
+    id: 'ux-measure',
+    master: 'growth',
+    minutes: 11,
+    title: B('Measure the flow in production: funnel and analytics', 'Mesurer le flow en production : entonnoir et analytics'),
+    learn: B(
+      'You will turn the steps of a flow into a funnel, define the events to track, and read where and why people drop off.',
+      "Vous saurez traduire les étapes d'un flow en entonnoir, définir les événements à suivre, et lire où et pourquoi on abandonne.",
+    ),
+    act: B('Write the tracking plan of the pickup flow, check the events in a debug view, then read the funnel after launch.',
+      "Rédigez le plan de marquage du flow de retrait, vérifiez les événements en mode débogage, puis lisez l'entonnoir."),
+    steps: [
+      B('Map each step of the flow to one event, named consistently, such as slot_selected or order_confirmed.',
+        'Associez chaque étape du flow à un événement, nommé de façon cohérente, comme slot_selected ou order_confirmed.'),
+      B('Ask AI to draft the tracking plan as a table: event, trigger, properties, and the question it answers.',
+        "Demandez à l'IA un plan de marquage en tableau : événement, déclencheur, propriétés, et la question à laquelle il répond."),
+      B('Check the consent rules that apply to your audience measurement with the official source, such as the CNIL in France.',
+        "Vérifiez les règles de consentement de votre mesure d'audience auprès de la source officielle, comme la CNIL en France."),
+      B('Read the funnel to find where people leave, then watch sessions or talk to users to learn why.',
+        "Lisez l'entonnoir pour voir où l'on abandonne, puis observez des sessions ou interrogez des clients pour comprendre pourquoi."),
+    ],
+    trap: B(
+      'Concluding that a change worked because orders rose that week: without a baseline and a comparable period, nothing separates it from chance.',
+      "Conclure qu'un changement a marché parce que les commandes ont monté : sans point de référence ni période comparable, rien ne l'écarte du hasard.",
+    ),
+    quiz: {
+      q: B('The funnel shows that many people leave at the slot step. What does it tell you on its own?',
+        "L'entonnoir montre que beaucoup de personnes quittent le flow à l'étape du créneau. Que vous dit-il, à lui seul ?"),
+      options: [
+        B('Where the problem is, but not why people leave at that step', "Où se situe le problème, mais pas pourquoi on part à cette étape"),
+        B('That the slot screen must be redesigned from scratch at once', "Que l'écran des créneaux doit être refait de zéro, sans attendre"),
+        B('That the shop simply does not offer enough pickup slots each week', "Que la boutique n'offre tout simplement pas assez de créneaux"),
+      ],
+      answer: 0,
+      why: B(
+        'Analytics shows where behaviour changes, not its cause. The screen may confuse, or the slots may not suit people. Recordings, a survey or interviews tell you which, before any redesign.',
+        "L'analytics montre où le comportement change, pas sa cause. L'écran peut dérouter, ou les créneaux ne pas convenir. Enregistrements, sondage ou entretiens disent lequel, avant toute refonte.",
+      ),
+    },
+    badge: B('Measures where, then asks why', 'Mesure où, puis demande pourquoi'),
+  },
+]
+
+/* ================================================================== */
 /* LES MODULES DE CETTE PARTIE                                         */
 /* ================================================================== */
 
@@ -765,6 +938,12 @@ const MODULES: Module[] = [
     title: B('From wireframes to prototype', 'Des wireframes au prototype'),
     blurb: B('Structure the content, sketch then refine the screens, link them into a Figma prototype, and make the flow accessible.',
       'Structurer le contenu, esquisser puis affiner les écrans, les relier en prototype Figma, et rendre le flow accessible.'),
+  },
+  {
+    id: M4, track: 'course', glyph: 'target', tint: '#0e7490', at: [70, 58], levels: SHIP,
+    title: B('Test and deliver', 'Tester et livrer'),
+    blurb: B('Test the prototype with real users, prioritise the fixes, hand off a buildable flow, and measure it once it is live.',
+      'Tester le prototype avec de vrais utilisateurs, prioriser les corrections, livrer un flow constructible et le mesurer en production.'),
   },
 ]
 
