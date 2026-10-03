@@ -1,4 +1,4 @@
-// L'approfondissement des dojos de ce groupe · voir ./types.
+// L'approfondissement des cours de ce groupe · voir ./types.
 import { B } from '../bilingual'
 import type { Enrichment } from './types'
 

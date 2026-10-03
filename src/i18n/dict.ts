@@ -529,7 +529,7 @@ export const DICT = {
   'tf.passName': { en: "The Dojoburo Pass", fr: "Le Pass Dojoburo" },
   'tf.reco': { en: "Recommended", fr: "Recommandé" },
   'tf.passTag': { en: "Every training, present and future, for life.", fr: "Toutes les formations, actuelles et futures, à vie." },
-  'tf.passTemples': { en: "trainings, every lesson open", fr: "formations, toutes les leçons ouvertes" },
+  'tf.passTemples': { en: "courses, every lesson open", fr: "formations, tous les cours ouverts" },
   'tf.pass2': { en: "The trainings still to come, at no extra cost", fr: "Les formations à venir, sans supplément" },
   'tf.pass3': { en: "Updates included, no subscription", fr: "Mises à jour comprises, aucun abonnement" },
   'tf.passSum': { en: "Bought one by one, these trainings cost", fr: "Achetées une par une, ces formations coûtent" },
@@ -732,7 +732,7 @@ export const DICT = {
     en: 'The first lesson of every module is open. The rest comes with the full course, bought once.',
     fr: "Le premier cours de chaque module est ouvert. Le reste est inclus dans la formation complète, achetée une fois.",
   },
-  'g.freeFirst': { en: 'Free lesson', fr: 'Leçon offerte' },
+  'g.freeFirst': { en: 'Free lesson', fr: 'Cours offert' },
   // L'ÉTIQUETTE DU MAÎTRE · elle était écrite en dur, en anglais, dans le
   // composant 3D. Sur un écran français elle donnait « Sensei · dojo master »
   // au milieu d'une leçon en français · exactement le mélange de langues déjà

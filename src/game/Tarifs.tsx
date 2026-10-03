@@ -229,11 +229,11 @@ export function TarifsPage() {
                 return (
                   <tr key={p.id}>
                     <th scope="row"><Lnk href={packPath(p.id)} style={{ ['--ac' as string]: p.tint }} className="tf-list-name">{say(p.title, lang)}</Lnk></th>
-                    <td>{masterOf(p.id).name}</td>
-                    <td>{n}</td>
-                    <td>{eur === 0 ? t('tf.all') : Math.min(FREE_LESSONS, n)}</td>
-                    <td>{priceTag(eur)}</td>
-                    <td className="main">{yes}</td>
+                    <td data-label={t('tf.colMaster')}>{masterOf(p.id).name}</td>
+                    <td data-label={t('tf.colLessons')}>{n}</td>
+                    <td data-label={t('tf.colFree')}>{eur === 0 ? t('tf.all') : Math.min(FREE_LESSONS, n)}</td>
+                    <td data-label={t('tf.colAlone')}>{priceTag(eur)}</td>
+                    <td data-label={t('tf.colPass')} className="main">{yes}</td>
                   </tr>
                 )
               })}

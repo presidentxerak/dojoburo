@@ -2,7 +2,7 @@
 // une app [...] en apprenant Claude Code, Vercel, Supabase, le terminal et
 // GitHub [...] Un cours comment coder une app avec Lovable à 49 € ».
 //
-// Un cours est une formation comme les autres (des cités, des dojos, leur
+// Un cours est une formation comme les autres (des cités, des cours, leur
 // approfondissement et leur couche pédagogique), mais il s'achète seul et
 // n'ouvre que lui. Chaque cours est écrit en plusieurs parties, une par
 // fichier, pour que plusieurs mains écrivent en même temps sans se gêner.

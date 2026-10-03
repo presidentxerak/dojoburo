@@ -1,7 +1,7 @@
 // Tous les approfondissements pédagogiques, réunis · voir ./types.
 //
 // UN FICHIER PAR FORMATION · chacun exporte un objet indexé par deepKey. Un
-// fichier encore vide exporte {} : le dojo s'affiche alors sans cette couche,
+// fichier encore vide exporte {} : le cours s'affiche alors sans cette couche,
 // et scripts/test-deep refuse de laisser partir cela en production.
 import type { Deepening } from './types'
 import { deepKey } from './types'
