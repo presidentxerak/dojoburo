@@ -750,6 +750,409 @@ const STRAT_DEEP: Record<string, Deepening> = {
 }
 
 /* ================================================================== */
+/* MODULE 2 · CRÉER LE LOGOTYPE                                        */
+/* ================================================================== */
+
+const M2 = 'lg-m2'
+
+const CREATE: Level[] = [
+  {
+    id: 'lg-explore',
+    master: 'research',
+    minutes: 11,
+    title: B('Explore directions with image AI', "Explorer des pistes avec l'IA image"),
+    learn: B(
+      'You will turn the brief into image prompts, generate many directions and sort them: AI gives ideas, not files.',
+      "Vous saurez traduire le brief en prompts d'image, générer de nombreuses pistes et les trier : l'IA donne des idées, pas des fichiers.",
+    ),
+    act: B('Write three image prompts from the brief of Pagelune, generate about forty sketches, then keep and annotate five.',
+      "Écrivez trois prompts d'image tirés du brief de Pagelune, générez une quarantaine d'esquisses, puis gardez-en cinq, annotées."),
+    steps: [
+      B('Write each prompt from the brief: subject, logo family, style, constraints such as flat shapes, one colour, white background.',
+        "Rédigez chaque prompt à partir du brief : sujet, famille de logo, style, contraintes (formes plates, une couleur, fond blanc)."),
+      B('Generate in series in Midjourney, Adobe Firefly, Ideogram or ChatGPT, changing only one element at a time.',
+        "Générez par séries dans Midjourney, Adobe Firefly, Ideogram ou ChatGPT, en ne changeant qu'un élément à la fois."),
+      B('Sort the results against the brief: keep ideas of form, set aside anything that recalls a known logo.',
+        "Triez les résultats selon le brief : gardez des idées de forme, écartez tout ce qui rappelle un logo connu."),
+      B('Sketch the five kept directions by hand, noting under each the idea worth redrawing.',
+        "Esquissez à la main les cinq pistes retenues, en notant sous chacune l'idée qui mérite d'être redessinée."),
+    ],
+    trap: B(
+      'Falling for one generated image and wanting it as the logo: it is a picture made of pixels, its letters are often flawed, its rights uncertain.',
+      "S'éprendre d'une image générée et vouloir en faire le logo : c'est une image en pixels, aux lettres souvent fautives, aux droits incertains.",
+    ),
+    quiz: {
+      q: B("Ideogram returns a striking image with 'Pagelune' correctly spelled. Camille wants it on the sign. What does Nora say?",
+        "Ideogram rend une image frappante où « Pagelune » est bien écrit. Camille la veut sur l'enseigne. Que répond Nora ?"),
+      options: [
+        B('Use it as is, since the spelling is right and the image is sharp', "L'utiliser telle quelle, l'orthographe étant juste et l'image nette"),
+        B('Keep the idea, redraw it as vectors, check it resembles no mark', "Garder l'idée, la redessiner en vectoriel, vérifier qu'elle n'imite rien"),
+        B('Enlarge it with another AI tool so it stays sharp on the sign', "L'agrandir avec un autre outil d'IA pour qu'elle reste nette en grand"),
+      ],
+      answer: 1,
+      why: B(
+        'A generated image is a raster file: it cannot be enlarged, edited or printed in one colour cleanly, and its protection is uncertain. The idea is kept; the logo is redrawn and checked.',
+        "Une image générée est un fichier matriciel : elle ne s'agrandit, ne se modifie ni ne s'imprime proprement en une couleur, et sa protection est incertaine. On garde l'idée ; le logo est redessiné et vérifié.",
+      ),
+    },
+    badge: B('Explores without settling', 'Explore sans se figer'),
+  },
+  {
+    id: 'lg-vector',
+    master: 'tools',
+    minutes: 12,
+    title: B('Redraw as vectors: Illustrator, Figma, Inkscape', 'Redessiner en vectoriel : Illustrator, Figma, Inkscape'),
+    learn: B(
+      'You will redraw a chosen direction as clean vector paths: few anchor points, built shapes, optical corrections.',
+      'Vous saurez redessiner une piste en tracés vectoriels propres : peu de points, formes construites, corrections optiques.',
+    ),
+    act: B('Redraw the page-crescent symbol and the Pagelune wordmark as vectors, then export SVG and PDF masters.',
+      'Redessinez le symbole page-croissant et le logotype Pagelune en vectoriel, puis exportez les maîtres SVG et PDF.'),
+    steps: [
+      B('Place the chosen sketch on a locked layer at low opacity: it is a guide to follow, never a part of the file.',
+        "Placez l'esquisse retenue sur un calque verrouillé, peu opaque : c'est un guide à suivre, jamais une partie du fichier."),
+      B('Build the symbol from simple shapes (circles, rectangles) combined with boolean operations, then refine the curves.',
+        'Construisez le symbole avec des formes simples (cercles, rectangles) unies ou soustraites, puis affinez les courbes.'),
+      B('Start the wordmark from a typeface whose licence allows logo use, convert it to outlines, then adjust letters.',
+        "Partez pour le logotype d'une police dont la licence permet l'usage en logo, vectorisez-la, puis ajustez les lettres."),
+      B('Correct by eye: round shapes slightly larger than flat ones, optical centring, consistent stroke weights.',
+        "Corrigez à l'oeil : formes rondes un peu plus grandes que les plates, centrage optique, épaisseurs cohérentes."),
+    ],
+    trap: B(
+      'Running automatic tracing on the AI image and calling it a vector logo: you get hundreds of points, wobbly curves and every flaw of the original.',
+      "Vectoriser automatiquement l'image IA et l'appeler logo vectoriel : on obtient des centaines de points, des courbes molles et tous ses défauts.",
+    ),
+    quiz: {
+      q: B("Nora's traced symbol has 340 anchor points and looks lumpy when enlarged. What should she do?",
+        "Le symbole vectorisé de Nora compte 340 points d'ancrage et paraît bosselé en grand. Que doit-elle faire ?"),
+      options: [
+        B('Redraw it with simple shapes and only the points each curve needs', 'Le redessiner avec des formes simples et les seuls points utiles'),
+        B('Export it at a higher resolution so that the bumps disappear', 'L\'exporter en plus haute résolution pour effacer les bosses'),
+        B('Apply a slight blur to soften the outline before exporting it', "Appliquer un léger flou pour adoucir le contour avant l'export"),
+      ],
+      answer: 0,
+      why: B(
+        'A vector logo is defined by its points and curves; resolution changes nothing. Few, well placed points give smooth curves that stay clean at any size and are easy to adjust.',
+        'Un logo vectoriel est défini par ses points et ses courbes ; la résolution n\'y change rien. Peu de points, bien placés, donnent des courbes lisses, nettes à toute taille et faciles à ajuster.',
+      ),
+    },
+    badge: B('Draws clean curves', 'Trace des courbes propres'),
+  },
+  {
+    id: 'lg-tests',
+    master: 'analysis',
+    minutes: 10,
+    title: B('Test: small size, black and white, favicon', 'Tester : petite taille, noir et blanc, favicon'),
+    learn: B(
+      'You will put a logo through reduction, one-colour, reversed and favicon tests, and derive a reduced mark.',
+      "Vous saurez soumettre un logo aux tests de réduction, d'une couleur, d'inversion et de favicon, et en tirer une marque réduite.",
+    ),
+    act: B('Build a test board for Pagelune, run each test, then simplify the symbol until it reads as a favicon.',
+      "Montez une planche de test pour Pagelune, passez chaque test, puis simplifiez le symbole jusqu'à le lire en favicon."),
+    steps: [
+      B('Lay out the logo from sign size down to a few millimetres, and the symbol at 64, 32 and 16 pixels.',
+        "Disposez le logo de la taille d'enseigne à quelques millimètres, et le symbole à 64, 32 et 16 pixels."),
+      B('Repeat it in solid black, in white on a dark background and over a photo, with no colour or shading.',
+        'Répétez-le en noir plein, en blanc sur fond sombre et sur une photo, sans couleur ni dégradé.'),
+      B('Print the board, view it from a few metres, then ask people who do not know it what they read.',
+        'Imprimez la planche, regardez-la à quelques mètres, puis demandez à des personnes extérieures ce qu\'elles lisent.'),
+      B('Fix what fails: thicker thin strokes, wider gaps, fewer details, and a reduced mark for tiny uses.',
+        'Corrigez ce qui échoue : traits fins épaissis, espaces élargis, détails retirés, et une marque réduite pour les petits usages.'),
+    ],
+    trap: B(
+      'Judging the logo only on a large screen, in colour: the details that charm at that size turn into a smudge on a cup or as a favicon.',
+      'Juger le logo seulement en grand, en couleur, sur écran : les détails qui séduisent à cette taille deviennent une tache sur un gobelet ou en favicon.',
+    ),
+    quiz: {
+      q: B('At 16 pixels, the Pagelune crescent and its page lines merge into a grey blot. What is the right fix?',
+        'À 16 pixels, le croissant de Pagelune et ses lignes de page se fondent en une tache grise. Quelle correction choisir ?'),
+      options: [
+        B('Shrink the full logo with its name, since the name explains the shape', 'Réduire le logo complet avec son nom, qui explique la forme'),
+        B('Add a thin outline around the symbol to separate it from the page', 'Ajouter un fin contour autour du symbole pour le détacher du fond'),
+        B('Draw a reduced mark: the crescent alone, without the page lines', 'Dessiner une marque réduite : le croissant seul, sans lignes de page'),
+      ],
+      answer: 2,
+      why: B(
+        'At a few pixels, only the strongest shape survives. A reduced mark keeps the silhouette and drops details; adding the name or an outline crowds the same pixels even more.',
+        'À quelques pixels, seule la forme la plus forte survit. Une marque réduite garde la silhouette et abandonne les détails ; ajouter le nom ou un contour charge encore les mêmes pixels.',
+      ),
+    },
+    badge: B('Survives the small size', 'Résiste à la petite taille'),
+  },
+  {
+    id: 'lg-trademark',
+    master: 'research',
+    minutes: 11,
+    title: B('Check availability and register the trademark', 'Vérifier la disponibilité et le dépôt de marque'),
+    learn: B(
+      'You will search prior rights on the name and the logo, choose the classes to check, and prepare the filing.',
+      'Vous saurez rechercher les antériorités du nom et du logo, choisir les classes à vérifier, et préparer le dépôt.',
+    ),
+    act: B('Search Pagelune in the INPI and EUIPO databases, test the symbol by reverse image search, list the classes.',
+      "Cherchez Pagelune dans les bases INPI et EUIPO, testez le symbole en recherche d'image inversée, listez les classes."),
+    steps: [
+      B('Ask the AI for variants of the name to search: spellings, sounds, translations, such as Page Lune or Paje Lune.',
+        "Demandez à l'IA les variantes du nom à chercher : graphies, sonorités, traductions, comme Page Lune ou Paje Lune."),
+      B('Search identical and similar names in the INPI, EUIPO and WIPO databases, in the classes of your activity.',
+        "Cherchez noms identiques et proches dans les bases de l'INPI, de l'EUIPO et de l'OMPI, dans les classes de votre activité."),
+      B('Run the symbol through Google Lens or TinEye: an image AI may have reproduced an existing logo.',
+        'Passez le symbole dans Google Lens ou TinEye : une IA image a pu reproduire un logo existant.'),
+      B('Record the findings in a short note, and have a trademark attorney review them before any filing.',
+        'Consignez les résultats dans une note courte, et faites-les relire par un conseil en propriété industrielle avant tout dépôt.'),
+    ],
+    trap: B(
+      'Typing the exact name into a search engine, finding nothing and assuming it is free: a similar mark in the same class can be enough to block you.',
+      'Taper le nom exact dans un moteur de recherche, ne rien trouver et le croire libre : une marque proche dans la même classe peut suffire à vous bloquer.',
+    ),
+    quiz: {
+      q: B("A mark 'Paje Lune' is registered for tea rooms. Nothing identical to Pagelune shows up. What should Nora conclude?",
+        "Une marque « Paje Lune » est déposée pour des salons de thé. Rien d'identique à Pagelune n'apparaît. Qu'en conclure ?"),
+      options: [
+        B('The name is free, since only an identical mark can block a filing', 'Le nom est libre, seule une marque identique bloquant un dépôt'),
+        B('There is a real risk of conflict, to be assessed by a specialist', 'Il existe un vrai risque de conflit, à faire évaluer par un spécialiste'),
+        B('The risk disappears if Pagelune adds a symbol next to its name', 'Le risque disparaît si Pagelune ajoute un symbole à son nom'),
+      ],
+      answer: 1,
+      why: B(
+        'Conflicts are judged on the similarity of signs (visual, phonetic, conceptual) and of activities, not on identity alone. A close name for a close activity calls for a professional opinion.',
+        "Le conflit s'apprécie sur la ressemblance des signes (visuelle, phonétique, intellectuelle) et des activités, pas sur la seule identité. Nom proche et activité proche appellent un avis professionnel.",
+      ),
+    },
+    badge: B('Checks before filing', 'Vérifie avant de déposer'),
+  },
+]
+
+const CREATE_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M2, 'lg-explore')]: {
+    why: [
+      B("Image AI is good at what a designer needs early on: quantity. In a few minutes it shows forty ways to combine a moon and a page, including combinations nobody would have sketched. Each image is a question put to the brief: does this feel welcoming, curious, calm? Exploration is useful precisely because most answers will be no.",
+        "L'IA image excelle dans ce dont le graphiste a besoin au début : la quantité. En quelques minutes, elle montre quarante façons d'associer une lune et une page, y compris des combinaisons que personne n'aurait esquissées. Chaque image est une question posée au brief : est-ce accueillant, curieux, calme ? L'exploration est utile justement parce que la plupart des réponses seront non."),
+      B("What it produces is not a logo. A generated image is a grid of pixels, not a set of curves: it blurs when enlarged, cannot be reproduced cleanly in one colour, and its letters are often malformed. Its legal status is uncertain too: whether such an image can be protected by copyright is still debated, and each tool's terms of use say what you may do with it.",
+        "Ce qu'elle produit n'est pas un logo. Une image générée est une grille de pixels, pas un ensemble de courbes : elle se floute à l'agrandissement, ne se reproduit pas proprement en une couleur, et ses lettres sont souvent déformées. Son statut juridique est incertain aussi : sa protection par le droit d'auteur reste discutée, et les conditions d'utilisation de chaque outil disent ce que vous pouvez en faire."),
+      B("A good logo prompt describes constraints more than beauty: flat shapes, one colour, white background, no gradient, no photographic detail. These constraints bring results closer to what a logo must survive. Naming a famous brand or a living designer does the opposite: it pulls the result towards forms that already belong to someone.",
+        "Un bon prompt de logo décrit des contraintes plus que de la beauté : formes plates, une couleur, fond blanc, sans dégradé, sans détail photographique. Ces contraintes rapprochent les résultats de ce qu'un logo doit supporter. Citer une marque célèbre ou un graphiste vivant fait l'inverse : cela tire le résultat vers des formes qui appartiennent déjà à quelqu'un."),
+    ],
+    example: {
+      context: B("Nora opens an image generator and types a short request. She gets glossy 3D coffee cups with a moon, unreadable letters and a style close to a famous chain.",
+        "Nora ouvre un générateur d'images et tape une demande courte. Elle obtient des tasses en 3D brillantes avec une lune, des lettres illisibles et un style proche d'une chaîne célèbre."),
+      before: B("Logo for a café-bookshop called Pagelune, beautiful and modern.",
+        "Logo pour un café-librairie appelé Pagelune, beau et moderne."),
+      after: B("Flat vector-style logo symbol, black on a plain white background.\nSubject: a crescent moon formed by the curved edge of a turning book page.\nPersonality: welcoming, curious, calm; warm but not old-fashioned.\nConstraints: one colour only, simple geometric shapes, thick even strokes, no gradient, no shadow, no texture, no 3D, no coffee cup, no text.\nMust stay recognisable at a very small size.\nShow 4 variations that differ only in how the page and the moon are combined.",
+        "Symbole de logo à l'aspect vectoriel plat, noir sur fond blanc uni.\nSujet : un croissant de lune formé par le bord courbe d'une page de livre qui se tourne.\nPersonnalité : accueillant, curieux, calme ; chaleureux mais pas vieillot.\nContraintes : une seule couleur, formes géométriques simples, traits épais et réguliers, sans dégradé, sans ombre, sans texture, sans 3D, sans tasse de café, sans texte.\nDoit rester reconnaissable en très petite taille.\nMontre 4 variantes qui ne diffèrent que par la façon d'associer la page et la lune."),
+      takeaway: B("The constraints come from the brief and from the tests to come. The results are flat, one-colour shapes Nora can compare, and the cup, a code already used by six competitors, is excluded on purpose.",
+        "Les contraintes viennent du brief et des tests à venir. Les résultats sont des formes plates en une couleur, comparables entre elles, et la tasse, code déjà employé par six concurrents, est écartée exprès."),
+    },
+    exercise: {
+      goal: B("Three image prompts derived from your brief, about forty generated sketches, and a shortlist of five directions annotated with the idea to redraw.",
+        "Trois prompts d'image tirés de votre brief, une quarantaine d'esquisses générées, et une sélection de cinq pistes annotées avec l'idée à redessiner."),
+      prompt: B("Here is the brief of [YOUR BRAND]: [PASTE YOUR BRIEF].\nChosen logo family: [FAMILY].\nWrite 3 prompts for an image AI ([MIDJOURNEY / FIREFLY / IDEOGRAM / OTHER]), each exploring a different idea for the symbol.\nEach prompt must contain:\n- the subject, described as a concrete shape;\n- the personality in 3 adjectives, with what to avoid;\n- the constraints: flat shapes, one colour, white background, no gradient, no shadow, no 3D;\n- what to exclude: [CATEGORY CODES YOU DO NOT WANT, E.G. A COFFEE CUP].\nDo not mention any existing brand or living designer.\nAfter each prompt, add one sentence on the idea it tests.",
+        "Voici le brief de [VOTRE MARQUE] : [COLLEZ VOTRE BRIEF].\nFamille de logo retenue : [FAMILLE].\nRédige 3 prompts pour une IA image ([MIDJOURNEY / FIREFLY / IDEOGRAM / AUTRE]), chacun explorant une idée différente pour le symbole.\nChaque prompt doit contenir :\n- le sujet, décrit comme une forme concrète ;\n- la personnalité en 3 adjectifs, avec ce qu'il faut éviter ;\n- les contraintes : formes plates, une couleur, fond blanc, sans dégradé, sans ombre, sans 3D ;\n- ce qu'il faut exclure : [CODES DE CATÉGORIE NON VOULUS, PAR EX. UNE TASSE DE CAFÉ].\nNe cite aucune marque existante ni aucun graphiste vivant.\nAprès chaque prompt, ajoute une phrase sur l'idée qu'il teste."),
+      check: [
+        B("Each prompt can be traced back to a sentence of the brief", "Chaque prompt se rattache à une phrase du brief"),
+        B("You changed one element at a time between two series", "Vous avez changé un seul élément à la fois entre deux séries"),
+        B("None of the five kept directions resembles a logo you already know", "Aucune des cinq pistes retenues ne ressemble à un logo que vous connaissez"),
+        B("You read what the terms of use of your tool say about its outputs", "Vous avez lu ce que disent les conditions d'utilisation de l'outil sur les images produites"),
+      ],
+      bonus: B("Show the five directions, without explanation, to two people from the primary audience. Ask what each one evokes. Keep the directions whose answers match the personality of the brief, whatever your own favourite is.",
+        "Montrez les cinq pistes, sans explication, à deux personnes du public principal. Demandez-leur ce que chacune évoque. Gardez les pistes dont les réponses rejoignent la personnalité du brief, quelle que soit votre préférée."),
+    },
+    more: [
+      { q: B("Why does Nora ask for 'one colour, no gradient, no shadow' as early as the exploration stage?",
+          "Pourquoi Nora demande-t-elle « une couleur, sans dégradé, sans ombre » dès l'exploration ?"),
+        options: [
+          B("Because image tools charge less for images with fewer colours", "Parce que les outils d'image facturent moins les images peu colorées"),
+          B("Because the logo will have to work in one colour, so ideas should too", "Parce que le logo devra tenir en une couleur, donc les idées aussi"),
+          B("Because gradients are never accepted in a trademark filing", "Parce que les dégradés ne sont jamais acceptés dans un dépôt de marque"),
+        ],
+        answer: 1,
+        why: B("An idea that only works thanks to shading or colour will fail on a stamp, a receipt or a favicon. Exploring under the constraints of the final uses avoids falling for directions that cannot survive them.",
+          "Une idée qui ne tient que par l'ombre ou la couleur échouera sur un tampon, un ticket ou un favicon. Explorer sous les contraintes des usages finaux évite de s'attacher à des pistes qui n'y survivront pas.") },
+      { q: B("One generated symbol looks very much like the logo of a well-known bookshop chain. What should Nora do?",
+          "Un symbole généré ressemble beaucoup au logo d'une chaîne de librairies connue. Que doit faire Nora ?"),
+        options: [
+          B("Set it aside: the model may have reproduced a protected mark", "L'écarter : le modèle a pu reproduire une marque protégée"),
+          B("Keep it, since an image made by AI cannot infringe anything", "Le garder, une image créée par IA ne pouvant rien contrefaire"),
+          B("Change its colour, which is enough to make it another logo", "En changer la couleur, ce qui suffit à en faire un autre logo"),
+        ],
+        answer: 0,
+        why: B("Image models learn from vast collections of existing images and can reproduce known forms. Resembling an existing mark is a legal and reputational risk, and a change of colour does not remove it.",
+          "Les modèles d'image apprennent sur de vastes collections d'images existantes et peuvent reproduire des formes connues. Ressembler à une marque existante est un risque juridique et d'image, qu'un changement de couleur n'efface pas.") },
+    ],
+  },
+
+  [enrichKey(M2, 'lg-vector')]: {
+    why: [
+      B("A vector file describes shapes with mathematical curves, called Bézier curves, defined by anchor points and handles. Because the shape is computed, it stays sharp from a favicon to a shop front, can be recoloured in one step and prints cleanly. This is why a logo is delivered as SVG, PDF or EPS, and never only as PNG or JPEG.",
+        "Un fichier vectoriel décrit les formes par des courbes mathématiques, dites de Bézier, définies par des points d'ancrage et des poignées. Comme la forme est calculée, elle reste nette du favicon à la façade, se recolore d'un geste et s'imprime proprement. C'est pourquoi un logo se livre en SVG, PDF ou EPS, et jamais seulement en PNG ou JPEG."),
+      B("Automatic tracing (Image Trace in Illustrator, Trace Bitmap in Inkscape, under names that vary with language and version) turns pixels into paths, but it copies everything, defects included, and places far too many points. A redrawn logo uses the fewest points, at the extremes of each curve, and is often built from simple shapes combined by union, subtraction or intersection.",
+        "La vectorisation automatique (Image Trace dans Illustrator, Trace Bitmap dans Inkscape, sous des noms qui varient selon la langue et la version) change des pixels en tracés, mais copie tout, défauts compris, et pose beaucoup trop de points. Un logo redessiné emploie le moins de points possible, aux extrémités des courbes, et se construit souvent par union, soustraction ou intersection de formes simples."),
+      B("Geometry is not the end, because the eye is not a ruler. Round shapes must overshoot the line slightly to look as tall as flat ones, a horizontal stroke looks thicker than a vertical one of the same width, and a shape centred mathematically often looks low. Designers correct these optical effects by eye, at several sizes.",
+        "La géométrie ne suffit pas, car l'oeil n'est pas une règle. Les formes rondes doivent dépasser légèrement la ligne pour paraître aussi hautes que les plates, un trait horizontal semble plus épais qu'un vertical de même largeur, et une forme centrée mathématiquement paraît souvent trop basse. Le graphiste corrige ces effets optiques à l'oeil, à plusieurs tailles."),
+    ],
+    example: {
+      context: B("Nora has chosen the page-crescent direction. To save time, she asks the AI how to turn the generated PNG into a usable logo file.",
+        "Nora a retenu la piste page-croissant. Pour gagner du temps, elle demande à l'IA comment transformer le PNG généré en fichier de logo utilisable."),
+      before: B("How do I convert this PNG into a vector logo in Illustrator?",
+        "Comment convertir ce PNG en logo vectoriel dans Illustrator ?"),
+      after: B("I am redrawing a logo symbol by hand in Figma. The attached image is only a reference sketch made with an image AI; I will not trace it automatically.\nThe symbol: a crescent moon formed by the curved edge of a turning book page.\n1. Propose a construction using only circles, rectangles and boolean operations (union, subtraction), step by step, with proportions given as ratios (for example, inner circle = 80% of the outer one).\n2. Tell me where the anchor points should go so that each curve uses as few points as possible.\n3. List the optical corrections to check at small size (overshoot, stroke weights, centring).\n4. Point out any detail of the sketch that will not survive at 32 pixels.",
+        "Je redessine à la main un symbole de logo dans Figma. L'image jointe n'est qu'une esquisse de référence faite avec une IA image ; je ne la vectoriserai pas automatiquement.\nLe symbole : un croissant de lune formé par le bord courbe d'une page de livre qui se tourne.\n1. Propose une construction n'utilisant que des cercles, des rectangles et des opérations booléennes (union, soustraction), étape par étape, avec des proportions exprimées en rapports (par exemple, cercle intérieur = 80 % du cercle extérieur).\n2. Indique où placer les points d'ancrage pour que chaque courbe en utilise le moins possible.\n3. Liste les corrections optiques à vérifier en petite taille (débordement, épaisseurs, centrage).\n4. Signale tout détail de l'esquisse qui ne survivra pas à 32 pixels."),
+      takeaway: B("The AI becomes a construction assistant instead of a shortcut. Nora's crescent now comes from two circles and a subtraction, with a dozen points instead of hundreds, and she knows which details to drop.",
+        "L'IA devient une assistante de construction au lieu d'un raccourci. Le croissant de Nora naît désormais de deux cercles et d'une soustraction, avec une douzaine de points au lieu de centaines, et elle sait quels détails abandonner."),
+    },
+    exercise: {
+      goal: B("Your chosen direction redrawn as vectors: a symbol built from simple shapes, a wordmark from a properly licensed typeface, and master files exported in SVG and PDF.",
+        "Votre piste retenue redessinée en vectoriel : un symbole construit à partir de formes simples, un logotype issu d'une police à la licence adaptée, et des fichiers maîtres exportés en SVG et PDF."),
+      prompt: B("I am redrawing the logo of [YOUR BRAND] in [ILLUSTRATOR / FIGMA / INKSCAPE]. Reference sketch attached (made with an image AI, used only as a guide).\nSymbol: [DESCRIBE THE SHAPE IN ONE SENTENCE].\nWordmark: the name [NAME], starting from the typeface [TYPEFACE], whose licence I checked for logo use.\n1. Propose a construction of the symbol from basic shapes and boolean operations, with proportions as ratios.\n2. Tell me where to place the anchor points so each curve uses as few as possible.\n3. For the wordmark, list the letter pairs whose spacing I should adjust by eye, and why.\n4. List the optical corrections to check.\n5. Give me a checklist for the exported files: formats, colour versions, file names.\nDo not generate an image: describe the steps.",
+        "Je redessine le logo de [VOTRE MARQUE] dans [ILLUSTRATOR / FIGMA / INKSCAPE]. Esquisse de référence jointe (faite avec une IA image, utilisée seulement comme guide).\nSymbole : [DÉCRIVEZ LA FORME EN UNE PHRASE].\nLogotype : le nom [NOM], à partir de la police [POLICE], dont j'ai vérifié la licence pour un usage en logo.\n1. Propose une construction du symbole à partir de formes de base et d'opérations booléennes, avec des proportions en rapports.\n2. Indique où placer les points d'ancrage pour que chaque courbe en utilise le moins possible.\n3. Pour le logotype, liste les paires de lettres dont je dois ajuster l'espacement à l'oeil, et pourquoi.\n4. Liste les corrections optiques à vérifier.\n5. Donne-moi une liste de contrôle pour les fichiers exportés : formats, versions de couleur, noms de fichiers.\nNe génère pas d'image : décris les étapes."),
+      check: [
+        B("No path comes from the automatic tracing of the AI image", "Aucun tracé ne provient de la vectorisation automatique de l'image IA"),
+        B("Each curve uses only the points it needs, placed at its extremes", "Chaque courbe n'utilise que les points nécessaires, placés à ses extrémités"),
+        B("The typeface licence explicitly allows use in a logo", "La licence de la police autorise explicitement l'usage dans un logo"),
+        B("The SVG opens cleanly in another tool and stays sharp at any size", "Le SVG s'ouvre proprement dans un autre outil et reste net à toute taille"),
+      ],
+      bonus: B("Rebuild the same symbol in a second tool (Inkscape if you drew it in Figma, for example) from your notes alone. If you cannot, the construction still depends on chance: write its rules down until someone else could redraw it.",
+        "Reconstruisez le même symbole dans un second outil (Inkscape si vous l'avez dessiné dans Figma, par exemple) à partir de vos seules notes. Si vous n'y arrivez pas, la construction doit encore au hasard : écrivez-en les règles jusqu'à ce qu'un autre puisse la redessiner."),
+    },
+    more: [
+      { q: B("Camille asks for her logo 'as a high-definition JPEG'. What should Nora deliver as the master file?",
+          "Camille demande son logo « en JPEG haute définition ». Que doit livrer Nora comme fichier maître ?"),
+        options: [
+          B("A very large JPEG, which will be shrunk for every use", "Un JPEG très grand, qu'on réduira pour chaque usage"),
+          B("A PNG with a transparent background, the usual logo format", "Un PNG à fond transparent, le format habituel des logos"),
+          B("Vector files, from which each PNG or JPEG is exported", "Des fichiers vectoriels, d'où s'exportent PNG et JPEG"),
+        ],
+        answer: 2,
+        why: B("Raster formats have a fixed number of pixels and lose quality when enlarged or edited. The vector master stays exact at any size; PNG and JPEG are exports made from it for specific uses.",
+          "Les formats matriciels ont un nombre fixe de pixels et perdent en qualité à l'agrandissement ou à la retouche. Le maître vectoriel reste exact à toute taille ; PNG et JPEG en sont des exports pour des usages précis.") },
+      { q: B("In the wordmark, the round 'e' looks smaller than the 'n', though both are exactly as tall. Why?",
+          "Dans le logotype, le « e » arrondi paraît plus petit que le « n », à hauteur exactement égale. Pourquoi ?"),
+        options: [
+          B("Round shapes need to overshoot slightly to look the same size", "Les formes rondes doivent déborder un peu pour paraître égales"),
+          B("The typeface is defective and must be replaced by another one", "La police est défectueuse et doit être remplacée par une autre"),
+          B("The SVG export has flattened the curves of the round letters", "L'export SVG a aplati les courbes des lettres arrondies"),
+        ],
+        answer: 0,
+        why: B("A round shape touches the line at a single point, so it looks smaller than a flat one of the same height. Type designers let round letters overshoot; when you redraw letters, keep or recreate that correction.",
+          "Une forme ronde ne touche la ligne qu'en un point, elle paraît donc plus petite qu'une forme plate de même hauteur. Les dessinateurs de caractères font déborder les lettres rondes ; en redessinant, gardez ou recréez cette correction.") },
+    ],
+  },
+
+  [enrichKey(M2, 'lg-tests')]: {
+    why: [
+      B("A logo lives mostly at small sizes and in poor conditions: a cup seen from a distance, a receipt printed in one colour, an avatar in a feed, a favicon of a few pixels. Tests reproduce those conditions on purpose, before the identity is printed and while changes are still cheap. Each test removes one resource (size, colour, contrast) and shows what holds without it.",
+        "Un logo vit surtout en petite taille et dans de mauvaises conditions : un gobelet vu de loin, un ticket imprimé en une couleur, un avatar dans un fil, un favicon de quelques pixels. Les tests reproduisent exprès ces conditions, avant l'impression et tant que les changements coûtent peu. Chaque test retire une ressource (taille, couleur, contraste) et montre ce qui tient sans elle."),
+      B("The most revealing tests are simple. In solid black on white, a logo that relied on colour or shading falls apart. Reduced to a few millimetres or pixels, thin strokes vanish and narrow gaps fill in. Blurred, or seen from several metres, only the silhouette remains, and the silhouette is what people remember.",
+        "Les tests les plus révélateurs sont simples. En noir plein sur blanc, un logo qui comptait sur la couleur ou l'ombre se défait. Réduit à quelques millimètres ou pixels, les traits fins disparaissent et les espaces étroits se bouchent. Flouté, ou vu à plusieurs mètres, il ne reste que la silhouette, et c'est la silhouette dont on se souvient."),
+      B("An AI that can read images serves as a first, tireless viewer: shown a test board, it says what it reads at each size and points out merged shapes. It does not replace people from the audience, who bring real eyes and real contexts, but it helps decide what to fix before asking them.",
+        "Une IA capable de lire les images sert de premier regard, infatigable : devant une planche de test, elle dit ce qu'elle lit à chaque taille et signale les formes qui se confondent. Elle ne remplace pas des personnes du public, qui apportent de vrais yeux et de vrais contextes, mais elle aide à décider quoi corriger avant de les solliciter."),
+    ],
+    example: {
+      context: B("Nora uploads a single large render of the Pagelune logo, in colour, and asks the AI whether it works. The answer is warm, general praise.",
+        "Nora envoie un seul grand rendu du logo de Pagelune, en couleur, et demande à l'IA s'il est réussi. La réponse est un éloge chaleureux et général."),
+      before: B("Here is my logo. Is it good?",
+        "Voici mon logo. Est-il réussi ?"),
+      after: B("Attached is a test board for the Pagelune logo (combination mark: page-crescent symbol plus the name).\nRow 1: full logo at 200, 100, 50 and 25 mm wide.\nRow 2: symbol alone at 64, 32 and 16 px.\nRow 3: solid black on white, white on a dark background, over a photo of the shop front.\nFor each cell:\n1. Say what you can read: the name, the moon, the page, or only a blot.\n2. Point out strokes that vanish and gaps that close up.\nThen list the three changes that would most improve the smallest sizes, in order of priority.\nBe critical: I am looking for failures, not compliments.",
+        "Ci-joint une planche de test du logo de Pagelune (logo combiné : symbole page-croissant et nom).\nLigne 1 : logo complet à 200, 100, 50 et 25 mm de large.\nLigne 2 : symbole seul à 64, 32 et 16 px.\nLigne 3 : noir plein sur blanc, blanc sur fond sombre, sur une photo de la devanture.\nPour chaque case :\n1. Dis ce que tu lis : le nom, la lune, la page, ou seulement une tache.\n2. Signale les traits qui disparaissent et les espaces qui se bouchent.\nListe ensuite les trois changements qui amélioreraient le plus les petites tailles, par ordre de priorité.\nSois critique : je cherche des échecs, pas des compliments."),
+      takeaway: B("A board and a critical request turn vague praise into a list of failures. The AI reports that the page lines disappear below 32 px, which leads Nora to a reduced mark: the crescent alone.",
+        "Une planche et une demande critique transforment un éloge vague en liste d'échecs. L'IA signale que les lignes de page disparaissent sous 32 px, ce qui conduit Nora vers une marque réduite : le croissant seul."),
+    },
+    exercise: {
+      goal: B("A test board of your logo across sizes, colour modes and backgrounds, a list of failures confirmed by at least three people, and a reduced mark for the smallest uses.",
+        "Une planche de test de votre logo en plusieurs tailles, modes de couleur et fonds, une liste d'échecs confirmée par au moins trois personnes, et une marque réduite pour les plus petits usages."),
+      prompt: B("Attached is a test board for the logo of [YOUR BRAND] ([LOGO FAMILY]: [SHORT DESCRIPTION]).\nRow 1: full logo at [SIZES, E.G. 200, 100, 50, 25 MM].\nRow 2: symbol or reduced mark at 64, 32 and 16 px.\nRow 3: solid black on white, white on [DARK COLOUR], over [A PHOTO OF A REAL CONTEXT].\nFor each cell, say what you can read and what disappears or merges.\nThen:\n1. List the three changes that would most improve the smallest sizes.\n2. Propose what a reduced mark could keep and drop.\n3. Tell me which cells you are unsure about, so that I check them with real people.\nBe critical: I want failures, not compliments.",
+        "Ci-joint une planche de test du logo de [VOTRE MARQUE] ([FAMILLE DE LOGO] : [DESCRIPTION COURTE]).\nLigne 1 : logo complet à [TAILLES, PAR EX. 200, 100, 50, 25 MM].\nLigne 2 : symbole ou marque réduite à 64, 32 et 16 px.\nLigne 3 : noir plein sur blanc, blanc sur [COULEUR SOMBRE], sur [UNE PHOTO D'UN CONTEXTE RÉEL].\nPour chaque case, dis ce que tu lis et ce qui disparaît ou se confond.\nEnsuite :\n1. Liste les trois changements qui amélioreraient le plus les petites tailles.\n2. Propose ce qu'une marque réduite pourrait garder et abandonner.\n3. Indique les cases dont tu n'es pas sûr, pour que je les vérifie avec de vraies personnes.\nSois critique : je veux des échecs, pas des compliments."),
+      check: [
+        B("The board includes a size of a few millimetres and a 16 px version", "La planche comprend une taille de quelques millimètres et une version à 16 px"),
+        B("The logo holds in solid black and in white on a dark background", "Le logo tient en noir plein et en blanc sur fond sombre"),
+        B("At least three people outside the project said what they read", "Au moins trois personnes extérieures au projet ont dit ce qu'elles lisaient"),
+        B("The reduced mark derives from the main logo; it is not a new drawing", "La marque réduite dérive du logo principal, ce n'est pas un nouveau dessin"),
+      ],
+      bonus: B("Make the favicon for real: export the reduced mark as SVG and PNG, add it to a test page and look at it among your open browser tabs. Check the currently recommended formats and sizes on MDN Web Docs, as browsers evolve.",
+        "Réalisez vraiment le favicon : exportez la marque réduite en SVG et en PNG, ajoutez-la à une page de test et regardez-la parmi vos onglets ouverts. Vérifiez les formats et tailles recommandés sur MDN Web Docs, les navigateurs évoluant."),
+    },
+    more: [
+      { q: B("The Pagelune logo is perfect in colour but turns into a grey patch in solid black. What does this reveal?",
+          "Le logo de Pagelune est parfait en couleur mais devient une tache grise en noir plein. Que révèle ce test ?"),
+        options: [
+          B("Black and white versions are no longer needed by modern brands", "Les versions noir et blanc ne servent plus aux marques actuelles"),
+          B("The printer must be set to a higher quality before a new test", "Il faut régler l'imprimante en meilleure qualité avant un nouveau test"),
+          B("The shape relies on a colour contrast the drawing does not carry", "La forme repose sur un contraste de couleur que le dessin ne porte pas"),
+        ],
+        answer: 2,
+        why: B("If two areas differ only by colour, they merge when colour is removed: on a stamp, a receipt or an engraving. A strong logo separates its parts by shape and space; colour comes on top.",
+          "Si deux zones ne se distinguent que par la couleur, elles se confondent quand la couleur disparaît : sur un tampon, un ticket ou une gravure. Un logo solide sépare ses parties par la forme et l'espace ; la couleur s'y ajoute.") },
+      { q: B("Why ask people outside the project, and not only the AI, what they read on the test board?",
+          "Pourquoi demander à des personnes extérieures au projet, et pas seulement à l'IA, ce qu'elles lisent sur la planche ?"),
+        options: [
+          B("Because AI is not allowed to analyse images that contain a logo", "Parce que l'IA n'a pas le droit d'analyser une image contenant un logo"),
+          B("Because real viewers bring their own eyes, habits and contexts", "Parce que de vrais spectateurs apportent leurs yeux, habitudes et contextes"),
+          B("Because a test is only valid above a set number of participants", "Parce qu'un test n'est valable qu'au-delà d'un nombre fixé de participants"),
+        ],
+        answer: 1,
+        why: B("The AI gives a fast first reading, but customers see the logo with their own eyesight, at their own distance, among other signs. Their answers confirm or contradict the AI before anything is printed.",
+          "L'IA donne une première lecture rapide, mais les clients voient le logo avec leur propre vue, à leur distance, parmi d'autres signes. Leurs réponses confirment ou contredisent l'IA avant toute impression.") },
+    ],
+  },
+
+  [enrichKey(M2, 'lg-trademark')]: {
+    why: [
+      B("A logo you cannot use is worthless, however good it looks. Two separate questions arise. Availability: does an earlier right (registered mark, company name, domain name, copyright on a drawing) prevent you from using this name or sign? Protection: will you register your own mark, so that others cannot take it from you?",
+        "Un logo inutilisable ne vaut rien, si réussi soit-il. Deux questions distinctes se posent. La disponibilité : un droit antérieur (marque déposée, dénomination sociale, nom de domaine, droit d'auteur sur un dessin) vous empêche-t-il d'utiliser ce nom ou ce signe ? La protection : déposerez-vous votre propre marque, pour que d'autres ne puissent pas vous la prendre ?"),
+      B("Trademark rights work by territory and by class. A French filing is made with INPI, a European Union filing with EUIPO, and international extensions go through WIPO. Goods and services are sorted into the classes of the Nice Classification. A conflict can arise when signs are similar and activities close, not only when they are identical.",
+        "Les droits de marque s'organisent par territoire et par classe. Un dépôt français se fait auprès de l'INPI, un dépôt pour l'Union européenne auprès de l'EUIPO, et les extensions internationales passent par l'OMPI. Produits et services se rangent dans les classes de la classification de Nice. Un conflit peut naître de signes proches pour des activités voisines, pas seulement de l'identique."),
+      B("AI raises two specific questions. An image model may reproduce an existing logo, so the symbol needs a reverse image search, not only the name. And whether AI-generated images can be protected by copyright is still debated; a human redrawing and a written assignment of rights strengthen the client's position. For any decision, rely on official sites and a trademark attorney.",
+        "L'IA soulève deux questions propres. Un modèle d'image peut reproduire un logo existant : le symbole exige une recherche d'image inversée, pas seulement le nom. Et la protection des images générées par IA par le droit d'auteur reste débattue ; un redessin humain et une cession de droits écrite renforcent la position du client. Pour décider, appuyez-vous sur les sites officiels et un conseil en propriété industrielle."),
+    ],
+    example: {
+      context: B("Before presenting the final logo, Nora asks the AI whether the name Pagelune is available. The answer, confident and reassuring, rests on nothing she can verify.",
+        "Avant de présenter le logo final, Nora demande à l'IA si le nom Pagelune est disponible. La réponse, assurée et rassurante, ne repose sur rien de vérifiable."),
+      before: B("Is the brand name Pagelune available in France?",
+        "Le nom de marque Pagelune est-il disponible en France ?"),
+      after: B("I am preparing a prior-rights search for the name Pagelune (a café-bookshop in France, with a website and perhaps an online shop later). You cannot consult the trademark databases, so do not tell me whether the name is free.\nHelp me prepare the search:\n1. List the spelling and phonetic variants to search (for example Page Lune, Paje Lune, Pagelun).\n2. List the goods and services the business covers, and suggest which Nice classes they probably fall into, reminding me to verify each one in the official classification.\n3. List the sources to check: trademark databases (INPI, EUIPO, WIPO), company registers, domain names, social handles.\n4. Prepare a table to record each result: source, sign found, owner, classes, date, comment.\n5. List the questions I should ask a trademark attorney.",
+        "Je prépare une recherche d'antériorités pour le nom Pagelune (un café-librairie en France, avec un site et peut-être une boutique en ligne plus tard). Tu ne peux pas consulter les bases de marques : ne me dis donc pas si le nom est libre.\nAide-moi à préparer la recherche :\n1. Liste les variantes graphiques et phonétiques à chercher (par exemple Page Lune, Paje Lune, Pagelun).\n2. Liste les produits et services de l'activité, et suggère les classes de Nice dont ils relèvent probablement, en me rappelant de vérifier chacune dans la classification officielle.\n3. Liste les sources à consulter : bases de marques (INPI, EUIPO, OMPI), registres d'entreprises, noms de domaine, noms de comptes sociaux.\n4. Prépare un tableau pour consigner chaque résultat : source, signe trouvé, titulaire, classes, date, commentaire.\n5. Liste les questions à poser à un conseil en propriété industrielle."),
+      takeaway: B("The AI no longer gives a verdict it cannot know. It organises a search that Nora carries out on official sources, and prepares the questions for a professional, who will give the legal opinion.",
+        "L'IA ne rend plus un verdict qu'elle ne peut pas connaître. Elle organise une recherche que Nora mène sur les sources officielles, et prépare les questions pour un professionnel, qui donnera l'avis juridique."),
+    },
+    exercise: {
+      goal: B("A prior-rights search on your brand name and symbol, recorded in a table with its sources, plus the list of classes to file and the questions for a trademark attorney.",
+        "Une recherche d'antériorités sur le nom et le symbole de votre marque, consignée dans un tableau sourcé, plus la liste des classes à déposer et les questions pour un conseil en propriété industrielle."),
+      prompt: B("I am preparing a prior-rights search for the brand [NAME], which [WHAT THE BUSINESS DOES], in [COUNTRY OR TERRITORY].\nYou cannot consult the official databases: do not tell me whether the name is available.\n1. List spelling, phonetic and translated variants of [NAME] to search.\n2. My goods and services are: [YOUR PRODUCTS AND SERVICES]. Suggest the Nice classes they probably fall into, to be verified in the official classification.\n3. List the sources to check: trademark databases (INPI, EUIPO, WIPO), company registers, domain names, social handles, and a reverse image search for the symbol.\n4. Give me a table to fill: source, sign found, owner, classes, date, comment.\n5. Draft five questions to ask a trademark attorney about the results.",
+        "Je prépare une recherche d'antériorités pour la marque [NOM], qui [CE QUE FAIT L'ENTREPRISE], en [PAYS OU TERRITOIRE].\nTu ne peux pas consulter les bases officielles : ne me dis pas si le nom est disponible.\n1. Liste les variantes graphiques, phonétiques et traduites de [NOM] à chercher.\n2. Mes produits et services sont : [VOS PRODUITS ET SERVICES]. Suggère les classes de Nice dont ils relèvent probablement, à vérifier dans la classification officielle.\n3. Liste les sources à consulter : bases de marques (INPI, EUIPO, OMPI), registres d'entreprises, noms de domaine, noms de comptes sociaux, et une recherche d'image inversée pour le symbole.\n4. Donne-moi un tableau à remplir : source, signe trouvé, titulaire, classes, date, commentaire.\n5. Rédige cinq questions à poser à un conseil en propriété industrielle sur les résultats."),
+      check: [
+        B("Each result in the table cites an official source you consulted yourself", "Chaque résultat du tableau cite une source officielle que vous avez consultée"),
+        B("Similar names, not only identical ones, were searched", "Les noms proches, pas seulement identiques, ont été recherchés"),
+        B("The symbol went through a reverse image search", "Le symbole est passé par une recherche d'image inversée"),
+        B("The classes come from the official Nice Classification, not from the AI alone", "Les classes viennent de la classification de Nice officielle, pas de l'IA seule"),
+      ],
+      bonus: B("Write the rights clause of your quote: what is assigned to the client (uses, territories, duration), and how AI tools were used in the creation. Have it reviewed by a lawyer before using it with a real client.",
+        "Rédigez la clause de cession de droits de votre devis : ce qui est cédé au client (usages, territoires, durée), et comment les outils d'IA ont servi à la création. Faites-la relire par un juriste avant de l'employer avec un vrai client."),
+    },
+    more: [
+      { q: B("The AI states that 'Pagelune is available, no such mark exists'. How far should Nora trust that answer?",
+          "L'IA affirme que « Pagelune est disponible, aucune marque n'existe ». Quel crédit Nora doit-elle lui accorder ?"),
+        options: [
+          B("Little: the model does not query the registers and may be wrong", "Peu : le modèle n'interroge pas les registres et peut se tromper"),
+          B("Fully, since recent models can read every trademark register", "Entier, les modèles récents lisant tous les registres de marques"),
+          B("Enough to file, provided the AI gives the same answer twice", "Assez pour déposer, si l'IA donne deux fois la même réponse"),
+        ],
+        answer: 0,
+        why: B("A model answers from its training data or a partial web search, not from a complete query of official registers. Only searches in the INPI, EUIPO or WIPO databases, ideally reviewed by a professional, establish availability.",
+          "Un modèle répond à partir de ses données d'entraînement ou d'une recherche web partielle, pas d'une interrogation complète des registres officiels. Seules les bases de l'INPI, de l'EUIPO ou de l'OMPI, lues idéalement par un professionnel, établissent la disponibilité.") },
+      { q: B("Why does Nora run the symbol through a reverse image search when the name has already been checked?",
+          "Pourquoi Nora passe-t-elle le symbole en recherche d'image inversée alors que le nom est déjà vérifié ?"),
+        options: [
+          B("Because image search engines also register the mark for you", "Parce que les moteurs d'image déposent aussi la marque pour vous"),
+          B("Because a figurative sign can conflict with an earlier logo too", "Parce qu'un signe figuratif peut aussi heurter un logo antérieur"),
+          B("Because the name check lapses as soon as a symbol is added", "Parce que la vérification du nom tombe dès qu'on ajoute un symbole"),
+        ],
+        answer: 1,
+        why: B("Rights also cover drawings: an earlier figurative mark or a protected logo can block a similar symbol, and an image AI may have reproduced one. The name and the symbol are two signs to check separately.",
+          "Les droits portent aussi sur les dessins : une marque figurative antérieure ou un logo protégé peut bloquer un symbole proche, et une IA image a pu en reproduire un. Le nom et le symbole sont deux signes à vérifier séparément.") },
+    ],
+  },
+}
+
+/* ================================================================== */
 /* LES MODULES DE CETTE PARTIE                                         */
 /* ================================================================== */
 
@@ -760,10 +1163,16 @@ const MODULES: Module[] = [
     blurb: B('A brand brief, a competitive audit, a personality with its moodboard, and the right family of logo.',
       'Un brief de marque, un audit de la concurrence, une personnalité avec son moodboard, et la bonne famille de logo.'),
   },
+  {
+    id: M2, track: 'course', glyph: 'pen', tint: '#ef6c10', at: [30, 66], levels: CREATE,
+    title: B('Creating the logo', 'Créer le logotype'),
+    blurb: B('Explore with image AI, redraw as vectors, test at every size, and check the mark is free before filing it.',
+      "Explorer avec l'IA image, redessiner en vectoriel, tester à toutes les tailles, et vérifier que la marque est libre avant de la déposer."),
+  },
 ]
 
 export const LOGO_A: CoursePart = {
   modules: MODULES,
-  enrich: { ...STRAT_ENRICH },
+  enrich: { ...STRAT_ENRICH, ...CREATE_ENRICH },
   deep: { ...STRAT_DEEP },
 }
