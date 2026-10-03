@@ -1503,10 +1503,16 @@ const MODULES: Module[] = [
     blurb: B('Frame the problem and the job to be done, run interviews, synthesise research with AI without inventing, and write personas without stereotypes.',
       "Cadrer le problème et le job à accomplir, mener des entretiens, synthétiser la recherche avec l'IA sans inventer, et écrire des personas sans stéréotypes."),
   },
+  {
+    id: M2, track: 'course', glyph: 'layers', tint: '#0e7490', at: [30, 66], levels: FLOWS,
+    title: B('Journeys and flows', 'Parcours et flows'),
+    blurb: B('Map the user journey and its pain points, tell task flows, user flows and wireflows apart, draw a flow in FigJam or Mermaid with AI, and design the edge cases.',
+      "Cartographier le parcours utilisateur et ses irritants, distinguer task flow, user flow et wireflow, dessiner un flow dans FigJam ou en Mermaid avec l'IA, et concevoir les cas limites."),
+  },
 ]
 
 export const FLOWUX_A: CoursePart = {
   modules: MODULES,
-  enrich: { ...USER_ENRICH },
-  deep: { ...USER_DEEP },
+  enrich: { ...USER_ENRICH, ...FLOWS_ENRICH },
+  deep: { ...USER_DEEP, ...FLOWS_DEEP },
 }
