@@ -10329,7 +10329,7 @@ button.wm-tag { border-radius: 999px !important; }
   0%   { transform: translateY(18px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-.gm-rise { animation: gm-rise 520ms var(--g-ease) backwards; animation-delay: calc(var(--i, 0) * 60ms); }
+.gm-rise { animation: gm-rise 520ms var(--g-ease) backwards; animation-delay: calc(min(var(--i, 0), 10) * 60ms); }
 
 /* L'ONGLET QUI DEVIENT ACTIF · son signe monte d'un cran, une fois. */
 @keyframes gm-hop {
