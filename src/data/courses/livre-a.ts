@@ -784,7 +784,7 @@ const PLAN: Level[] = [
     ),
     quiz: {
       q: B("Hélène's midpoint reads: 'Maëlle visits the museum, and then she meets the harbour master'. What is wrong?",
-        'Au milieu du plan d\'Hélène : « Maëlle visite le musée, et puis elle rencontre le maître de port ». Qu\'est-ce qui cloche ?'),
+        'Milieu du plan d\'Hélène : « Maëlle visite le musée, et puis elle rencontre le maître de port ». Qu\'est-ce qui cloche ?'),
       options: [
         B('The scene comes too early, since a midpoint belongs to the last third', 'La scène arrive trop tôt, puisque le milieu se situe au dernier tiers'),
         B('Nothing turns: one event follows another, with no cause or reversal', "Rien ne bascule : un événement suit l'autre, sans cause ni renversement"),
@@ -827,7 +827,7 @@ const PLAN: Level[] = [
       q: B('In chapter 9, Maëlle has a goal and an obstacle, but she knows and wants the same things at the end. What do you do?',
         'Au chapitre 9, Maëlle a un objectif et un obstacle, mais elle sait et veut la même chose à la fin. Que faites-vous ?'),
       options: [
-        B('Merge it with a neighbour or give it a change, since it does not move', "Vous le fusionnez ou lui donnez un changement, puisqu'il n'avance pas"),
+        B('Merge it with a neighbour or give it a change: it does not move', "Vous le fusionnez ou lui donnez un changement, puisqu'il n'avance pas"),
         B('Keep it, since a calm chapter is welcome after a tense sequence', 'Vous le gardez, car un chapitre calme repose après une séquence tendue'),
         B('Ask the AI to lengthen it, so that the book reaches its target size', "Vous demandez à l'IA de l'allonger, pour atteindre la taille visée"),
       ],
@@ -865,8 +865,8 @@ const PLAN: Level[] = [
       "Accepter le personnage générique proposé par l'IA, courageux, blessé et bienveillant : sans contradiction ni secret, personne n'y croit.",
     ),
     quiz: {
-      q: B('In the interview, Maëlle talks like a self-help coach, which her sheet never suggested. What do you change?',
-        'En interview, Maëlle parle comme une coach en développement personnel, ce que sa fiche n\'indique pas. Que corrigez-vous ?'),
+      q: B('In the interview, Maëlle talks like a wellness coach, which her sheet never suggested. What do you change?',
+        'En interview, Maëlle parle comme une coach en bien-être, ce que sa fiche n\'indique pas. Que corrigez-vous ?'),
       options: [
         B('Nothing: the AI knows how real people talk better than the sheet', "Rien : l'IA sait mieux que la fiche comment parlent les vraies gens"),
         B('The interview, by rewriting her answers by hand, one by one', "L'interview, en réécrivant ses réponses à la main, une par une"),
@@ -907,10 +907,10 @@ const PLAN: Level[] = [
     ),
     quiz: {
       q: B("Hélène's mystery rests on what Maëlle hides from the reader. Which point of view makes that hardest to do fairly?",
-        'Le polar d\'Hélène repose sur ce que Maëlle cache au lecteur. Quel point de vue rend cela le plus délicat à faire loyalement ?'),
+        'Le polar d\'Hélène repose sur ce que Maëlle tait au lecteur. Quel point de vue rend cela le plus dur à tenir loyalement ?'),
       options: [
         B('Close third person, which follows Maëlle from slightly outside', "La troisième personne proche, qui suit Maëlle d'un peu plus loin"),
-        B('First person, since the reader is inside her head the whole time', 'La première personne, puisque le lecteur est dans sa tête en continu'),
+        B('First person, since the reader is always inside her head', 'La première personne, puisque le lecteur est dans sa tête en continu'),
         B('An omniscient narrator, who is free to say what she hides', 'Un narrateur omniscient, libre de dire ce qu\'elle cache'),
       ],
       answer: 1,
@@ -937,7 +937,7 @@ const PLAN_ENRICH: Record<string, Enrichment> = {
       context: B("Hélène asks the AI to structure her novel. It returns a complete fifteen-beat sheet, full of events she never imagined, including a storm and a romance with a sailor.",
         "Hélène demande à l'IA de structurer son roman. Elle reçoit une grille complète en quinze temps, pleine d'événements qu'elle n'avait jamais imaginés, dont une tempête et une idylle avec un marin."),
       before: B("Structure my mystery novel in three acts using Save the Cat.",
-        "Structure mon polar en trois actes selon Save the Cat."),
+        "Structure mon polar en trois actes avec la méthode Save the Cat."),
       after: B("Here are the five pivots of my novel, which I wrote myself:\n1. Trigger: Maëlle finds her uncle's notebooks; the latest entries are dated after his disappearance.\n2. Point of no return: she decides to stay on the islet for the season, against her mother's wishes.\n3. Midpoint: she discovers that the recent entries are in her mother's handwriting.\n4. Crisis: her mother refuses to talk, and the protected status of the islet is threatened.\n5. Climax: on the night of the spring tide, Maëlle faces the truth about the night her uncle vanished.\nDo not add events. Check: does each pivot follow from the previous one by 'therefore' or 'but'? Where does the middle risk sagging? Propose two ways to raise the stakes between pivots 2 and 3, without changing the pivots.",
         "Voici les cinq pivots de mon roman, que j'ai écrits moi-même :\n1. Déclencheur : Maëlle trouve les carnets de son oncle ; les derniers relevés sont datés d'après sa disparition.\n2. Point de non-retour : elle décide de rester sur l'îlot pour la saison, contre l'avis de sa mère.\n3. Milieu : elle découvre que les relevés récents sont de la main de sa mère.\n4. Crise : sa mère refuse de parler, et le statut protégé de l'îlot est menacé.\n5. Climax : la nuit de la grande marée, Maëlle affronte la vérité sur la nuit où son oncle a disparu.\nN'ajoute aucun événement. Vérifie : chaque pivot découle-t-il du précédent par « donc » ou « mais » ? Où le milieu risque-t-il de s'affaisser ? Propose deux façons de relever l'enjeu entre les pivots 2 et 3, sans changer les pivots."),
       takeaway: B("In the second prompt, the structure belongs to Hélène and the AI only criticises it. She learns that the stretch between pivots 2 and 3 lacks pressure, and gets options to choose from instead of someone else's novel.",
@@ -1100,7 +1100,7 @@ const PLAN_ENRICH: Record<string, Enrichment> = {
       B("Point of view decides what the reader can know. In first person, the reader shares the narrator's thoughts and limits; in close third person, they follow one character from slightly outside; an omniscient narrator can go anywhere. For a mystery, this choice decides how clues can be hidden fairly. Tense and narrative distance complete the frame.",
         "Le point de vue décide de ce que le lecteur peut savoir. À la première personne, il partage les pensées et les limites du narrateur ; à la troisième personne proche, il suit un personnage d'un peu plus loin ; un narrateur omniscient peut aller partout. Pour un polar, ce choix décide de la façon de cacher loyalement les indices. Le temps du récit et la distance narrative complètent le cadre."),
       B("Voice is what makes a page recognisable as yours: rhythm, vocabulary, what you notice, how you joke or stay silent. It cannot be ordered from an AI, but it can be described. Giving the AI two pages you wrote and asking it to state rules (short sentences in tense scenes, few adverbs, the precise name of a bird rather than the generic word) turns an intuition into a reference you can correct and reuse.",
-        "La voix est ce qui rend une page reconnaissable comme la vôtre : le rythme, le vocabulaire, ce que vous remarquez, votre façon de plaisanter ou de vous taire. Elle ne se commande pas à une IA, mais elle se décrit. Donner à l'IA deux pages de votre main et lui demander d'en tirer des règles (phrases courtes dans les scènes tendues, peu d'adverbes, le nom précis de l'oiseau plutôt que le mot générique) transforme une intuition en référence que l'on corrige et réutilise."),
+        "La voix est ce qui rend une page reconnaissable comme la vôtre : le rythme, le vocabulaire, ce que vous remarquez, votre humour ou vos silences. Elle ne se commande pas à une IA, mais elle se décrit. Donner à l'IA deux pages de votre main et lui demander d'en tirer des règles (phrases courtes dans les scènes tendues, peu d'adverbes, le nom précis de l'oiseau plutôt que le mot générique) transforme une intuition en référence que l'on corrige et réutilise."),
       B("The story bible gathers everything decided so far in one document: premise, promise, frame, structure, chapter plan, sheets, places, timeline, style rules. It is the memory of the book. The writer consults it to stay consistent; the AI receives it, in a project with files (Claude Projects, ChatGPT projects) or pasted at the start of a session.",
         "La bible du livre réunit en un document tout ce qui a été décidé : prémisse, promesse, cadre, structure, plan des chapitres, fiches, lieux, chronologie, règles de style. C'est la mémoire du livre. L'auteur la consulte pour rester cohérent ; l'IA la reçoit, dans un projet avec fichiers (Claude Projects, projets ChatGPT) ou collée en début de session."),
     ],
@@ -1143,7 +1143,7 @@ const PLAN_ENRICH: Record<string, Enrichment> = {
           "Où placer la bible du livre pour que l'IA s'en serve à chaque séance d'écriture ?"),
         options: [
           B("In your memory, since you can repeat the key facts when needed", "Dans votre mémoire, puisque vous pouvez redire les faits clés au besoin"),
-          B("In a project with files, or pasted at the start of each session", "Dans un projet avec fichiers, ou collée au début de chaque séance"),
+          B("In a project with files, or pasted at the start of a session", "Dans un projet avec fichiers, ou collée au début de chaque séance"),
           B("Nowhere: the AI remembers all past conversations about the book", "Nulle part : l'IA se souvient de toutes les conversations sur le livre"),
         ],
         answer: 1,

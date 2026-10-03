@@ -1,5 +1,778 @@
-// LE COURS « Concevoir un flow UX avec l'IA », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Concevoir un flow UX avec l'IA », PARTIE A · voir ./types et ./index.
+//
+// UN FIL ROUGE POUR LES DEUX MODULES · « Pagina », l'app fictive du réseau des
+// médiathèques de Brivelle, une ville elle aussi fictive. Léa, designer
+// produit, doit concevoir le flow « réserver un document et le retirer ». On
+// cadre le problème, on interroge de vrais usagers, on synthétise sans rien
+// inventer, on écrit des personas sans stéréotypes, puis on cartographie le
+// parcours, on modélise les flows, on les dessine et on traite les cas limites.
+// La partie B reprend Pagina pour les wireframes, le prototype, le test et la
+// livraison.
+//
+// CE QUE LE COURS AFFIRME DES OUTILS, ET CE QU'IL S'INTERDIT. Il s'en tient aux
+// principes stables : FigJam, Miro et Whimsical sont des tableaux blancs
+// collaboratifs, Mermaid décrit un schéma en texte (flowchart TD, A --> B), et
+// GitHub affiche les blocs Mermaid. Les fonctions IA de chaque outil, leurs
+// noms et leurs offres changent : le cours renvoie aux centres d'aide
+// officiels. Pour les données personnelles des entretiens, il renvoie à la
+// CNIL et à la politique de l'organisation, sans citer d'article.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const FLOWUX_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · COMPRENDRE L'UTILISATEUR                                 */
+/* ================================================================== */
+
+const M1 = 'ux-m1'
+
+const USER: Level[] = [
+  {
+    id: 'ux-frame',
+    master: 'planning',
+    minutes: 10,
+    title: B('Frame the problem and the job to be done', 'Cadrer le problème et le job à accomplir'),
+    learn: B(
+      'You will turn a vague request into a framed problem: who, in which situation, which job, which success criterion.',
+      "Vous saurez transformer une demande floue en problème cadré : qui, dans quelle situation, quel job, quel critère de réussite.",
+    ),
+    act: B('Rewrite the Pagina request as a job story and a problem statement, then have the AI challenge it.',
+      'Réécrivez la demande de Pagina en job story et en énoncé de problème, puis faites-la critiquer par l\'IA.'),
+    steps: [
+      B('Write the request as received, then list what it assumes: the users, the cause, the solution already chosen.',
+        'Notez la demande telle que reçue, puis listez ce qu\'elle suppose : les usagers, la cause, la solution déjà choisie.'),
+      B('Write the job story: when [situation], I want to [motivation], so I can [expected outcome].',
+        'Rédigez la job story : quand [situation], je veux [motivation], afin de [résultat attendu].'),
+      B('Ask the AI for the hypotheses hidden in your framing, and mark those that research must test.',
+        "Demandez à l'IA les hypothèses cachées dans votre cadrage, et marquez celles que la recherche devra tester."),
+      B('Set one success criterion you could observe, such as a reservation completed without help.',
+        'Fixez un critère de réussite observable, par exemple une réservation menée à bien sans aide.'),
+    ],
+    trap: B(
+      'Framing the solution instead of the problem: "we need an app" says nothing about who struggles, when, or why.',
+      "Cadrer la solution au lieu du problème : « il nous faut une app » ne dit ni qui peine, ni quand, ni pourquoi.",
+    ),
+    quiz: {
+      q: B('The Brivelle libraries want "a reservation feature like online shops". What do you write first?',
+        'Les médiathèques de Brivelle veulent « une réservation comme les boutiques en ligne ». Qu\'écrivez-vous d\'abord ?'),
+      options: [
+        B('A list of the reservation features that online shops offer', 'La liste des fonctions de réservation des boutiques en ligne'),
+        B('The situation and the job of patrons who want to reserve', 'La situation et le job des usagers qui veulent réserver'),
+        B('A first wireframe of the reservation screen for the director', "Un premier wireframe de l'écran de réservation pour la direction"),
+      ],
+      answer: 1,
+      why: B(
+        'The request already contains a solution. Framing the situation and the job of real patrons tells you what the reservation must achieve before you choose how it looks.',
+        'La demande contient déjà une solution. Cadrer la situation et le job des usagers dit ce que la réservation doit accomplir, avant de choisir sa forme.',
+      ),
+    },
+    badge: B('Frames the problem before the screen', "Cadre le problème avant l'écran"),
+  },
+  {
+    id: 'ux-interview',
+    master: 'research',
+    minutes: 11,
+    title: B('Prepare and run user interviews', 'Préparer et mener des entretiens utilisateurs'),
+    learn: B(
+      'You will prepare an interview guide with AI and run interviews that collect past behaviour, not opinions.',
+      "Vous saurez préparer un guide d'entretien avec l'IA et mener des entretiens qui recueillent des faits vécus, pas des avis.",
+    ),
+    act: B('Draft the Pagina interview guide with the AI, remove its leading questions, then run a test interview.',
+      "Rédigez le guide d'entretien de Pagina avec l'IA, retirez ses questions orientées, puis menez un entretien test."),
+    steps: [
+      B('Turn your riskiest hypotheses into themes, and recruit real patrons, including some who never use the app.',
+        "Transformez vos hypothèses les plus risquées en thèmes, et recrutez de vrais usagers, dont certains qui n'utilisent pas l'app."),
+      B('Ask the AI for open questions about the last time it happened, then cut any question that suggests an answer.',
+        "Demandez à l'IA des questions ouvertes sur la dernière fois, puis retirez toute question qui suggère une réponse."),
+      B('Get consent to record, explain how notes are used, and anonymise before any transcript goes to an AI tool.',
+        "Obtenez le consentement pour enregistrer, expliquez l'usage des notes, et anonymisez avant tout envoi à un outil IA."),
+      B('During the interview, listen more than you talk, ask for examples, and follow surprises rather than the script.',
+        "Pendant l'entretien, écoutez plus que vous ne parlez, demandez des exemples, et suivez les surprises plutôt que le guide."),
+    ],
+    trap: B(
+      'Asking "would you use online reservations?": people say yes to be kind, and a hypothetical future predicts little.',
+      "Demander « utiliseriez-vous une réservation en ligne ? » : on répond oui par politesse, et un futur hypothétique prédit peu de chose.",
+    ),
+    quiz: {
+      q: B('Which question gives you the most reliable material in a Pagina interview?',
+        'Quelle question donne le matériau le plus fiable dans un entretien pour Pagina ?'),
+      options: [
+        B('Would you reserve more often if the app made it easier?', "Réserveriez-vous plus souvent si l'app rendait cela plus simple ?"),
+        B('Do you agree that reserving today is far too slow for you?', "Êtes-vous d'accord pour dire que réserver est aujourd'hui trop lent ?"),
+        B('Tell me about the last time you wanted a book you lacked.', 'Racontez-moi la dernière fois que vous vouliez un livre absent.'),
+      ],
+      answer: 2,
+      why: B(
+        'Asking about a real, recent episode gets facts: what the person did, where they got stuck. The other two ask for a prediction or invite agreement.',
+        "Interroger un épisode réel et récent donne des faits : ce que la personne a fait, où elle a buté. Les deux autres demandent une prédiction ou invitent à acquiescer.",
+      ),
+    },
+    badge: B('Asks about the last time', 'Interroge la dernière fois'),
+  },
+  {
+    id: 'ux-synth',
+    master: 'extraction',
+    minutes: 11,
+    title: B('Synthesise research with AI without inventing', "Synthétiser la recherche avec l'IA sans l'inventer"),
+    learn: B(
+      'You will synthesise interview notes with AI while keeping every finding tied to a quote and a participant.',
+      "Vous saurez synthétiser des notes d'entretien avec l'IA en gardant chaque constat rattaché à une citation et à une personne.",
+    ),
+    act: B('Code the Pagina transcripts with the AI, group them into themes, then check each finding against its sources.',
+      'Codez les transcriptions de Pagina avec l\'IA, regroupez-les en thèmes, puis vérifiez chaque constat sur ses sources.'),
+    steps: [
+      B('Give each anonymised transcript an ID (P1, P2...) and have the AI extract observations with their exact quote.',
+        'Donnez un identifiant à chaque transcription anonymisée (P1, P2...) et faites extraire les observations avec leur citation.'),
+      B('Group observations into themes on a board (affinity mapping), then let the AI propose names you correct.',
+        "Regroupez les observations en thèmes sur un tableau (affinity mapping), puis laissez l'IA proposer des noms à corriger."),
+      B('For each finding, count the participants who support it and check every quote in the original text.',
+        "Pour chaque constat, comptez les participants qui l'appuient et vérifiez chaque citation dans le texte d'origine."),
+      B('Keep a column for contradictions and surprises: they often hold what a summary would smooth out.',
+        'Gardez une colonne pour les contradictions et les surprises : elles portent souvent ce que le résumé aurait lissé.'),
+    ],
+    trap: B(
+      'Asking for "a summary of the interviews": the AI produces fluent generalities and may write quotes nobody said.',
+      "Demander « un résumé des entretiens » : l'IA produit des généralités fluides et peut écrire des citations que personne n'a dites.",
+    ),
+    quiz: {
+      q: B('The synthesis says: "Most patrons find pickup hours confusing (P2, P5)". What do you check first?',
+        'La synthèse dit : « La plupart des usagers trouvent les horaires de retrait confus (P2, P5) ». Que vérifiez-vous ?'),
+      options: [
+        B('The quotes of P2 and P5, and whether two people make "most"', 'Les citations de P2 et P5, et si deux personnes font « la plupart »'),
+        B('Whether the wording is clear enough to show to the director', 'Si la formulation est assez claire pour être montrée à la direction'),
+        B('Whether the AI used the right colour for this theme on the board', "Si l'IA a employé la bonne couleur pour ce thème sur le tableau"),
+      ],
+      answer: 0,
+      why: B(
+        'The finding claims a majority on two sources. Check that P2 and P5 really said it, then reword it with the true count: two participants out of six, not most.',
+        "Le constat revendique une majorité sur deux sources. Vérifiez que P2 et P5 l'ont vraiment dit, puis reformulez avec le vrai compte : deux sur six, pas la plupart.",
+      ),
+    },
+    badge: B('Every finding has its source', 'Chaque constat a sa source'),
+  },
+  {
+    id: 'ux-persona',
+    master: 'writing',
+    minutes: 10,
+    title: B('Useful personas, without stereotypes', 'Des personas utiles, sans stéréotypes'),
+    learn: B(
+      'You will build personas from research findings, based on needs and behaviours rather than age or gender clichés.',
+      'Vous saurez construire des personas à partir des constats, fondés sur les besoins et les comportements plutôt que sur des clichés.',
+    ),
+    act: B('Draft two Pagina personas from your findings with the AI, strip the stereotypes, then test them with patrons.',
+      "Rédigez deux personas de Pagina à partir de vos constats avec l'IA, retirez les stéréotypes, puis testez-les auprès d'usagers."),
+    steps: [
+      B('Group participants by what they try to do and how, not by age: these behaviours define your personas.',
+        "Regroupez les participants selon ce qu'ils cherchent à faire et comment, pas selon l'âge : ces comportements font les personas."),
+      B('Give the AI your findings with their IDs and ask for a persona whose every trait cites its source.',
+        "Donnez à l'IA vos constats avec leurs identifiants et demandez un persona dont chaque trait cite sa source."),
+      B('Delete any detail without a source or that adds a cliché: stock photo, hobby, remark on age and technology.',
+        "Supprimez tout détail sans source ou qui ajoute un cliché : photo type, loisir, remarque sur l'âge et la technologie."),
+      B('Show the personas to two patrons and to front-desk staff, and correct what they do not recognise.',
+        "Montrez les personas à deux usagers et au personnel d'accueil, et corrigez ce qu'ils ne reconnaissent pas."),
+    ],
+    trap: B(
+      'Letting the AI fill the gaps: "Monique, 72, struggles with technology" is a cliché, not a finding, and it misleads every decision.',
+      "Laisser l'IA combler les vides : « Monique, 72 ans, fâchée avec la technologie » est un cliché, pas un constat, et il fausse chaque décision.",
+    ),
+    quiz: {
+      q: B('Which persona attribute is most useful for designing the Pagina reservation flow?',
+        'Quel attribut de persona est le plus utile pour concevoir le flow de réservation de Pagina ?'),
+      options: [
+        B('Retired, 68, lives alone with her cat and enjoys gardening', 'Retraitée, 68 ans, vit seule avec son chat et aime le jardinage'),
+        B('Not at ease with smartphones because of her generation', 'Peu à l\'aise avec le smartphone, à cause de sa génération'),
+        B('Reserves for others and picks up at another library', "Réserve pour d'autres et retire dans une autre médiathèque"),
+      ],
+      answer: 2,
+      why: B(
+        'A behaviour and its constraint change the design: reserving for someone else, choosing where to pick up. Age, pets and hobbies do not, and the generation cliché is an assumption.',
+        "Un comportement et sa contrainte changent la conception : réserver pour autrui, choisir le lieu de retrait. L'âge, le chat ou le loisir non, et le cliché générationnel est une supposition.",
+      ),
+    },
+    badge: B('Writes personas from evidence', 'Écrit des personas fondés sur des preuves'),
+  },
+]
+
+const USER_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'ux-frame')]: {
+    why: [
+      B("A request from a client or a manager usually arrives as a solution: an app, a new page, a feature seen elsewhere. Framing means going back up to the problem it is meant to solve: who has it, in which situation, what they try to get done and what stops them today. Without this step, every later decision, from interviews to wireframes, is judged against a solution nobody has checked.",
+        "Une demande de client ou de direction arrive presque toujours sous forme de solution : une app, une page, une fonction vue ailleurs. Cadrer, c'est remonter au problème qu'elle doit résoudre : qui le rencontre, dans quelle situation, ce que la personne cherche à accomplir et ce qui l'en empêche. Sans cette étape, chaque décision suivante, des entretiens aux wireframes, se juge à l'aune d'une solution que personne n'a vérifiée."),
+      B("The jobs-to-be-done lens helps because a job is stable while solutions change. A patron does not want \"a reservation feature\"; they want to be sure to read a book soon without buying it. Written as a job story (when, I want to, so I can), the need names a situation and an outcome, which gives you something to observe in interviews and to measure later.",
+        "Le prisme des jobs-to-be-done aide parce qu'un job reste stable quand les solutions changent. Un usager ne veut pas « une fonction de réservation » ; il veut être sûr de lire bientôt un livre sans l'acheter. Écrit en job story (quand, je veux, afin de), le besoin nomme une situation et un résultat : de quoi observer en entretien et mesurer ensuite."),
+      B("AI is useful here as a critic, not as a source. It cannot know your users, but it is good at spotting what a framing takes for granted: an assumed cause, a single type of user, a solution hidden in the wording. Ask it to list your hypotheses and rank them by risk; the riskiest become the questions of your research.",
+        "L'IA est utile ici comme critique, pas comme source. Elle ne connaît pas vos usagers, mais elle repère bien ce qu'un cadrage tient pour acquis : une cause supposée, un seul type d'usager, une solution cachée dans la formulation. Demandez-lui de lister vos hypothèses et de les classer par risque ; les plus risquées deviennent les questions de votre recherche."),
+    ],
+    example: {
+      context: B("Léa, product designer for Pagina, the app of the fictional Brivelle library network, receives a one-line request from the director. Her first prompt asks the AI to design the feature directly.",
+        "Léa, designer produit de Pagina, l'app du réseau fictif des médiathèques de Brivelle, reçoit une demande d'une ligne de la direction. Son premier prompt demande à l'IA de concevoir directement la fonction."),
+      before: B("Design a reservation feature for our library app, like on big shopping sites.",
+        "Conçois une fonction de réservation pour notre app de médiathèque, comme sur les grands sites marchands."),
+      after: B("I am framing a design problem: do not propose any solution or screen yet.\nContext: Pagina is the app of a network of four public libraries. The director asks for \"a reservation feature like online shops\".\n1. Rewrite this request as a problem statement: who, in which situation, what they try to get done, what stops them today. Mark each part as KNOWN or ASSUMED.\n2. Propose three job stories in the form: when [situation], I want to [motivation], so I can [outcome].\n3. List the hypotheses hidden in the request (cause, users, solution), from the riskiest to the safest.\n4. For the three riskiest, write the question I should ask real patrons to test them.\nDo not invent facts about our patrons: if you need information, ask me.",
+        "Je cadre un problème de conception : ne propose encore aucune solution ni aucun écran.\nContexte : Pagina est l'app d'un réseau de quatre médiathèques publiques. La direction demande « une réservation comme les boutiques en ligne ».\n1. Réécris cette demande en énoncé de problème : qui, dans quelle situation, ce que la personne cherche à accomplir, ce qui l'en empêche aujourd'hui. Marque chaque partie CONNU ou SUPPOSÉ.\n2. Propose trois job stories sous la forme : quand [situation], je veux [motivation], afin de [résultat].\n3. Liste les hypothèses cachées dans la demande (cause, usagers, solution), de la plus risquée à la plus sûre.\n4. Pour les trois plus risquées, écris la question à poser à de vrais usagers pour les tester.\nN'invente aucun fait sur nos usagers : s'il te manque une information, demande-la-moi."),
+      takeaway: B("The second prompt forbids solutions, separates what is known from what is assumed and turns hypotheses into research questions. Léa leaves with a framing to test, not a feature to defend.",
+        "Le second prompt interdit les solutions, sépare le connu du supposé et transforme les hypothèses en questions de recherche. Léa repart avec un cadrage à tester, et non une fonction à défendre."),
+    },
+    exercise: {
+      goal: B("A one-page framing of your own project: problem statement, two or three job stories, ranked hypotheses and the questions that will test them.",
+        "Le cadrage d'une page de votre propre projet : énoncé de problème, deux ou trois job stories, hypothèses classées et questions qui les testeront."),
+      prompt: B("I am framing a UX problem: do not propose any solution or screen.\nProject: [YOUR PRODUCT OR SERVICE, IN TWO LINES].\nRequest as received: [THE REQUEST, WORD FOR WORD].\nWhat I know for sure about the users: [FACTS, WITH THEIR SOURCE].\n1. Rewrite the request as a problem statement (who, situation, goal, obstacle), marking each part KNOWN or ASSUMED.\n2. Propose three job stories: when [...], I want to [...], so I can [...].\n3. List the hidden hypotheses, ranked by risk.\n4. Propose one observable success criterion.\nIf a piece of information is missing, ask me instead of making it up.",
+        "Je cadre un problème UX : ne propose aucune solution ni aucun écran.\nProjet : [VOTRE PRODUIT OU SERVICE, EN DEUX LIGNES].\nDemande telle que reçue : [LA DEMANDE, MOT POUR MOT].\nCe que je sais avec certitude des usagers : [FAITS, AVEC LEUR SOURCE].\n1. Réécris la demande en énoncé de problème (qui, situation, objectif, obstacle), en marquant chaque partie CONNU ou SUPPOSÉ.\n2. Propose trois job stories : quand [...], je veux [...], afin de [...].\n3. Liste les hypothèses cachées, classées par risque.\n4. Propose un critère de réussite observable.\nS'il manque une information, demande-la-moi au lieu de l'inventer."),
+      check: [
+        B("The problem statement names a situation, not a solution or a screen", "L'énoncé de problème nomme une situation, pas une solution ni un écran"),
+        B("Every part of the statement is marked as known or assumed", "Chaque partie de l'énoncé est marquée connue ou supposée"),
+        B("Each job story has a situation, a motivation and an outcome", "Chaque job story comporte une situation, une motivation et un résultat"),
+        B("The success criterion can be observed in a test or measured in data", "Le critère de réussite s'observe en test ou se mesure dans les données"),
+      ],
+      bonus: B("Show your framing to someone who meets the users every day (a front-desk agent, a support person) and ask which hypothesis seems most wrong to them. Their answer is your first piece of research, before any interview.",
+        "Montrez votre cadrage à quelqu'un qui côtoie les usagers chaque jour (un agent d'accueil, une personne du support) et demandez-lui quelle hypothèse lui semble la plus fausse. Sa réponse est votre premier élément de recherche, avant tout entretien."),
+    },
+    more: [
+      { q: B("Which job story gives you something to observe in an interview?",
+          "Quelle job story vous donne quelque chose à observer en entretien ?"),
+        options: [
+          B("When I hear of a book, I want to secure it fast, so I can read it soon", "Quand j'entends parler d'un livre, je veux le réserver vite, afin de le lire bientôt"),
+          B("As a patron, I want a modern reservation feature with smooth animations", "En tant qu'usager, je veux une réservation moderne avec des animations fluides"),
+          B("Patrons need an app that is as easy to use as the best online shops", "Les usagers ont besoin d'une app aussi simple que les meilleures boutiques en ligne"),
+        ],
+        answer: 0,
+        why: B("It names a situation (hearing of a book), a motivation and an outcome you can ask about: what did the person do last time? The other two describe a solution or a quality, not a job.",
+          "Elle nomme une situation (entendre parler d'un livre), une motivation et un résultat sur lesquels interroger : qu'a fait la personne la dernière fois ? Les deux autres décrivent une solution ou une qualité, pas un job.") },
+      { q: B("The AI's framing states that patrons \"are frustrated by long queues at the desk\". Where does that come from?",
+          "Le cadrage de l'IA affirme que les usagers « sont agacés par les files d'attente à l'accueil ». D'où cela vient-il ?"),
+        options: [
+          B("From your own research, since the AI read your user data", "De votre propre recherche, puisque l'IA a lu vos données usagers"),
+          B("From nowhere you know of: it is a hypothesis to test", "D'aucune source connue : c'est une hypothèse à tester"),
+          B("From library statistics the AI learned during training", "De statistiques de bibliothèques apprises à l'entraînement"),
+        ],
+        answer: 1,
+        why: B("The AI has never met your patrons. A claim it adds is at best a plausible hypothesis: mark it as assumed and keep it only if interviews or data confirm it.",
+          "L'IA n'a jamais rencontré vos usagers. Une affirmation qu'elle ajoute est au mieux une hypothèse plausible : marquez-la supposée et ne la gardez que si les entretiens ou les données la confirment.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ux-interview')]: {
+    why: [
+      B("An interview is not a survey read aloud. Its value comes from stories: the last time the person needed something, what they did, what they tried first, where they gave up. Memory of concrete episodes is imperfect, but far more reliable than opinions or predictions, which people build on the spot to be helpful.",
+        "Un entretien n'est pas un questionnaire lu à voix haute. Sa valeur vient des récits : la dernière fois que la personne a eu besoin de quelque chose, ce qu'elle a fait, ce qu'elle a essayé d'abord, où elle a renoncé. Le souvenir d'épisodes concrets est imparfait, mais bien plus fiable que les avis ou les prédictions, que l'on construit sur le moment pour se montrer obligeant."),
+      B("AI is a good assistant for preparation: it turns themes into sequences of questions, suggests follow-ups (why, how, can you show me) and spots leading wording when asked. It is a poor judge of what matters to your users, so the themes must come from your framing, and you must reread every question looking for the answer it suggests.",
+        "L'IA est une bonne assistante de préparation : elle transforme des thèmes en suites de questions, propose des relances (pourquoi, comment, pouvez-vous me montrer) et repère les formulations orientées si on le lui demande. Elle juge mal ce qui compte pour vos usagers : les thèmes doivent venir de votre cadrage, et chaque question doit être relue pour y chercher la réponse qu'elle suggère."),
+      B("Interviews involve personal data. Ask for consent before recording, say what you will do with the notes, and remove names and identifying details before sending anything to an AI tool. The rules depend on your country and organisation: in France, the CNIL publishes guidance on personal data; check it and your organisation's policy rather than guessing.",
+        "Les entretiens touchent à des données personnelles. Demandez le consentement avant d'enregistrer, dites ce que deviendront les notes, et retirez noms et détails identifiants avant tout envoi à un outil IA. Les règles dépendent du pays et de l'organisation : en France, la CNIL publie des repères sur les données personnelles ; consultez-les, ainsi que la politique de votre organisation, plutôt que de deviner."),
+    ],
+    example: {
+      context: B("Léa asks the AI for an interview guide for Pagina patrons. The first version reads like a satisfaction survey, full of questions that push towards the reservation feature.",
+        "Léa demande à l'IA un guide d'entretien pour les usagers de Pagina. La première version ressemble à une enquête de satisfaction, pleine de questions qui poussent vers la fonction de réservation."),
+      before: B("Write me interview questions to validate our reservation feature.",
+        "Écris-moi des questions d'entretien pour valider notre fonction de réservation."),
+      after: B("You help me prepare a 40-minute semi-structured interview guide. Do not write any question that suggests an answer.\nContext: Pagina is the app of four public libraries. I want to understand how patrons get hold of a book they do not have at hand.\nThemes, taken from my framing: 1) how they hear of books, 2) what they do when the book is out, 3) how they pick up a book and what stops them.\nStructure: a warm-up, then for each theme one opening question about the last time it happened, and three follow-ups (what happened next, why, can you show me).\nEnd with an open closing question.\nAfter the guide, list any question you consider risky (leading, double, hypothetical) and explain why.",
+        "Aide-moi à préparer un guide d'entretien semi-directif de 40 minutes. N'écris aucune question qui suggère une réponse.\nContexte : Pagina est l'app de quatre médiathèques publiques. Je veux comprendre comment les usagers obtiennent un livre qu'ils n'ont pas sous la main.\nThèmes, tirés de mon cadrage : 1) comment ils entendent parler des livres, 2) ce qu'ils font quand le livre est emprunté, 3) comment ils retirent un livre et ce qui les en empêche.\nStructure : une mise en confiance, puis pour chaque thème une question d'ouverture sur la dernière fois, et trois relances (et ensuite, pourquoi, pouvez-vous me montrer).\nTermine par une question de clôture ouverte.\nAprès le guide, liste les questions que tu juges risquées (orientées, doubles, hypothétiques) et explique pourquoi."),
+      takeaway: B("The second prompt gives the AI themes drawn from the framing, imposes questions about real episodes and asks it to flag its own risky questions. Léa rereads a guide built to learn, not to confirm.",
+        "Le second prompt donne à l'IA des thèmes issus du cadrage, impose des questions sur des épisodes réels et lui fait signaler ses propres questions risquées. Léa relit un guide conçu pour apprendre, non pour confirmer."),
+    },
+    exercise: {
+      goal: B("An interview guide of about forty minutes without leading questions, a recruitment screener and a consent text, tested in one practice interview.",
+        "Un guide d'entretien d'environ quarante minutes sans question orientée, un questionnaire de recrutement et un texte de consentement, testés lors d'un entretien d'essai."),
+      prompt: B("You help me prepare a semi-structured user interview guide of [DURATION] minutes. Do not write any question that suggests an answer.\nProduct and context: [YOUR PRODUCT, IN TWO LINES].\nThemes to explore, from my framing: [THEME 1], [THEME 2], [THEME 3].\nFor each theme: one opening question about the last time it happened, and three follow-ups.\nAdd a warm-up and a closing question.\nThen: 1) flag any question that is leading, double or hypothetical; 2) propose a five-question screener to recruit [PROFILE OF PEOPLE TO MEET], including people who do not use the product; 3) draft a short consent text covering recording, anonymisation and use of the notes, which I will check against [MY ORGANISATION'S POLICY].",
+        "Aide-moi à préparer un guide d'entretien utilisateur semi-directif de [DURÉE] minutes. N'écris aucune question qui suggère une réponse.\nProduit et contexte : [VOTRE PRODUIT, EN DEUX LIGNES].\nThèmes à explorer, tirés de mon cadrage : [THÈME 1], [THÈME 2], [THÈME 3].\nPour chaque thème : une question d'ouverture sur la dernière fois, et trois relances.\nAjoute une mise en confiance et une question de clôture.\nEnsuite : 1) signale toute question orientée, double ou hypothétique ; 2) propose un questionnaire de recrutement de cinq questions pour trouver [PROFIL DES PERSONNES À RENCONTRER], y compris des non-utilisateurs ; 3) rédige un court texte de consentement sur l'enregistrement, l'anonymisation et l'usage des notes, que je vérifierai avec [LA POLITIQUE DE MON ORGANISATION]."),
+      check: [
+        B("Every opening question asks about a real, past episode", "Chaque question d'ouverture porte sur un épisode réel et passé"),
+        B("No question contains its own answer or asks for a yes or no judgement", "Aucune question ne contient sa réponse ni n'appelle un simple oui ou non"),
+        B("The recruitment includes people who do not use the product today", "Le recrutement inclut des personnes qui n'utilisent pas le produit aujourd'hui"),
+        B("The consent text says what is recorded, how it is anonymised and kept", "Le texte de consentement dit ce qui est enregistré, anonymisé et conservé"),
+      ],
+      bonus: B("Record your practice interview, with consent, and compare how long you spoke with how long the participant spoke. If you talked more than they did, rewrite the follow-ups you used to fill silences.",
+        "Enregistrez votre entretien d'essai, avec consentement, et comparez votre temps de parole à celui du participant. Si vous avez parlé plus que lui, réécrivez les relances qui vous ont servi à combler les silences."),
+    },
+    more: [
+      { q: B("In the middle of an interview, a patron says \"the app is fine\". What do you do?",
+          "Au milieu d'un entretien, un usager dit « l'app, ça va ». Que faites-vous ?"),
+        options: [
+          B("Note it as positive feedback and move on to the next theme", "Vous le notez comme un retour positif et passez au thème suivant"),
+          B("Ask about the last time they used it, step by step", "Vous l'interrogez sur la dernière fois qu'il s'en est servi, pas à pas"),
+          B("Ask them to rate the app from one to ten to quantify it", "Vous lui demandez de noter l'app de un à dix pour la quantifier"),
+        ],
+        answer: 1,
+        why: B("A general opinion says little. Asking about the last concrete use brings out what the person actually did, including the workarounds that \"fine\" was hiding.",
+          "Un avis général dit peu de chose. Interroger la dernière utilisation concrète fait apparaître ce que la personne a réellement fait, y compris les contournements que « ça va » cachait.") },
+      { q: B("Why remove names from transcripts before pasting them into an AI tool?",
+          "Pourquoi retirer les noms des transcriptions avant de les coller dans un outil IA ?"),
+        options: [
+          B("Because AI tools cannot read proper names correctly", "Parce que les outils IA lisent mal les noms propres"),
+          B("Because the synthesis runs faster without any names", "Parce que la synthèse va plus vite sans aucun nom"),
+          B("Because transcripts are personal data to protect", "Parce que les transcriptions sont des données à protéger"),
+        ],
+        answer: 2,
+        why: B("Interview content is personal data. Anonymising it before sending it to any external tool protects participants and keeps you within the rules set by your organisation and by the authorities, such as the CNIL in France.",
+          "Le contenu d'un entretien est une donnée personnelle. L'anonymiser avant tout envoi à un outil externe protège les participants et vous maintient dans les règles fixées par votre organisation et par les autorités, comme la CNIL en France.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ux-synth')]: {
+    why: [
+      B("Synthesis turns hours of conversation into a few findings a team can act on. The classic method is affinity mapping: break notes into single observations, group similar ones, name the groups, then look for patterns across participants. AI speeds up the first and most tedious step, extracting observations from transcripts, and can propose groupings.",
+        "La synthèse transforme des heures de conversation en quelques constats sur lesquels une équipe peut agir. La méthode classique est l'affinity mapping : découper les notes en observations unitaires, regrouper les semblables, nommer les groupes, puis chercher les motifs communs à plusieurs participants. L'IA accélère la première étape, la plus fastidieuse, l'extraction des observations, et peut proposer des regroupements."),
+      B("The risk is specific: a language model writes the most plausible text, not the most faithful one. Asked for a summary, it smooths contradictions, inflates counts (\"most users\") and can produce quotes that sound right but were never said. The remedy is structural: demand a quote and a participant ID for every observation, and check them against the transcript.",
+        "Le risque est précis : un LLM écrit le texte le plus plausible, pas le plus fidèle. Sollicité pour un résumé, il lisse les contradictions, gonfle les effectifs (« la plupart des usagers ») et peut produire des citations crédibles que personne n'a prononcées. Le remède est structurel : exigez une citation et un identifiant de participant pour chaque observation, et vérifiez-les dans la transcription."),
+      B("Keep human judgement where it matters: deciding which patterns are strong, which are rare but serious, and what surprised you. One participant who is completely blocked can matter more than five with a mild preference. A synthesis that keeps counts, sources and contradictions visible lets the team weigh this for itself.",
+        "Gardez le jugement humain là où il compte : décider quels motifs sont solides, lesquels sont rares mais graves, et ce qui vous a surpris. Un seul participant totalement bloqué peut peser plus que cinq qui expriment une légère préférence. Une synthèse qui laisse voir effectifs, sources et contradictions permet à l'équipe d'en juger elle-même."),
+    ],
+    example: {
+      context: B("Léa has six anonymised transcripts of Pagina patrons. She pastes them all and asks for a summary; the result is fluent, confident, and quotes a sentence that no participant said.",
+        "Léa dispose de six transcriptions anonymisées d'usagers de Pagina. Elle les colle toutes et demande un résumé : le résultat est fluide, assuré, et cite une phrase qu'aucun participant n'a prononcée."),
+      before: B("Here are my interview transcripts. Summarise what users think about reserving books.",
+        "Voici mes transcriptions d'entretiens. Résume ce que les usagers pensent de la réservation de livres."),
+      after: B("You help me synthesise six anonymised user interviews (P1 to P6), pasted below. Do not summarise yet.\nStep 1, extract observations. For each one give: the participant ID, an exact quote copied from the text, and a one-line observation in neutral words. If you are not sure the quote is word for word, write UNCERTAIN.\nStep 2, propose groups of related observations, with a provisional name and the participant IDs in each.\nStep 3, list contradictions between participants, and anything that appears only once but seems important.\nRules: never paraphrase inside a quote; never write \"most\" or \"many\", give counts (for example 3 of 6); add no fact that is not in the transcripts.\n[TRANSCRIPTS P1 TO P6]",
+        "Aide-moi à synthétiser six entretiens utilisateurs anonymisés (P1 à P6), collés ci-dessous. Ne résume pas encore.\nÉtape 1, extrais les observations. Pour chacune, donne : l'identifiant du participant, une citation exacte copiée du texte, et une observation d'une ligne en mots neutres. Si tu n'es pas sûr que la citation soit mot pour mot, écris INCERTAIN.\nÉtape 2, propose des groupes d'observations liées, avec un nom provisoire et les identifiants de chaque groupe.\nÉtape 3, liste les contradictions entre participants, et ce qui n'apparaît qu'une fois mais semble important.\nRègles : ne paraphrase jamais dans une citation ; n'écris jamais « la plupart » ni « beaucoup », donne des effectifs (par exemple 3 sur 6) ; n'ajoute aucun fait absent des transcriptions.\n[TRANSCRIPTIONS P1 À P6]"),
+      takeaway: B("The second prompt splits the work into checkable steps, ties each observation to a quote and a participant, and replaces vague quantities with counts. Léa can verify the synthesis line by line, and the invented quote disappears.",
+        "Le second prompt découpe le travail en étapes vérifiables, rattache chaque observation à une citation et à un participant, et remplace les quantités vagues par des effectifs. Léa vérifie la synthèse ligne à ligne, et la citation inventée disparaît."),
+    },
+    exercise: {
+      goal: B("A synthesis table of your interviews in which every observation carries a participant ID and a checked exact quote, with themes, counts and contradictions.",
+        "Un tableau de synthèse de vos entretiens où chaque observation porte un identifiant de participant et une citation exacte vérifiée, avec thèmes, effectifs et contradictions."),
+      prompt: B("You help me synthesise [NUMBER] anonymised interviews, identified [P1 TO Pn], pasted below.\nResearch question: [WHAT I WANT TO UNDERSTAND].\n1. Extract observations as a table: participant, exact quote, neutral observation. Write UNCERTAIN if the quote is not word for word.\n2. Group them into themes; for each, give the count of participants (for example 3 of 6) and their IDs.\n3. List contradictions, and isolated observations that seem important.\n4. Propose three findings, each in one sentence followed by its supporting IDs.\nNever write \"most\", \"many\" or \"users think\" without a count. Add nothing that is not in the transcripts.\n[TRANSCRIPTS]",
+        "Aide-moi à synthétiser [NOMBRE] entretiens anonymisés, identifiés [P1 À Pn], collés ci-dessous.\nQuestion de recherche : [CE QUE JE VEUX COMPRENDRE].\n1. Extrais les observations dans un tableau : participant, citation exacte, observation neutre. Écris INCERTAIN si la citation n'est pas mot pour mot.\n2. Regroupe-les en thèmes ; pour chacun, donne l'effectif (par exemple 3 sur 6) et les identifiants.\n3. Liste les contradictions, et les observations isolées qui semblent importantes.\n4. Propose trois constats, chacun en une phrase suivie des identifiants qui l'appuient.\nN'écris jamais « la plupart », « beaucoup » ou « les usagers pensent » sans effectif. N'ajoute rien qui ne figure pas dans les transcriptions.\n[TRANSCRIPTIONS]"),
+      check: [
+        B("Every quote in the table was found word for word in a transcript", "Chaque citation du tableau a été retrouvée mot pour mot dans une transcription"),
+        B("Each theme shows a count and the IDs of its participants", "Chaque thème indique un effectif et les identifiants de ses participants"),
+        B("Contradictions and isolated observations have their own section", "Les contradictions et les observations isolées ont leur propre section"),
+        B("No finding says \"most\" or \"users think\" without a count", "Aucun constat ne dit « la plupart » ou « les usagers pensent » sans effectif"),
+      ],
+      bonus: B("Give the same transcripts to a colleague without showing the AI table, and ask them for three findings. Where you agree, you can be confident; where you differ, go back to the quotes.",
+        "Confiez les mêmes transcriptions à un collègue sans lui montrer le tableau de l'IA, et demandez-lui trois constats. Là où vous concordez, vous pouvez avoir confiance ; là où vous divergez, revenez aux citations."),
+    },
+    more: [
+      { q: B("Why ask the AI to write UNCERTAIN when a quote is not word for word?",
+          "Pourquoi demander à l'IA d'écrire INCERTAIN quand une citation n'est pas mot pour mot ?"),
+        options: [
+          B("Because it makes the table shorter and quicker to read", "Parce que le tableau devient plus court et plus rapide à lire"),
+          B("Because the AI is unable to copy long passages of text", "Parce que l'IA est incapable de recopier de longs passages"),
+          B("To mark what must be checked instead of trusting it", "Pour signaler ce qu'il faut vérifier au lieu de s'y fier"),
+        ],
+        answer: 2,
+        why: B("A language model can reword a quote while presenting it as exact. Asking it to flag doubt gives you a list of lines to check against the transcript, instead of a false sense of accuracy.",
+          "Un LLM peut reformuler une citation tout en la présentant comme exacte. Lui faire signaler le doute vous donne une liste de lignes à vérifier dans la transcription, au lieu d'une fausse impression d'exactitude.") },
+      { q: B("P4 uses a screen reader and could not reserve at all; the others had minor issues. How do you treat P4's finding?",
+          "P4 utilise un lecteur d'écran et n'a pas pu réserver du tout ; les autres ont eu des gênes mineures. Que faites-vous du constat de P4 ?"),
+        options: [
+          B("As an important finding, even with one participant", "Un constat important, même avec un seul participant"),
+          B("As noise, since it concerns one person out of six", "Du bruit, puisqu'il ne concerne qu'une personne sur six"),
+          B("As a topic for a separate project, much later on", "Un sujet pour un projet distinct, beaucoup plus tard"),
+        ],
+        answer: 0,
+        why: B("Frequency is not the only measure of importance. A complete blocker for a screen reader user is a serious finding, and it will matter again when the course turns to accessibility.",
+          "La fréquence n'est pas la seule mesure de l'importance. Un blocage complet pour un utilisateur de lecteur d'écran est un constat grave, qui comptera de nouveau quand le cours abordera l'accessibilité.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ux-persona')]: {
+    why: [
+      B("A persona is a design tool: a short, concrete portrait of a group of users who share goals and behaviours, so that a team can ask \"would this work for her?\" instead of designing for an abstract user. Its value depends entirely on its source. Built from research, it summarises real patterns; invented in a meeting, it gives a face to the team's assumptions.",
+        "Un persona est un outil de conception : le portrait court et concret d'un groupe d'usagers qui partagent objectifs et comportements, pour qu'une équipe se demande « est-ce que cela marcherait pour elle ? » au lieu de concevoir pour un usager abstrait. Sa valeur tient entièrement à sa source. Construit sur la recherche, il résume des motifs réels ; inventé en réunion, il donne un visage aux suppositions de l'équipe."),
+      B("AI writes personas fast, and that is the danger. Asked for \"a persona of a library user\", a model draws on the most common patterns of its training data: ages, genders, jobs, hobbies and attitudes to technology that often follow stereotypes. These details feel real, but they come from nowhere in your research, and they push decisions in the wrong direction.",
+        "L'IA écrit des personas très vite, et c'est là le danger. Sollicité pour « un persona d'usager de médiathèque », un modèle puise dans les motifs les plus fréquents de ses données d'entraînement : âges, genres, métiers, loisirs et rapport à la technologie qui suivent souvent des stéréotypes. Ces détails semblent vrais, mais ne viennent d'aucun point de votre recherche, et ils orientent mal les décisions."),
+      B("The fix is to make behaviours and needs the backbone and to treat demographics as optional. Ask the AI to cite a finding for every trait, delete what has no source, and avoid stock photos and names chosen to suggest an age or a background. Then validate: show the personas to real users and to staff who meet them, and change what they do not recognise.",
+        "Le remède : faire des comportements et des besoins l'ossature, et des données démographiques une option. Demandez à l'IA de citer un constat pour chaque trait, supprimez ce qui n'a pas de source, et évitez les photos types et les prénoms choisis pour suggérer un âge ou une origine. Puis validez : montrez les personas à de vrais usagers et au personnel qui les côtoie, et changez ce qu'ils ne reconnaissent pas."),
+    ],
+    example: {
+      context: B("Léa asks the AI for Pagina personas. The result features a retired woman who \"is afraid of technology\" and a student \"always on his phone\", none of which appears in her findings.",
+        "Léa demande à l'IA des personas pour Pagina. Le résultat met en scène une retraitée « qui a peur de la technologie » et un étudiant « toujours sur son téléphone », dont rien ne figure dans ses constats."),
+      before: B("Create three personas for the users of our library app, with photo, age, job and hobbies.",
+        "Crée trois personas pour les usagers de notre app de médiathèque, avec photo, âge, métier et loisirs."),
+      after: B("You help me write two personas for Pagina from the findings below. Each persona represents a behaviour pattern, not a demographic group.\nFindings with participant IDs: F1, 3 of 6 reserve for someone else (P1, P3, P6). F2, 4 of 6 learn that a book is ready only by chance (P1, P2, P4, P5). F3, P4 uses a screen reader and could not complete a reservation.\nFor each persona give: a short behavioural name (for example \"The proxy reserver\"), a job story, goals, frustrations, the context of use, and for each trait the finding it comes from.\nGive no age, gender, job, hobby or photo unless a finding requires it. Add no trait without a source; if something is missing, list it as a question for research.",
+        "Aide-moi à rédiger deux personas pour Pagina à partir des constats ci-dessous. Chaque persona représente un motif de comportement, pas un groupe démographique.\nConstats avec identifiants : C1, 3 sur 6 réservent pour quelqu'un d'autre (P1, P3, P6). C2, 4 sur 6 n'apprennent que par hasard qu'un livre est prêt (P1, P2, P4, P5). C3, P4 utilise un lecteur d'écran et n'a pas pu terminer une réservation.\nPour chaque persona, donne : un nom comportemental court (par exemple « La réservation pour autrui »), une job story, des objectifs, des frustrations, le contexte d'usage, et pour chaque trait le constat d'où il vient.\nNe donne ni âge, ni genre, ni métier, ni loisir, ni photo, sauf si un constat l'exige. N'ajoute aucun trait sans source ; s'il manque quelque chose, liste-le comme question de recherche."),
+      takeaway: B("The second prompt builds personas around behaviours, demands a source for every trait and forbids decorative demographics. The stereotypes disappear, and the gaps become research questions instead of invented details.",
+        "Le second prompt bâtit les personas sur des comportements, exige une source pour chaque trait et proscrit la démographie décorative. Les stéréotypes disparaissent, et les manques deviennent des questions de recherche au lieu de détails inventés."),
+    },
+    exercise: {
+      goal: B("Two personas of your product built from your findings, with a source for each trait, a list of open questions and the corrections made after real users reviewed them.",
+        "Deux personas de votre produit construits sur vos constats, avec une source par trait, une liste de questions ouvertes et les corrections apportées après relecture par de vrais usagers."),
+      prompt: B("You help me write [NUMBER] personas for [PRODUCT] from the findings below. Each persona represents a behaviour pattern.\nFindings with participant IDs: [FINDINGS].\nFor each persona: a behavioural name, a job story (when [...], I want to [...], so I can [...]), goals, frustrations, context of use, and the finding behind each trait.\nNo age, gender, job, hobby, first name or photo unless a finding makes it relevant to the design.\nThen review your own personas: list any trait that could be a stereotype and any trait without a source, and propose questions to ask [WHO CAN VALIDATE THEM].",
+        "Aide-moi à rédiger [NOMBRE] personas pour [PRODUIT] à partir des constats ci-dessous. Chaque persona représente un motif de comportement.\nConstats avec identifiants : [CONSTATS].\nPour chaque persona : un nom comportemental, une job story (quand [...], je veux [...], afin de [...]), objectifs, frustrations, contexte d'usage, et le constat derrière chaque trait.\nNi âge, ni genre, ni métier, ni loisir, ni prénom, ni photo, sauf si un constat les rend utiles à la conception.\nRelis ensuite tes personas : liste tout trait qui pourrait être un stéréotype et tout trait sans source, et propose des questions à poser à [QUI PEUT LES VALIDER]."),
+      check: [
+        B("Every trait of each persona points to a finding and its participants", "Chaque trait de chaque persona renvoie à un constat et à ses participants"),
+        B("No age, gender or hobby appears unless a finding makes it relevant", "Aucun âge, genre ou loisir n'apparaît sans constat qui le justifie"),
+        B("Each persona has a job story and at least one frustration from research", "Chaque persona a une job story et au moins une frustration issue de la recherche"),
+        B("Users or front-line staff reviewed the personas, and you noted their corrections", "Des usagers ou le personnel d'accueil ont relu les personas, corrections notées"),
+      ],
+      bonus: B("Put your personas through a simple test: swap the age or gender of each one. If nothing in the design would change, those details were decoration, so remove them. If something would change, check that a finding supports it.",
+        "Soumettez vos personas à un test simple : échangez l'âge ou le genre de chacun. Si rien ne changerait dans la conception, ces détails étaient décoratifs : retirez-les. Si quelque chose changerait, vérifiez qu'un constat l'appuie."),
+    },
+    more: [
+      { q: B("The AI gives your persona a first name, an age and a photo of a smiling grandmother. What do you do?",
+          "L'IA donne à votre persona un prénom, un âge et la photo d'une grand-mère souriante. Que faites-vous ?"),
+        options: [
+          B("Keep them, since a face makes the persona easier to recall", "Vous les gardez, un visage rend le persona plus mémorable"),
+          B("Remove them unless a finding makes them relevant to design", "Vous les retirez, sauf si un constat les rend utiles"),
+          B("Replace the photo with a younger person to balance the set", "Vous remplacez la photo par une personne plus jeune"),
+        ],
+        answer: 1,
+        why: B("Demographic details and stock photos invite the team to reason from clichés. Keep a detail only if research shows that it changes how people use the service.",
+          "Les détails démographiques et les photos types invitent l'équipe à raisonner par clichés. Ne gardez un détail que si la recherche montre qu'il change la façon d'utiliser le service.") },
+      { q: B("Your persona says \"prefers to phone the library\". Where should this trait come from?",
+          "Votre persona indique « préfère téléphoner à la médiathèque ». D'où ce trait doit-il venir ?"),
+        options: [
+          B("From the director's impression of what patrons prefer", "De l'impression de la direction sur ce que préfèrent les usagers"),
+          B("From what is typical of this age group in general", "De ce qui est typique de cette tranche d'âge en général"),
+          B("From interview findings, with participant IDs", "Des constats d'entretien, avec les identifiants des participants"),
+        ],
+        answer: 2,
+        why: B("A persona trait is a summary of research. Without findings and IDs behind it, it is an impression or a generalisation, and it may lead you to design the wrong channel.",
+          "Un trait de persona résume la recherche. Sans constats ni identifiants derrière lui, c'est une impression ou une généralisation, qui peut vous faire concevoir le mauvais canal.") },
+    ],
+  },
+}
+
+const USER_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'ux-frame')]: {
+    intro: B("Most UX projects start with a solution in disguise: an app, a page, a feature seen elsewhere. This lesson teaches you to go back up to the problem: who meets it, in which situation, what they try to get done, and how you will know it is solved. You will use the jobs-to-be-done lens and the job story format, and treat AI as a critic that exposes hidden hypotheses rather than as a source of facts. You will frame the problem of Pagina, the app of the fictional Brivelle library network that runs through this course: letting a patron reserve a document and pick it up.",
+      "La plupart des projets UX commencent par une solution déguisée : une app, une page, une fonction vue ailleurs. Ce cours vous apprend à remonter au problème : qui le rencontre, dans quelle situation, ce que la personne cherche à accomplir, et comment vous saurez qu'il est résolu. Vous utiliserez le prisme des jobs-to-be-done et le format de la job story, et vous traiterez l'IA comme une critique qui révèle les hypothèses cachées, non comme une source de faits. Vous cadrerez le problème de Pagina, l'app du réseau fictif des médiathèques de Brivelle qui sert de fil rouge à la formation : permettre à un usager de réserver un document et de le retirer."),
+    concepts: [
+      { term: B('Problem statement', 'Énoncé de problème'),
+        def: B("A few sentences that say who meets the problem, in which situation, what they try to achieve and what stops them, without naming a solution.",
+          "Quelques phrases qui disent qui rencontre le problème, dans quelle situation, ce que la personne cherche à accomplir et ce qui l'en empêche, sans nommer de solution.") },
+      { term: B('Job to be done', 'Job à accomplir (JTBD)'),
+        def: B("The progress a person tries to make in a given situation. The job stays stable when tools change: a patron wants to read a book soon, whatever the app.",
+          "Le progrès qu'une personne cherche à faire dans une situation donnée. Le job reste stable quand les outils changent : un usager veut lire bientôt un livre, quelle que soit l'app.") },
+      { term: B('Job story', 'Job story'),
+        def: B("A format for the need: when [situation], I want to [motivation], so I can [outcome]. It replaces the user type of the classic user story with a situation.",
+          "Un format pour exprimer le besoin : quand [situation], je veux [motivation], afin de [résultat]. Il remplace le type d'usager de la user story classique par une situation.") },
+      { term: B('Hypothesis', 'Hypothèse'),
+        def: B("Something your framing takes as true without proof. Ranking hypotheses by risk tells you what research must test first.",
+          "Ce que votre cadrage tient pour vrai sans preuve. Classer les hypothèses par risque indique ce que la recherche doit tester en premier.") },
+      { term: B('Success criterion', 'Critère de réussite'),
+        def: B("An observable sign that the problem is solved, such as a reservation completed without help, defined before any design.",
+          "Un signe observable que le problème est résolu, par exemple une réservation menée à bien sans aide, défini avant toute conception.") },
+    ],
+    walkthrough: {
+      title: B("Léa frames the reservation problem of Pagina before designing anything.",
+        "Léa cadre le problème de réservation de Pagina avant de concevoir quoi que ce soit."),
+      steps: [
+        B("She copies the director's request word for word and underlines the solution it contains: \"like online shops\". Why: once named, the solution becomes a hypothesis, not a given.",
+          "Elle recopie la demande de la direction mot pour mot et souligne la solution qu'elle contient : « comme les boutiques en ligne ». Pourquoi : une fois nommée, la solution devient une hypothèse, et non une donnée."),
+        B("She drafts a problem statement: patrons who learn about a book want to secure it, but today they must phone or come to the desk. She marks \"must phone\" as known, since front-desk agents say so, and \"they give up\" as assumed. Why: the difference tells her what to verify.",
+          "Elle rédige un énoncé : les usagers qui découvrent un livre veulent se le réserver, mais doivent aujourd'hui téléphoner ou passer à l'accueil. Elle marque « doivent téléphoner » comme connu, les agents d'accueil le confirment, et « ils renoncent » comme supposé. Pourquoi : cette différence lui dit quoi vérifier."),
+        B("She writes three job stories, including: when a friend recommends a book, I want to put it aside at once, so I can read it before I forget. Why: each story is a situation she can ask patrons about.",
+          "Elle écrit trois job stories, dont : quand une amie me recommande un livre, je veux le mettre de côté aussitôt, afin de le lire avant de l'oublier. Pourquoi : chaque récit est une situation sur laquelle interroger les usagers."),
+        B("She asks the AI to list the hypotheses hidden in her framing and rank them. It points out that she assumed every patron owns a smartphone. Why: a critic sees what the author takes for granted.",
+          "Elle demande à l'IA de lister et classer les hypothèses cachées dans son cadrage. L'IA relève qu'elle a supposé que chaque usager possède un smartphone. Pourquoi : un regard critique voit ce que l'auteur tient pour acquis."),
+        B("She sets the success criterion: a patron reserves a document and knows where and when to pick it up, without help. Why: this criterion will drive the usability test later in the course.",
+          "Elle fixe le critère de réussite : un usager réserve un document et sait où et quand le retirer, sans aide. Pourquoi : ce critère guidera le test utilisateur plus loin dans la formation."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Starting the project with the screen the client described.",
+          "Commencer le projet par l'écran que le client a décrit."),
+        fix: B("Write the request down, then rewrite it as a problem statement. Keep the client's solution as one hypothesis among others.",
+          "Notez la demande, puis réécrivez-la en énoncé de problème. Gardez la solution du client comme une hypothèse parmi d'autres.") },
+      { wrong: B("Letting the AI fill in facts about your users when it frames the problem.",
+          "Laisser l'IA compléter des faits sur vos usagers quand elle cadre le problème."),
+        fix: B("Ask it to mark everything as known or assumed, and to ask you rather than invent. Only research turns an assumption into a fact.",
+          "Demandez-lui de tout marquer connu ou supposé, et de vous interroger plutôt que d'inventer. Seule la recherche change une supposition en fait.") },
+      { wrong: B("Defining success as \"users like the new feature\".",
+          "Définir la réussite comme « les usagers aiment la nouvelle fonction »."),
+        fix: B("Choose a sign you can observe or measure: a task completed without help, fewer calls to the front desk, less time to reserve.",
+          "Choisissez un signe observable ou mesurable : une tâche menée sans aide, moins d'appels à l'accueil, moins de temps pour réserver.") },
+    ],
+    recap: [
+      B("A request is usually a solution; framing goes back up to the problem.", "Une demande est souvent une solution ; cadrer, c'est remonter au problème."),
+      B("A job story names a situation, a motivation and an outcome.", "Une job story nomme une situation, une motivation et un résultat."),
+      B("AI is a critic of your framing, never a source of facts about your users.", "L'IA critique votre cadrage, elle n'est jamais une source de faits sur vos usagers."),
+      B("Rank hypotheses by risk: the riskiest become your research questions.", "Classez les hypothèses par risque : les plus risquées deviennent vos questions de recherche."),
+      B("Set an observable success criterion before designing anything.", "Fixez un critère de réussite observable avant toute conception."),
+    ],
+    further: B("Read about the jobs-to-be-done approach in the work of Clayton Christensen, who popularised it, and compare the job story format with the classic user story. Then reframe a feature you use every day as a job: which situation triggers it, and which outcome do you expect?",
+      "Lisez les travaux de Clayton Christensen, qui a popularisé l'approche des jobs-to-be-done, et comparez le format de la job story avec la user story classique. Reformulez ensuite en job une fonction que vous utilisez chaque jour : quelle situation la déclenche, et quel résultat en attendez-vous ?"),
+    more: [
+      { q: B("Which sentence is a problem statement rather than a solution?",
+          "Quelle phrase est un énoncé de problème plutôt qu'une solution ?"),
+        options: [
+          B("Pagina needs a reservation page with a calendar and filters", "Pagina a besoin d'une page de réservation avec calendrier et filtres"),
+          B("The libraries should copy the reservation flow of online shops", "Les médiathèques devraient copier la réservation des boutiques en ligne"),
+          B("Patrons who hear of a book cannot secure it without calling", "Les usagers qui découvrent un livre ne peuvent le réserver sans appeler"),
+        ],
+        answer: 2,
+        why: B("It names who (patrons), the situation (hearing of a book) and the obstacle (having to call), and leaves the solution open. The other two already decide what to build.",
+          "Elle nomme qui (les usagers), la situation (découvrir un livre) et l'obstacle (devoir appeler), et laisse la solution ouverte. Les deux autres décident déjà quoi construire.") },
+      { q: B("Why write the success criterion before designing?",
+          "Pourquoi écrire le critère de réussite avant de concevoir ?"),
+        options: [
+          B("So the design is judged against the problem, not against taste", "Pour juger la conception sur le problème, et non sur les goûts"),
+          B("Because developers need it to estimate the cost of the work", "Parce que les développeurs en ont besoin pour chiffrer le travail"),
+          B("Because the AI cannot generate wireframes without a stated goal", "Parce que l'IA ne peut pas générer de wireframe sans objectif"),
+        ],
+        answer: 0,
+        why: B("A criterion set in advance, such as reserving without help, gives every later debate a shared reference. Set afterwards, it tends to describe whatever was built.",
+          "Un critère fixé à l'avance, comme réserver sans aide, donne à chaque débat ultérieur une référence commune. Fixé après coup, il tend à décrire ce qui a été construit.") },
+    ],
+  },
+
+  [deepKey(M1, 'ux-interview')]: {
+    intro: B("User interviews are the most direct way to learn how people really get things done, provided you ask about what they did rather than what they think they would do. This lesson covers preparation (themes from the framing, recruitment, consent), the interview guide drafted with AI and cleaned of leading questions, and the conduct of the interview itself. You will prepare the guide for Pagina patrons and run a practice interview, and you will know how to collect stories you can trust.",
+      "Les entretiens utilisateurs sont le moyen le plus direct d'apprendre comment les gens s'y prennent vraiment, à condition d'interroger ce qu'ils ont fait plutôt que ce qu'ils pensent qu'ils feraient. Ce cours couvre la préparation (thèmes issus du cadrage, recrutement, consentement), le guide d'entretien rédigé avec l'IA et débarrassé des questions orientées, puis la conduite de l'entretien. Vous préparerez le guide destiné aux usagers de Pagina et mènerez un entretien d'essai, et vous saurez recueillir des récits dignes de confiance."),
+    concepts: [
+      { term: B('Semi-structured interview', 'Entretien semi-directif'),
+        def: B("An interview that follows a guide of themes and open questions but lets you follow what the person says. It balances comparability and discovery.",
+          "Un entretien qui suit un guide de thèmes et de questions ouvertes tout en laissant suivre ce que dit la personne. Il concilie comparabilité et découverte.") },
+      { term: B('Leading question', 'Question orientée'),
+        def: B("A question that suggests the expected answer, such as \"don't you find it slow?\". It produces agreement, not information.",
+          "Une question qui suggère la réponse attendue, comme « vous ne trouvez pas cela lent ? ». Elle produit de l'acquiescement, pas de l'information.") },
+      { term: B('Last-time question', 'Question sur la dernière fois'),
+        def: B("A question that anchors the person in a real, recent episode: \"tell me about the last time you...\". Concrete memories are more reliable than generalities.",
+          "Une question qui ancre la personne dans un épisode réel et récent : « racontez-moi la dernière fois que... ». Les souvenirs concrets sont plus fiables que les généralités.") },
+      { term: B('Screener', 'Questionnaire de recrutement'),
+        def: B("A few questions used to select participants who match the profiles you need, including non-users and people the product currently fails.",
+          "Quelques questions pour sélectionner les participants qui correspondent aux profils recherchés, y compris des non-utilisateurs et des personnes que le produit laisse de côté.") },
+      { term: B('Informed consent', 'Consentement éclairé'),
+        def: B("The participant's agreement, given knowing what is recorded, why, how it is anonymised and how long it is kept.",
+          "L'accord du participant, donné en sachant ce qui est enregistré, pourquoi, comment c'est anonymisé et combien de temps c'est conservé.") },
+    ],
+    walkthrough: {
+      title: B("Léa prepares and runs her first interview with a Pagina patron.",
+        "Léa prépare et mène son premier entretien avec un usager de Pagina."),
+      steps: [
+        B("She turns her three riskiest hypotheses into themes: how patrons hear of books, what they do when a book is out, how they pick it up. Why: each theme answers a question the framing left open.",
+          "Elle transforme ses trois hypothèses les plus risquées en thèmes : comment les usagers découvrent les livres, ce qu'ils font quand un livre est emprunté, comment ils le retirent. Pourquoi : chaque thème répond à une question laissée ouverte par le cadrage."),
+        B("She asks the AI for a forty-minute guide, then rereads it and removes \"would you like to be notified?\", which suggests a solution. Why: the AI drafts fast but does not feel when a question pushes.",
+          "Elle demande à l'IA un guide de quarante minutes, le relit et retire « aimeriez-vous être prévenu ? », qui suggère une solution. Pourquoi : l'IA rédige vite, mais ne sent pas quand une question pousse."),
+        B("She recruits six patrons through the front desks, including two who never use the app and one who uses a screen reader. Why: the people the current service fails teach the most.",
+          "Elle recrute six usagers par l'accueil des médiathèques, dont deux qui n'utilisent jamais l'app et une personne qui se sert d'un lecteur d'écran. Pourquoi : ceux que le service actuel laisse de côté en apprennent le plus."),
+        B("She opens with consent: recording, anonymisation, deletion of the audio after transcription. Why: the participant speaks more freely when the rules are clear, and the data is handled properly.",
+          "Elle ouvre par le consentement : enregistrement, anonymisation, suppression de l'audio après transcription. Pourquoi : le participant parle plus librement quand les règles sont claires, et les données sont traitées correctement."),
+        B("During the interview, a patron mentions that she reserves for her elderly neighbour. Léa leaves her guide to ask how. Why: an unexpected use is often the most valuable finding, and no guide would have planned it.",
+          "Pendant l'entretien, une usagère mentionne qu'elle réserve pour sa voisine âgée. Léa quitte son guide pour lui demander comment. Pourquoi : un usage inattendu est souvent le constat le plus précieux, et aucun guide ne l'aurait prévu."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Recruiting only enthusiastic users of the current app.",
+          "Ne recruter que des utilisateurs enthousiastes de l'app actuelle."),
+        fix: B("Add people who use it little or not at all, and people with different needs. A sample of fans confirms what you already think.",
+          "Ajoutez des personnes qui l'utilisent peu ou pas, et des personnes aux besoins différents. Un échantillon d'adeptes confirme ce que vous pensez déjà.") },
+      { wrong: B("Reading the guide question by question, like a questionnaire.",
+          "Lire le guide question après question, comme un questionnaire."),
+        fix: B("Use the guide as a map: follow the person's story, ask for examples, and come back at the end to the themes not yet covered.",
+          "Servez-vous du guide comme d'une carte : suivez le récit de la personne, demandez des exemples, et revenez à la fin sur les thèmes non abordés.") },
+      { wrong: B("Pasting raw transcripts, names included, into a chatbot to summarise them.",
+          "Coller des transcriptions brutes, noms compris, dans un chatbot pour les résumer."),
+        fix: B("Anonymise first (names, addresses, card numbers), check your organisation's policy, and prefer tools your organisation has approved for personal data.",
+          "Anonymisez d'abord (noms, adresses, numéros de carte), vérifiez la politique de votre organisation, et préférez les outils qu'elle a validés pour les données personnelles.") },
+    ],
+    recap: [
+      B("Ask about real, recent episodes, not opinions or predictions.", "Interrogez des épisodes réels et récents, pas des avis ni des prédictions."),
+      B("Themes come from your framing; the AI turns them into questions.", "Les thèmes viennent de votre cadrage ; l'IA les transforme en questions."),
+      B("Reread every AI question looking for the answer it suggests.", "Relisez chaque question de l'IA en y cherchant la réponse qu'elle suggère."),
+      B("Recruit beyond enthusiasts: non-users teach a lot.", "Recrutez au-delà des adeptes : les non-utilisateurs apprennent beaucoup."),
+      B("Consent and anonymisation come before recording and before any AI tool.", "Consentement et anonymisation passent avant l'enregistrement et avant tout outil IA."),
+    ],
+    further: B("Read The Mom Test by Rob Fitzpatrick, a short book on asking questions that people cannot answer out of politeness, or Interviewing Users by Steve Portigal. Then rewrite your guide with one rule: every opening question starts with \"tell me about the last time\".",
+      "Lisez The Mom Test de Rob Fitzpatrick, un court livre sur l'art de poser des questions auxquelles on ne peut pas répondre par politesse, ou Interviewing Users de Steve Portigal. Réécrivez ensuite votre guide avec une règle : chaque question d'ouverture commence par « racontez-moi la dernière fois »."),
+    more: [
+      { q: B("A participant pauses for a long time after your question. What is the best reaction?",
+          "Un participant marque un long silence après votre question. Quelle est la meilleure réaction ?"),
+        options: [
+          B("Rephrase the question with an example to help them answer", "Reformuler la question avec un exemple pour l'aider à répondre"),
+          B("Wait in silence: they are often searching their memory", "Attendre en silence : la personne cherche souvent dans sa mémoire"),
+          B("Move to the next question so they do not feel uneasy", "Passer à la question suivante pour ne pas la mettre mal à l'aise"),
+        ],
+        answer: 1,
+        why: B("A pause usually means the person is recalling an episode. Filling the silence with an example suggests an answer; waiting lets their own story come.",
+          "Un silence signifie souvent que la personne se remémore un épisode. Le combler par un exemple suggère une réponse ; attendre laisse venir son propre récit.") },
+      { q: B("Your AI-drafted guide asks: \"How much easier would reserving be with notifications?\". What is wrong?",
+          "Le guide rédigé par l'IA demande : « À quel point les notifications faciliteraient-elles la réservation ? ». Qu'est-ce qui ne va pas ?"),
+        options: [
+          B("It suggests both a solution and the answer you expect", "Elle suggère à la fois une solution et la réponse attendue"),
+          B("It is too short for a forty-minute semi-structured interview", "Elle est trop courte pour un entretien semi-directif de quarante minutes"),
+          B("It should be asked at the very start, during the warm-up", "Elle devrait être posée tout au début, pendant la mise en confiance"),
+        ],
+        answer: 0,
+        why: B("It presupposes that notifications make things easier and only asks how much. Ask instead how the person learns today that a reserved book is ready.",
+          "Elle présuppose que les notifications facilitent les choses et ne demande que dans quelle mesure. Demandez plutôt comment la personne apprend aujourd'hui qu'un livre réservé est prêt.") },
+    ],
+  },
+
+  [deepKey(M1, 'ux-synth')]: {
+    intro: B("After the interviews come pages of transcripts, and the temptation to ask an AI for a summary. This lesson shows how to synthesise research with AI without letting it invent: extracting observations tied to quotes and participants, grouping them through affinity mapping, counting instead of saying \"most\", and keeping contradictions in view. You will synthesise the Pagina interviews into a handful of findings that every member of the team can trace back to what patrons actually said.",
+      "Après les entretiens viennent des pages de transcriptions, et la tentation de demander un résumé à une IA. Ce cours montre comment synthétiser la recherche avec l'IA sans la laisser inventer : extraire des observations rattachées à des citations et à des participants, les regrouper par affinity mapping, compter au lieu de dire « la plupart », et garder les contradictions en vue. Vous synthétiserez les entretiens de Pagina en quelques constats que chaque membre de l'équipe pourra rattacher à ce que les usagers ont réellement dit."),
+    concepts: [
+      { term: B('Observation', 'Observation'),
+        def: B("One thing a participant said or did, written neutrally, with its source. It is the unit of synthesis, before any interpretation.",
+          "Une chose qu'un participant a dite ou faite, écrite de façon neutre, avec sa source. C'est l'unité de la synthèse, avant toute interprétation.") },
+      { term: B('Affinity mapping', 'Affinity mapping'),
+        def: B("Grouping observations by similarity on a board, then naming the groups. Patterns appear when several participants land in the same group.",
+          "Regrouper les observations par ressemblance sur un tableau, puis nommer les groupes. Les motifs apparaissent quand plusieurs participants se retrouvent dans le même groupe.") },
+      { term: B('Finding', 'Constat'),
+        def: B("A statement supported by several observations, with its count and its sources, such as \"3 of 6 did not know where to pick up their book\".",
+          "Un énoncé appuyé par plusieurs observations, avec son effectif et ses sources, par exemple « 3 sur 6 ne savaient pas où retirer leur livre ».") },
+      { term: B('Traceability', 'Traçabilité'),
+        def: B("The ability to go from a finding back to the quotes and participants behind it. It is what makes a synthesis checkable.",
+          "La possibilité de remonter d'un constat aux citations et aux participants qui le fondent. C'est ce qui rend une synthèse vérifiable.") },
+      { term: B('Invented quote', 'Citation inventée'),
+        def: B("A sentence presented as a participant's words but produced by the model. It sounds plausible, which is why every quote must be checked.",
+          "Une phrase présentée comme les mots d'un participant mais produite par le modèle. Elle sonne juste, c'est pourquoi chaque citation doit être vérifiée.") },
+    ],
+    walkthrough: {
+      title: B("Léa synthesises the six Pagina interviews with AI, step by step.",
+        "Léa synthétise pas à pas les six entretiens de Pagina avec l'IA."),
+      steps: [
+        B("She anonymises the transcripts (names, card numbers, street names) and labels them P1 to P6. Why: anonymisation protects participants, and identifiers make every observation traceable.",
+          "Elle anonymise les transcriptions (noms, numéros de carte, noms de rue) et les étiquette de P1 à P6. Pourquoi : l'anonymisation protège les participants, et les identifiants rendent chaque observation traçable."),
+        B("She asks the AI to extract observations with exact quotes, one transcript at a time. Why: one transcript per request keeps the model focused and makes each extraction easy to check against its source.",
+          "Elle demande à l'IA d'extraire les observations avec citations exactes, une transcription à la fois. Pourquoi : une transcription par demande garde le modèle concentré et rend chaque extraction facile à vérifier sur sa source."),
+        B("She imports the observations as stickies into FigJam and groups them herself, then asks the AI to suggest names for the groups. Why: grouping is where judgement happens; naming is where the AI saves time.",
+          "Elle importe les observations en notes adhésives dans FigJam et les regroupe elle-même, puis demande à l'IA de proposer des noms de groupes. Pourquoi : c'est en regroupant que s'exerce le jugement ; c'est en nommant que l'IA fait gagner du temps."),
+        B("She checks every quote used in a finding by searching for it in the transcript. One quote does not exist; she deletes it, and the finding it supported drops from three participants to two. Why: a finding is only as strong as its verified sources.",
+          "Elle vérifie chaque citation utilisée dans un constat en la cherchant dans la transcription. L'une n'existe pas : elle la supprime, et le constat qu'elle appuyait passe de trois participants à deux. Pourquoi : un constat ne vaut que par ses sources vérifiées."),
+        B("She writes four findings with counts and IDs, plus a section on contradictions: two patrons like reserving by phone, others avoid calling. Why: a contradiction is a design question, not an error to smooth out.",
+          "Elle rédige quatre constats avec effectifs et identifiants, plus une section de contradictions : deux usagers aiment réserver par téléphone, d'autres évitent d'appeler. Pourquoi : une contradiction est une question de conception, pas une erreur à lisser."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Pasting all the transcripts at once and asking for a summary.",
+          "Coller toutes les transcriptions d'un coup et demander un résumé."),
+        fix: B("Work in steps: extraction with quotes, then grouping, then findings. Each step can be checked before the next one.",
+          "Travaillez par étapes : extraction avec citations, puis regroupement, puis constats. Chaque étape se vérifie avant la suivante.") },
+      { wrong: B("Writing \"users think\" or \"most patrons\" in the findings.",
+          "Écrire « les usagers pensent » ou « la plupart des usagers » dans les constats."),
+        fix: B("Give counts and IDs (2 of 6: P2, P5). A small sample is fine as long as it is presented honestly.",
+          "Donnez effectifs et identifiants (2 sur 6 : P2, P5). Un petit échantillon convient, pourvu qu'il soit présenté honnêtement.") },
+      { wrong: B("Trusting quotes because they sound like the participant.",
+          "Se fier aux citations parce qu'elles ressemblent au participant."),
+        fix: B("Search for every quote in the transcript before it appears in a finding or a presentation, and delete any you cannot find.",
+          "Cherchez chaque citation dans la transcription avant de l'utiliser dans un constat ou une présentation, et supprimez celles que vous ne retrouvez pas.") },
+    ],
+    recap: [
+      B("Ask the AI to extract observations with exact quotes and participant IDs.", "Faites extraire à l'IA des observations avec citations exactes et identifiants."),
+      B("Group observations yourself; let the AI help name the groups.", "Regroupez vous-même les observations ; laissez l'IA aider à nommer les groupes."),
+      B("Replace vague quantities with counts and identifiers.", "Remplacez les quantités vagues par des effectifs et des identifiants."),
+      B("Check every quote against the transcript before using it.", "Vérifiez chaque citation dans la transcription avant de l'utiliser."),
+      B("Keep contradictions and rare but serious findings visible.", "Gardez visibles les contradictions et les constats rares mais graves."),
+    ],
+    further: B("Look at a research repository tool such as Dovetail, or simply a shared spreadsheet, and set up a table with one row per observation: participant, quote, theme, date. AI features change, so check the official documentation; the table structure is what lasts from one project to the next.",
+      "Essayez un outil de dépôt de recherche comme Dovetail, ou simplement un tableur partagé, et montez un tableau avec une ligne par observation : participant, citation, thème, date. Les fonctions IA changent, consultez la documentation officielle ; c'est la structure du tableau qui dure d'un projet à l'autre."),
+    more: [
+      { q: B("Why extract observations one transcript at a time rather than all at once?",
+          "Pourquoi extraire les observations une transcription à la fois plutôt que toutes ensemble ?"),
+        options: [
+          B("Because the AI refuses to read more than one interview per request", "Parce que l'IA refuse de lire plus d'un entretien par demande"),
+          B("Because each extraction is easier to check against its source", "Parce que chaque extraction se vérifie plus facilement sur sa source"),
+          B("Because affinity mapping needs the transcripts in separate files", "Parce que l'affinity mapping exige des fichiers séparés"),
+        ],
+        answer: 1,
+        why: B("Shorter, focused requests reduce the risk of mixing participants or inventing details, and you can check each extraction against a single transcript before moving on.",
+          "Des demandes courtes et ciblées réduisent le risque de mélanger les participants ou d'inventer des détails, et chaque extraction se vérifie sur une seule transcription avant de passer à la suivante.") },
+      { q: B("A finding reads \"P1, P3 and P6 did not know their book was ready\". What makes it reliable?",
+          "Un constat dit « P1, P3 et P6 ne savaient pas que leur livre était prêt ». Qu'est-ce qui le rend fiable ?"),
+        options: [
+          B("The confident, professional tone in which the AI wrote it", "Le ton assuré et professionnel dans lequel l'IA l'a rédigé"),
+          B("That it matches what the director expected before research", "Qu'il corresponde à ce qu'attendait la direction avant la recherche"),
+          B("Quotes from P1, P3 and P6 that you found in the transcripts", "Des citations de P1, P3 et P6 retrouvées dans les transcriptions"),
+        ],
+        answer: 2,
+        why: B("Reliability comes from verified sources, not from tone or from agreement with expectations. Three quotes found in three transcripts make the finding traceable.",
+          "La fiabilité vient de sources vérifiées, pas du ton ni de l'accord avec les attentes. Trois citations retrouvées dans trois transcriptions rendent le constat traçable.") },
+    ],
+  },
+
+  [deepKey(M1, 'ux-persona')]: {
+    intro: B("Personas are among the most used and most misused tools in UX. Built from research, they help a team keep real people in mind; invented, or written by AI from nothing, they give a face to stereotypes. This lesson shows how to turn findings into behaviour-based personas, how to use AI to draft them without letting it fill gaps with clichés, and how to validate them with real users. You will write two Pagina personas whose every trait you can trace back to the interviews.",
+      "Les personas comptent parmi les outils UX les plus utilisés, et les plus mal utilisés. Construits sur la recherche, ils aident une équipe à garder de vraies personnes en tête ; inventés, ou écrits par une IA à partir de rien, ils donnent un visage aux stéréotypes. Ce cours montre comment transformer des constats en personas fondés sur les comportements, comment les faire rédiger par l'IA sans la laisser combler les vides par des clichés, et comment les valider auprès de vrais usagers. Vous écrirez deux personas de Pagina dont chaque trait se rattache aux entretiens."),
+    concepts: [
+      { term: B('Persona', 'Persona'),
+        def: B("A concrete portrait of a group of users who share goals, behaviours and constraints, used to check design decisions against real needs.",
+          "Le portrait concret d'un groupe d'usagers qui partagent objectifs, comportements et contraintes, servant à confronter les décisions de conception aux besoins réels.") },
+      { term: B('Behavioural persona', 'Persona comportemental'),
+        def: B("A persona defined by what people try to do and how, rather than by age or job. It stays valid when the audience changes.",
+          "Un persona défini par ce que les gens cherchent à faire et comment, plutôt que par l'âge ou le métier. Il reste valable quand le public change.") },
+      { term: B('Proto-persona', 'Proto-persona'),
+        def: B("A provisional persona written from the team's assumptions before research. Useful to expose assumptions, as long as it is labelled as such and replaced.",
+          "Un persona provisoire écrit à partir des suppositions de l'équipe, avant la recherche. Utile pour exposer ces suppositions, pourvu qu'il soit étiqueté comme tel puis remplacé.") },
+      { term: B('Stereotype', 'Stéréotype'),
+        def: B("A generalisation about a group (age, gender, origin) presented as a trait. It feels true, has no source, and biases design.",
+          "Une généralisation sur un groupe (âge, genre, origine) présentée comme un trait. Elle semble vraie, n'a pas de source et biaise la conception.") },
+    ],
+    walkthrough: {
+      title: B("Léa turns the Pagina findings into two personas and has them checked.",
+        "Léa transforme les constats de Pagina en deux personas et les fait vérifier."),
+      steps: [
+        B("She sorts the six participants by behaviour and sees two patterns: patrons who reserve for themselves on impulse, and patrons who reserve for others and must coordinate pickup. Why: behaviour patterns, not ages, will drive the flow.",
+          "Elle classe les six participants par comportement et voit deux motifs : ceux qui réservent pour eux-mêmes sur un coup de coeur, et ceux qui réservent pour d'autres et doivent organiser le retrait. Pourquoi : ce sont les comportements, pas les âges, qui guideront le flow."),
+        B("She asks the AI for two personas, giving the findings with their IDs and forbidding traits without a source. Why: the constraint stops the model from completing the portrait with the most common clichés.",
+          "Elle demande deux personas à l'IA, en fournissant les constats avec leurs identifiants et en interdisant tout trait sans source. Pourquoi : cette contrainte empêche le modèle de compléter le portrait avec les clichés les plus courants."),
+        B("The draft of \"The proxy reserver\" still says she \"is not very comfortable with apps\". No finding supports it; Léa deletes it and adds a research question instead. Why: an unsupported trait would push towards a simplified design nobody asked for.",
+          "Le brouillon de « La réservation pour autrui » affirme encore qu'elle « est peu à l'aise avec les apps ». Aucun constat ne l'appuie : Léa le supprime et ajoute une question de recherche. Pourquoi : un trait sans fondement pousserait vers une conception simplifiée que personne n'a demandée."),
+        B("She includes P4's screen reader use as a context of use in the first persona, rather than creating a separate \"disabled user\" persona. Why: access needs cut across behaviours, and isolating them invites the team to treat them as an edge case.",
+          "Elle intègre l'usage d'un lecteur d'écran par P4 comme contexte d'usage du premier persona, au lieu de créer un persona « usager handicapé » à part. Pourquoi : les besoins d'accessibilité traversent les comportements, et les isoler invite l'équipe à les traiter en cas marginal."),
+        B("She shows both personas to two patrons and to a front-desk agent. The agent notes that proxy reservers often hold two library cards; Léa adds it with its source. Why: validation turns a draft into a shared reference.",
+          "Elle montre les deux personas à deux usagers et à une agente d'accueil. L'agente note que les personnes qui réservent pour autrui détiennent souvent deux cartes ; Léa l'ajoute avec sa source. Pourquoi : la validation fait d'un brouillon une référence partagée."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking the AI for personas before any research.",
+          "Demander des personas à l'IA avant toute recherche."),
+        fix: B("If you must start without research, label the result proto-persona, list its assumptions, and replace it once the interviews are done.",
+          "Si vous devez commencer sans recherche, étiquetez le résultat proto-persona, listez ses suppositions, et remplacez-le une fois les entretiens faits.") },
+      { wrong: B("Giving each persona an age, a job, a photo and hobbies out of habit.",
+          "Donner par habitude à chaque persona un âge, un métier, une photo et des loisirs."),
+        fix: B("Keep only what changes the design. Use a behavioural name and a job story rather than a stock photo.",
+          "Ne gardez que ce qui change la conception. Préférez un nom comportemental et une job story à une photo type.") },
+      { wrong: B("Creating one persona per demographic segment of the marketing plan.",
+          "Créer un persona par segment démographique du plan marketing."),
+        fix: B("Base personas on behaviour patterns found in research. Marketing segments and UX personas answer different questions.",
+          "Fondez les personas sur les motifs de comportement issus de la recherche. Segments marketing et personas UX répondent à des questions différentes.") },
+    ],
+    recap: [
+      B("A persona summarises research; without research, it summarises assumptions.", "Un persona résume la recherche ; sans recherche, il résume des suppositions."),
+      B("Build personas on behaviours, goals and constraints, not demographics.", "Bâtissez les personas sur comportements, objectifs et contraintes, pas sur la démographie."),
+      B("Ask the AI to cite a finding for every trait, and delete what has none.", "Demandez à l'IA un constat pour chaque trait, et supprimez ce qui n'en a pas."),
+      B("Treat access needs as part of the personas, not as a separate one.", "Intégrez les besoins d'accessibilité aux personas, sans en créer un à part."),
+      B("Validate personas with real users and front-line staff.", "Validez les personas auprès de vrais usagers et du personnel de terrain."),
+    ],
+    further: B("Read about thinking styles in the work of Indi Young, who argues for describing people by how they think and reason rather than by who they are. Then rewrite one of your personas without any demographic data and check whether it still guides your decisions.",
+      "Découvrez les thinking styles dans les travaux d'Indi Young, qui plaide pour décrire les personnes par leur façon de penser et de raisonner plutôt que par ce qu'elles sont. Réécrivez ensuite l'un de vos personas sans aucune donnée démographique, et vérifiez qu'il guide encore vos décisions."),
+    more: [
+      { q: B("Why should a screen reader user not become a separate \"accessibility persona\"?",
+          "Pourquoi un utilisateur de lecteur d'écran ne doit-il pas devenir un « persona accessibilité » à part ?"),
+        options: [
+          B("Because access needs cut across behaviours, not one edge case", "Parce que l'accessibilité traverse les comportements, sans être un cas marginal"),
+          B("Because accessibility is handled later by the developers only", "Parce que l'accessibilité est traitée plus tard, par les seuls développeurs"),
+          B("Because one participant is never enough to justify a persona", "Parce qu'un seul participant ne suffit jamais à justifier un persona"),
+        ],
+        answer: 0,
+        why: B("Access needs exist in every behaviour pattern. Building them into each persona keeps them in every design decision instead of a corner the team visits at the end.",
+          "Les besoins d'accessibilité existent dans chaque motif de comportement. Les intégrer à chaque persona les garde présents dans toutes les décisions, au lieu d'un recoin visité à la fin.") },
+      { q: B("When is a proto-persona acceptable?",
+          "Quand un proto-persona est-il acceptable ?"),
+        options: [
+          B("When the AI generated it from public data on library users", "Quand l'IA l'a généré à partir de données publiques sur les usagers"),
+          B("When it is labelled as assumptions and replaced after research", "Quand il est étiqueté comme supposition et remplacé après la recherche"),
+          B("When the team has used it long enough to trust it fully", "Quand l'équipe l'a utilisé assez longtemps pour s'y fier pleinement"),
+        ],
+        answer: 1,
+        why: B("A proto-persona is a way to make assumptions visible at the start. It becomes harmful when it is mistaken for research or kept after real findings exist.",
+          "Un proto-persona sert à rendre visibles les suppositions au départ. Il devient nuisible quand on le prend pour de la recherche ou qu'on le garde alors que de vrais constats existent.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'target', tint: '#0891b2', at: [12, 82], levels: USER,
+    title: B('Understand the user', "Comprendre l'utilisateur"),
+    blurb: B('Frame the problem and the job to be done, run interviews, synthesise research with AI without inventing, and write personas without stereotypes.',
+      "Cadrer le problème et le job à accomplir, mener des entretiens, synthétiser la recherche avec l'IA sans inventer, et écrire des personas sans stéréotypes."),
+  },
+]
+
+export const FLOWUX_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...USER_ENRICH },
+  deep: { ...USER_DEEP },
+}
