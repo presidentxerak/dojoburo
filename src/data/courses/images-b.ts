@@ -797,7 +797,7 @@ const RETOUCHE: Level[] = [
     ),
     quiz: {
       q: B('After inpainting a cable away, a faint blurred halo remains around the area. What is the likeliest fix?',
-        'Après l'effacement d'un câble par inpainting, un halo flou reste autour. Quelle correction est la plus probable ?'),
+        "Après l'effacement d'un câble par inpainting, un halo flou reste autour. Quelle correction est la plus probable ?"),
       options: [
         B('Write a longer prompt describing the whole photo again', 'Réécrire un prompt plus long qui décrit toute la photo'),
         B('Upscale the image so that the halo becomes less visible', "Agrandir l'image pour que le halo se voie moins"),
