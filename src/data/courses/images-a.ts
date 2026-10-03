@@ -763,7 +763,173 @@ const SEE_DEEP: Record<string, Deepening> = {
 
 const M2 = 'im-m2'
 
-const MJ: Level[] = []
+const MJ: Level[] = [
+  {
+    id: 'im-mj-start',
+    master: 'tools',
+    minutes: 10,
+    title: B('Getting started with Midjourney', 'Prendre en main Midjourney'),
+    learn: B(
+      'You will write a first Midjourney prompt, read its grid of four images, and keep a record to find any image again.',
+      'Vous saurez écrire un premier prompt Midjourney, lire sa grille de quatre images et garder trace de chaque image.',
+    ),
+    act: B('Generate the Maison Oolong hero image in Midjourney, compare the four images of the grid, keep one.',
+      "Générez l'image principale de Maison Oolong dans Midjourney, comparez les quatre images de la grille, gardez-en une."),
+    steps: [
+      B('Open Midjourney on its website (or on Discord) and paste your eight-part prompt from module 1.',
+        'Ouvrez Midjourney sur son site (ou sur Discord) et collez votre prompt en huit parties du module 1.'),
+      B('Put the parameters at the very end, after the description: --ar 16:9 for a wide banner.',
+        'Placez les paramètres tout à la fin, après la description : --ar 16:9 pour une bannière large.'),
+      B('Read the grid as four answers to one brief: note what the images share and where they differ.',
+        'Lisez la grille comme quatre réponses à un même brief : notez ce que les images partagent et où elles divergent.'),
+      B('Keep the best image, then record its prompt, parameters, version and seed in your image rules.',
+        "Gardez la meilleure image, puis notez son prompt, ses paramètres, sa version et sa seed dans vos règles d'image."),
+    ],
+    trap: B(
+      'Generating visuals for an unreleased product without checking in the docs whether your images can be seen by others in the public gallery.',
+      "Générer les visuels d'un produit non lancé sans vérifier dans la documentation si vos images sont visibles par d'autres dans la galerie publique.",
+    ),
+    quiz: {
+      q: B('In the grid, two images have the right light and two have the wrong one. What does it tell Clara?',
+        "Dans la grille, deux images ont la bonne lumière et deux la mauvaise. Qu'est-ce que cela dit à Clara ?"),
+      options: [
+        B('That Midjourney always mixes good and bad images in a grid', 'Que Midjourney mélange toujours bonnes et mauvaises images dans une grille'),
+        B('That her prompt leaves the light open and must name it', 'Que son prompt laisse la lumière ouverte et doit la nommer'),
+        B('That she should upscale the two good ones before deciding', "Qu'elle doit agrandir les deux bonnes avant de décider quoi que ce soit"),
+      ],
+      answer: 1,
+      why: B(
+        'When the four images disagree on a point, the prompt left it open and each seed decided. Naming the light (direction, quality, time of day) makes the four images agree.',
+        'Quand les quatre images divergent sur un point, le prompt l\'a laissé ouvert et chaque seed a tranché. Nommer la lumière (direction, qualité, moment) met les quatre images d\'accord.',
+      ),
+    },
+    badge: B('Reads a Midjourney grid', 'Sait lire une grille Midjourney'),
+  },
+  {
+    id: 'im-mj-params',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Parameters: aspect ratio, stylize, variety', 'Paramètres : format, stylisation, variété'),
+    learn: B(
+      'You will set the format, the stylization and the variety of a grid with Midjourney parameters, one at a time.',
+      'Vous saurez régler le format, la stylisation et la variété d\'une grille avec les paramètres Midjourney, un à la fois.',
+    ),
+    act: B('Make the Maison Oolong banner, square post and story with --ar, then test --stylize and --chaos.',
+      'Produisez bannière, post carré et story de Maison Oolong avec --ar, puis testez --stylize et --chaos.'),
+    steps: [
+      B('Set the format with --ar from the use: 16:9 for a banner, 1:1 for a square post, 9:16 for a story.',
+        "Fixez le format avec --ar selon l'usage : 16:9 pour une bannière, 1:1 pour un post carré, 9:16 pour une story."),
+      B('Compare a low and a high --stylize: low follows your words, high adds Midjourney\'s own aesthetic.',
+        "Comparez une --stylize basse et haute : basse, elle suit vos mots ; haute, elle ajoute l'esthétique de Midjourney."),
+      B('Raise --chaos to explore very different ideas, then lower it once a direction is chosen.',
+        'Montez --chaos pour explorer des idées très différentes, puis baissez-le une fois la piste choisie.'),
+      B('Use --no for what must not appear, and a fixed --seed with one change at a time to compare fairly.',
+        'Employez --no pour ce qui ne doit pas apparaître, et une --seed fixe avec un seul changement pour comparer.'),
+    ],
+    trap: B(
+      'Copying a long string of parameters found online without knowing what each one does: when the image goes wrong, nothing tells you which one to blame.',
+      "Recopier une longue suite de paramètres trouvée en ligne sans savoir ce que fait chacun : quand l'image rate, rien ne dit lequel accuser.",
+    ),
+    quiz: {
+      q: B('Clara wanted a plain product photo and gets a dreamy, painterly image. Which parameter do you check first?',
+        'Clara voulait une photo produit sobre et obtient une image rêveuse et picturale. Quel paramètre vérifiez-vous ?'),
+      options: [
+        B('A high --stylize, which adds Midjourney\'s own artistic taste', 'Une --stylize élevée, qui ajoute le goût artistique de Midjourney'),
+        B('The --ar value, since wide formats always look more painterly', 'La valeur de --ar, car un format large paraît toujours plus pictural'),
+        B('The --seed value, since some seeds only ever produce paintings', 'La valeur de --seed, car certaines seeds ne donnent que des peintures'),
+      ],
+      answer: 0,
+      why: B(
+        'Stylize sets how much Midjourney adds its own aesthetic to your words. For a faithful product photo, lower it, keep the medium line explicit, and check the docs for a raw style option.',
+        "La stylisation règle la part d'esthétique propre que Midjourney ajoute à vos mots. Pour une photo produit fidèle, baissez-la, gardez la ligne de médium explicite, et voyez le style brut (raw) dans la documentation.",
+      ),
+    },
+    badge: B('Tunes one parameter at a time', 'Règle un paramètre à la fois'),
+  },
+  {
+    id: 'im-mj-refs',
+    master: 'growth',
+    minutes: 12,
+    title: B('Style and character references', 'Références de style et de personnage'),
+    learn: B(
+      'You will keep a series coherent with a style reference, and a character recognisable with a character reference.',
+      'Vous saurez tenir une série cohérente par une référence de style, et un personnage reconnaissable par une référence de personnage.',
+    ),
+    act: B('Use the validated hero image as a style reference for three visuals, and keep Miso the fox the same.',
+      "Prenez l'image principale validée comme référence de style pour trois visuels, et gardez Miso le renard identique."),
+    steps: [
+      B('Pick a reference you own: an image you generated or photographed, never another artist\'s work.',
+        "Choisissez une référence qui vous appartient : une image générée ou photographiée par vous, jamais l'oeuvre d'un artiste."),
+      B('Add it as a style reference (--sref) and test its weight: the look travels, the subject stays yours.',
+        'Ajoutez-la comme référence de style (--sref) et testez son poids : l\'allure voyage, le sujet reste le vôtre.'),
+      B('For a recurring character, add a clear image of it as a character reference, as your version allows.',
+        'Pour un personnage récurrent, ajoutez une image nette de lui en référence de personnage, selon votre version.'),
+      B('Keep describing the light, palette and character traits in words: references help, text still leads.',
+        'Continuez à décrire en mots lumière, palette et traits du personnage : les références aident, le texte guide.'),
+    ],
+    trap: B(
+      'Confusing the uses: an image prompt passes on content, a style reference the look, a character reference a character. Mixed up, they produce clones.',
+      "Confondre les usages : une image en prompt transmet le contenu, une référence de style l'allure, une de personnage un personnage. Mêlées, elles clonent.",
+    ),
+    quiz: {
+      q: B('Clara\'s reference image shows a teapot, and now every new image contains one. What do you adjust?',
+        'L\'image de référence de Clara montre une théière, et chaque nouvelle image en contient une. Que réglez-vous ?'),
+      options: [
+        B('Generate more grids until one image comes out with no teapot', "Générer d'autres grilles jusqu'à obtenir une image sans théière"),
+        B('Replace the reference with a photo of another, smaller teapot', "Remplacer la référence par la photo d'une autre théière, plus petite"),
+        B('Pass it as --sref rather than an image prompt, and lower its weight', 'La passer en --sref plutôt qu\'en image de prompt, et baisser son poids'),
+      ],
+      answer: 2,
+      why: B(
+        'An image placed at the start of the prompt passes on its content; a style reference mainly passes on colours, textures and treatment. If the subject still leaks, lower the style weight.',
+        'Une image placée en tête du prompt transmet son contenu ; une référence de style transmet surtout couleurs, textures et traitement. Si le sujet passe encore, baissez le poids du style.',
+      ),
+    },
+    badge: B('Keeps a series and a character', 'Tient une série et un personnage'),
+  },
+  {
+    id: 'im-mj-edit',
+    master: 'triage',
+    minutes: 11,
+    title: B('Vary, upscale, reframe, extend', 'Varier, agrandir, recadrer, étendre'),
+    learn: B(
+      'You will refine a chosen image with variations, region editing, pan, zoom out and upscaling, in the right order.',
+      'Vous saurez affiner une image choisie par variations, retouche de zone, panoramique, zoom arrière et agrandissement.',
+    ),
+    act: B('Finish the Maison Oolong banner: remove a stray spoon, widen the frame for the headline, upscale.',
+      'Finalisez la bannière de Maison Oolong : retirez une cuillère en trop, élargissez le cadre pour le titre, agrandissez.'),
+    steps: [
+      B('Use a subtle variation to polish a nearly right image, a strong one to explore around it.',
+        'Employez une variation subtile pour polir une image presque juste, une variation forte pour explorer autour.'),
+      B('Fix a local defect with region editing: select only that zone and describe what should be there.',
+        'Corrigez un défaut local par la retouche de zone : sélectionnez seulement la zone et décrivez ce qui doit y être.'),
+      B('Extend the scene with pan (one direction) or zoom out (all around) to make room for text or a format.',
+        'Étendez la scène par panoramique (un côté) ou zoom arrière (tout autour) pour faire place au texte ou à un format.'),
+      B('Upscale last, once composition and details are final, and check the result at full size.',
+        'Agrandissez en dernier, une fois composition et détails arrêtés, et vérifiez le résultat en taille réelle.'),
+    ],
+    trap: B(
+      'Regenerating the whole prompt to remove one stray object: the composition you liked is lost, when a region edit would have kept it.',
+      "Relancer tout le prompt pour retirer un seul objet de trop : la composition aimée est perdue, alors qu'une retouche de zone l'aurait gardée.",
+    ),
+    quiz: {
+      q: B('The banner is right but too narrow: the headline would cover the teapot. What do you use?',
+        'La bannière est juste mais trop étroite : le titre couvrirait la théière. Qu\'employez-vous ?'),
+      options: [
+        B('A strong variation, hoping the next one leaves more empty space', "Une variation forte, en espérant que la suivante laisse plus de vide"),
+        B('A pan toward the left, extending the scene on that side only', 'Un panoramique vers la gauche, qui prolonge la scène de ce seul côté'),
+        B('A creative upscale, which adds free space around the subject', 'Un agrandissement créatif, qui ajoute de l\'espace libre autour du sujet'),
+      ],
+      answer: 1,
+      why: B(
+        'Pan extends the image in one direction and generates the new area in continuity: the teapot stays put and the left gains calm space for the headline. Check the seam, then upscale.',
+        "Le panoramique prolonge l'image d'un côté et génère la zone neuve en continuité : la théière reste en place et la gauche gagne un espace calme pour le titre. Vérifiez la jonction, puis agrandissez.",
+      ),
+    },
+    badge: B('Finishes an image, does not reroll it', 'Finit une image au lieu de la relancer'),
+  },
+]
+
 const MJ_ENRICH: Record<string, Enrichment> = {}
 const MJ_DEEP: Record<string, Deepening> = {}
 
