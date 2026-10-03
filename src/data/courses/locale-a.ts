@@ -1,5 +1,773 @@
-// LE COURS « L'IA en local, open source et hors ligne », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « L'IA en local, open source et hors ligne », PARTIE A · voir ./types et ./index.
+//
+// UN FIL ROUGE · le cabinet Delorme, petit cabinet fictif de conseil en
+// ressources humaines de six personnes. Claire Delorme le dirige ; Malik
+// s'occupe de l'informatique à temps partiel. Le cabinet manipule des dossiers
+// de salariés confidentiels : c'est la raison de passer en local. Il a deux
+// machines : un PC de bureau doté d'une carte NVIDIA (12 Go de VRAM, 32 Go de
+// RAM) et le MacBook Apple Silicon de Claire (16 Go de mémoire unifiée).
+//
+// CE QUE LE COURS AFFIRME, ET CE QU'IL S'INTERDIT. Il s'en tient aux principes
+// stables : la mémoire d'un modèle se calcule (paramètres fois octets par
+// poids, plus une marge pour le contexte), GGUF est le format de llama.cpp,
+// Ollama sert les modèles sur un serveur local, Open WebUI et LM Studio sont
+// des interfaces. Il ne cite aucun score de benchmark, aucun prix, aucune
+// étiquette de modèle comme définitive : les noms, les versions et les
+// licences bougent, le cours renvoie à la fiche du modèle et à la
+// documentation officielle de chaque outil.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const LOCALE_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · POURQUOI ET AVEC QUELLE MACHINE                          */
+/* ================================================================== */
+
+const M1 = 'lo-m1'
+
+const WHY: Level[] = [
+  {
+    id: 'lo-why',
+    master: 'planning',
+    minutes: 9,
+    title: B('Why run AI at home, and its limits', "Pourquoi faire tourner l'IA chez soi, et ses limites"),
+    learn: B(
+      'You will weigh what local AI brings (privacy, cost, offline use, control) against what it demands.',
+      "Vous saurez peser ce qu'apporte l'IA locale (confidentialité, coût, hors ligne, maîtrise) face à ce qu'elle exige.",
+    ),
+    act: B('List the AI tasks of the Delorme firm, then mark each one local, cloud or either, with its reason.',
+      'Listez les usages IA du cabinet Delorme, puis classez chacun en local, cloud ou indifférent, avec sa raison.'),
+    steps: [
+      B('For each task, name the data it handles: public, internal, personal or confidential.',
+        "Pour chaque tâche, nommez les données qu'elle manipule : publiques, internes, personnelles ou confidentielles."),
+      B('Write where that data goes with a cloud service, and where it stays with a local model.',
+        'Écrivez où vont ces données avec un service cloud, et où elles restent avec un modèle local.'),
+      B('Name the limits: smaller models than the best cloud ones, a machine to equip, updates to run yourself.',
+        'Nommez les limites : modèles plus petits que les meilleurs du cloud, machine à équiper, mises à jour à votre charge.'),
+      B('Decide task by task, and keep the cloud where quality matters more than where the data goes.',
+        'Tranchez tâche par tâche, et gardez le cloud là où la qualité compte plus que le trajet des données.'),
+    ],
+    trap: B(
+      'Thinking that local means safe and as good as the cloud: a local model can be weaker, and a badly set machine can still leak data.',
+      'Croire que local veut dire sûr et aussi bon que le cloud : un modèle local peut être plus faible, et un poste mal réglé peut laisser fuir des données.',
+    ),
+    quiz: {
+      q: B('Claire must summarise interview notes that mention employees\' health. Which argument favours local AI here?',
+        "Claire doit résumer des notes d'entretien qui mentionnent la santé de salariés. Quel argument plaide ici pour le local ?"),
+      options: [
+        B('Local models always write better summaries than cloud models', 'Les modèles locaux résument toujours mieux que ceux du cloud'),
+        B('The notes stay on a machine the firm controls, never sent out', 'Les notes restent sur une machine du cabinet, sans être envoyées'),
+        B('Local AI removes every legal duty attached to personal data', "L'IA locale supprime toute obligation liée aux données personnelles"),
+      ],
+      answer: 1,
+      why: B(
+        "With a local model, the text is processed on the firm's own machine: that is the real gain. Quality is not guaranteed to be better, and the legal duties on personal data remain.",
+        'Avec un modèle local, le texte est traité sur la machine du cabinet : c\'est le vrai gain. La qualité n\'est pas garantie meilleure, et les obligations liées aux données personnelles demeurent.',
+      ),
+    },
+    badge: B('Knows when local is worth it', 'Sait quand le local vaut la peine'),
+  },
+  {
+    id: 'lo-hardware',
+    master: 'analysis',
+    minutes: 10,
+    title: B('Check your machine: GPU, VRAM, memory', 'Vérifier sa machine : carte graphique, VRAM, mémoire'),
+    learn: B(
+      'You will read the GPU, its VRAM, the RAM and the free disk of a machine, and know which one limits local AI.',
+      "Vous saurez lire la carte graphique, sa VRAM, la RAM et le disque libre d'une machine, et lequel limite l'IA locale.",
+    ),
+    act: B('Take the inventory of the two machines of the Delorme firm with system commands, and write it in a table.',
+      "Faites l'inventaire des deux machines du cabinet Delorme avec des commandes système, et notez-le dans un tableau."),
+    steps: [
+      B('On a PC with an NVIDIA card, run nvidia-smi in a terminal: it shows the card and its total VRAM.',
+        "Sur un PC doté d'une carte NVIDIA, lancez nvidia-smi dans un terminal : il affiche la carte et sa VRAM totale."),
+      B('On a Mac with Apple Silicon, read the chip and the memory in the About This Mac window: that memory is shared.',
+        'Sur un Mac Apple Silicon, lisez la puce et la mémoire dans la fenêtre À propos de ce Mac : cette mémoire est partagée.'),
+      B('Note the RAM and the free disk space: a single model file often weighs several gigabytes.',
+        "Notez la RAM et l'espace disque libre : un seul fichier de modèle pèse souvent plusieurs gigaoctets."),
+      B('Write one line per machine: memory available to the model, type of GPU, free space, system.',
+        'Écrivez une ligne par machine : mémoire disponible pour le modèle, type de GPU, espace libre, système.'),
+    ],
+    trap: B(
+      'Looking only at the processor or the total RAM: on a PC with a graphics card, the VRAM decides which models run fast.',
+      "Ne regarder que le processeur ou la RAM totale : sur un PC doté d'une carte graphique, c'est la VRAM qui décide des modèles rapides.",
+    ),
+    quiz: {
+      q: B('The PC has 32 GB of RAM and an 8 GB card. A model needs about 10 GB. What usually happens?',
+        'Le PC a 32 Go de RAM et une carte de 8 Go. Un modèle demande environ 10 Go. Que se passe-t-il le plus souvent ?'),
+      options: [
+        B('The model refuses to load, as RAM cannot be used at all', 'Le modèle refuse de se charger, la RAM ne pouvant pas servir'),
+        B('It runs at full GPU speed, since 32 GB of RAM is plenty', 'Il tourne à pleine vitesse GPU, puisque 32 Go de RAM suffisent'),
+        B('It is split between VRAM and RAM, and runs clearly slower', 'Il se répartit entre VRAM et RAM, et tourne nettement plus lentement'),
+      ],
+      answer: 2,
+      why: B(
+        'Tools based on llama.cpp, such as Ollama and LM Studio, can put part of the layers on the GPU and the rest in RAM. It works, but the part handled by the processor slows generation down.',
+        'Les outils fondés sur llama.cpp, comme Ollama et LM Studio, placent une partie des couches sur le GPU et le reste en RAM. Cela fonctionne, mais la part traitée par le processeur ralentit la génération.',
+      ),
+    },
+    badge: B('Knows what the machine can hold', 'Sait ce que la machine peut porter'),
+  },
+  {
+    id: 'lo-open',
+    master: 'research',
+    minutes: 10,
+    title: B('Open models: parameters, open weights, licences', 'Modèles ouverts : paramètres, poids ouverts, licences'),
+    learn: B(
+      'You will read a model card: its size in parameters, what is really open, and what its licence allows.',
+      "Vous saurez lire la fiche d'un modèle : sa taille en paramètres, ce qui est réellement ouvert, et ce qu'autorise sa licence.",
+    ),
+    act: B('Compare three model cards on Hugging Face for the Delorme firm: size, licence and permitted uses.',
+      'Comparez trois fiches de modèles sur Hugging Face pour le cabinet Delorme : taille, licence et usages permis.'),
+    steps: [
+      B('Read the size in the name or the card: 7B or 8B means seven or eight billion parameters.',
+        'Lisez la taille dans le nom ou la fiche : 7B ou 8B signifie sept ou huit milliards de paramètres.'),
+      B('Check what is published: the weights only, or also the training code and a description of the data.',
+        "Vérifiez ce qui est publié : les poids seuls, ou aussi le code d'entraînement et une description des données."),
+      B('Open the licence file: Apache 2.0, MIT, or a licence written by the publisher, with its own conditions.',
+        "Ouvrez le fichier de licence : Apache 2.0, MIT, ou une licence rédigée par l'éditeur, avec ses propres conditions."),
+      B("Note for each model whether the firm's professional use is allowed, and on which conditions.",
+        "Notez pour chaque modèle si l'usage professionnel du cabinet est permis, et à quelles conditions."),
+    ],
+    trap: B(
+      'Calling any downloadable model open source: many publish only the weights, under a licence that limits some uses.',
+      "Qualifier d'open source tout modèle téléchargeable : beaucoup ne publient que les poids, sous une licence qui restreint certains usages.",
+    ),
+    quiz: {
+      q: B('A model can be downloaded freely, but its licence forbids some uses. How do you describe it accurately?',
+        'Un modèle se télécharge librement, mais sa licence interdit certains usages. Comment le décrire avec exactitude ?'),
+      options: [
+        B('An open-weights model, under a licence with conditions', 'Un modèle à poids ouverts, sous une licence assortie de conditions'),
+        B('An open source model, since all its files are public', 'Un modèle open source, puisque tous ses fichiers sont publics'),
+        B('A proprietary model, since it is not under Apache 2.0', "Un modèle propriétaire, puisqu'il n'est pas sous Apache 2.0"),
+      ],
+      answer: 0,
+      why: B(
+        'Open weights means the trained parameters are published. Open source, in the strict sense, also implies freedom of use and enough material to study the model. A restrictive licence rules that out.',
+        "Poids ouverts signifie que les paramètres entraînés sont publiés. Open source, au sens strict, suppose aussi la liberté d'usage et de quoi étudier le modèle. Une licence restrictive l'exclut.",
+      ),
+    },
+    badge: B('Reads the licence before downloading', 'Lit la licence avant de télécharger'),
+  },
+  {
+    id: 'lo-quant',
+    master: 'triage',
+    minutes: 11,
+    title: B('Quantization and choosing a model file', "La quantification et le choix d'un fichier de modèle"),
+    learn: B(
+      'You will choose the right GGUF file for a machine: model size, level of quantization and room for the context.',
+      'Vous saurez choisir le bon fichier GGUF pour une machine : taille du modèle, niveau de quantification et place du contexte.',
+    ),
+    act: B('Estimate the memory of a model at 16, 8 and 4 bits, then pick a file for each Delorme machine.',
+      "Estimez la mémoire d'un modèle en 16, 8 et 4 bits, puis choisissez un fichier pour chaque machine du cabinet."),
+    steps: [
+      B('Multiply the parameters by the bytes per weight: 2 at 16 bits, 1 at 8 bits, about 0.5 at 4 bits.',
+        'Multipliez les paramètres par les octets par poids : 2 en 16 bits, 1 en 8 bits, environ 0,5 en 4 bits.'),
+      B('Add a margin for the context and the runtime: the longer the context, the more memory it takes.',
+        'Ajoutez une marge pour le contexte et le moteur : plus le contexte est long, plus il consomme de mémoire.'),
+      B('Read the quantization in the file name, such as Q4_K_M or Q8_0, and compare the sizes listed.',
+        'Lisez la quantification dans le nom du fichier, comme Q4_K_M ou Q8_0, et comparez les tailles affichées.'),
+      B('Take the largest file that fits in free memory with its margin, and test it on a real task of the firm.',
+        'Prenez le plus gros fichier qui tient en mémoire libre avec sa marge, et testez-le sur une vraie tâche du cabinet.'),
+    ],
+    trap: B(
+      'Always taking the most compressed file: the further below 4 bits you go, the more quality is likely to drop, often more than the memory saved.',
+      'Prendre toujours le fichier le plus compressé : plus on descend sous les 4 bits, plus la qualité risque de chuter, souvent plus que ne vaut la mémoire gagnée.',
+    ),
+    quiz: {
+      q: B('An 8-billion-parameter model must run on the 12 GB card. Which file is the sensible first try?',
+        'Un modèle de 8 milliards de paramètres doit tourner sur la carte de 12 Go. Quel fichier essayer en premier ?'),
+      options: [
+        B('The 16-bit file, since quality matters more than anything', 'Le fichier en 16 bits, la qualité passant avant tout le reste'),
+        B('A 4 or 5-bit file, which fits with room left for the context', 'Un fichier en 4 ou 5 bits, qui tient en laissant place au contexte'),
+        B('The 2-bit file, the most compressed, to keep memory free', 'Le fichier en 2 bits, le plus compressé, pour garder de la marge'),
+      ],
+      answer: 1,
+      why: B(
+        'At 16 bits, 8 billion parameters need about 16 GB for the weights alone: too much. At 4 or 5 bits, they take roughly 4 to 6 GB, which leaves room for the context.',
+        'En 16 bits, 8 milliards de paramètres demandent environ 16 Go pour les seuls poids : trop. En 4 ou 5 bits, ils occupent à peu près 4 à 6 Go, ce qui laisse de la place au contexte.',
+      ),
+    },
+    badge: B('Picks a file that fits', 'Choisit un fichier qui tient'),
+  },
+]
+
+const WHY_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'lo-why')]: {
+    why: [
+      B("A cloud AI service receives your text on its servers, processes it there and sends back the answer. A local model does the same work on your own machine: the prompt, the documents and the answer stay there, as long as the tool is set not to send anything. That is the core of the privacy argument, and it also explains offline use: once the model file is downloaded, no connection is needed.",
+        "Un service d'IA dans le cloud reçoit votre texte sur ses serveurs, le traite et renvoie la réponse. Un modèle local fait le même travail sur votre machine : le prompt, les documents et la réponse y restent, tant que l'outil est réglé pour ne rien envoyer. C'est le coeur de l'argument de confidentialité, et cela explique aussi le hors ligne : une fois le fichier du modèle téléchargé, aucune connexion n'est nécessaire."),
+      B("The cost changes shape rather than disappearing. There is no fee per token, but there is the machine, its electricity and the time spent installing and updating. Control is the other gain: you choose the model and its version, which do not change behind your back. In return, everything the provider used to handle is now yours.",
+        "Le coût change de forme plutôt qu'il ne disparaît. Plus de facturation au token, mais une machine, son électricité et le temps passé à installer et à mettre à jour. La maîtrise est l'autre gain : vous choisissez le modèle et sa version, qui ne changent pas à votre insu. En contrepartie, tout ce que gérait le fournisseur vous revient."),
+      B("The limits are real. The models that run on an ordinary computer are much smaller than the largest cloud models, and weaker on long reasoning, rare knowledge and complex code. The right question is therefore never local or cloud in general, but which tool for which task, according to the data it handles and the quality it requires.",
+        "Les limites sont réelles. Les modèles qui tournent sur un ordinateur courant sont bien plus petits que les plus grands modèles du cloud, et plus faibles en raisonnement long, en connaissances rares et en code complexe. La bonne question n'est donc jamais local ou cloud en général, mais quel outil pour quelle tâche, selon les données traitées et la qualité exigée."),
+    ],
+    example: {
+      context: B("Claire Delorme runs a small fictional HR consulting firm of six people. She asks an assistant what could run locally, but her first request gives it nothing to reason with.",
+        "Claire Delorme dirige un petit cabinet fictif de conseil RH de six personnes. Elle demande à un assistant ce qui pourrait tourner en local, mais sa première demande ne lui donne rien sur quoi raisonner."),
+      before: B("Should my company use local AI?",
+        "Est-ce que mon entreprise devrait utiliser l'IA locale ?"),
+      after: B("You are helping a six-person HR consulting firm decide where each AI task should run.\nOur tasks:\n1. Summarising interview notes with employees (personal data, sometimes health).\n2. Drafting job adverts from a brief (public once published).\n3. Rewording internal procedures (internal, not personal).\n4. Following recent changes in labour law (public, must be up to date).\nFor each task, give: the type of data, the risk if it leaves the firm, the quality required, and your recommendation (local, cloud or either), with one sentence of justification.\nDo not assume we have a powerful machine; ask me what we have if it changes your answer.",
+        "Tu aides un cabinet de conseil RH de six personnes à décider où doit tourner chacun de ses usages de l'IA.\nNos tâches :\n1. Résumer des notes d'entretien avec des salariés (données personnelles, parfois de santé).\n2. Rédiger des offres d'emploi à partir d'un brief (publiques une fois parues).\n3. Reformuler des procédures internes (internes, non personnelles).\n4. Suivre les évolutions récentes du droit du travail (publiques, doivent être à jour).\nPour chaque tâche, donne : le type de données, le risque si elles sortent du cabinet, la qualité exigée, et ta recommandation (local, cloud ou indifférent), avec une phrase de justification.\nNe suppose pas que nous avons une machine puissante ; demande-moi ce que nous avons si cela change ta réponse."),
+      takeaway: B("The second request gives the tasks, their data and the criteria. The answer becomes a table Claire can discuss with her team, instead of a general opinion on local AI.",
+        "La seconde demande donne les tâches, leurs données et les critères. La réponse devient un tableau que Claire peut discuter avec son équipe, au lieu d'un avis général sur l'IA locale."),
+    },
+    exercise: {
+      goal: B("A table of your own AI tasks, each classed local, cloud or either, with its reason and the main limit to watch.",
+        "Un tableau de vos propres usages de l'IA, chacun classé local, cloud ou indifférent, avec sa raison et la principale limite à surveiller."),
+      prompt: B("You are helping me decide where each of my AI tasks should run: on a local model or on a cloud service.\nContext: [YOUR ACTIVITY AND THE SIZE OF YOUR TEAM].\nMy tasks:\n1. [TASK] (data: [PUBLIC, INTERNAL, PERSONAL OR CONFIDENTIAL])\n2. [TASK] (data: [TYPE])\n3. [TASK] (data: [TYPE])\nFor each task, give in a table: the data concerned, the risk if it leaves my machine, the quality required, your recommendation (local, cloud or either) and the main limit of that choice.\nIf a recommendation depends on my hardware, say so and tell me what to check.",
+        "Tu m'aides à décider où doit tourner chacun de mes usages de l'IA : sur un modèle local ou sur un service cloud.\nContexte : [VOTRE ACTIVITÉ ET LA TAILLE DE VOTRE ÉQUIPE].\nMes tâches :\n1. [TÂCHE] (données : [PUBLIQUES, INTERNES, PERSONNELLES OU CONFIDENTIELLES])\n2. [TÂCHE] (données : [TYPE])\n3. [TÂCHE] (données : [TYPE])\nPour chaque tâche, donne dans un tableau : les données concernées, le risque si elles sortent de ma machine, la qualité exigée, ta recommandation (local, cloud ou indifférent) et la principale limite de ce choix.\nSi une recommandation dépend de mon matériel, dis-le et indique-moi quoi vérifier."),
+      check: [
+        B("Each task names the type of data it handles", "Chaque tâche nomme le type de données qu'elle manipule"),
+        B("At least one task is classed local for a stated privacy reason", "Au moins une tâche est classée en local pour une raison de confidentialité énoncée"),
+        B("At least one task stays in the cloud because quality or freshness matters", "Au moins une tâche reste dans le cloud parce que la qualité ou la fraîcheur compte"),
+        B("Each local choice names its limit: model size, hardware or upkeep", "Chaque choix local nomme sa limite : taille du modèle, matériel ou entretien"),
+      ],
+      bonus: B("If the tasks you marked local involve personal data, check with your data protection contact or your national authority (the CNIL in France): running locally reduces transfers, it does not replace the rules.",
+        "Si les tâches classées en local concernent des données personnelles, vérifiez auprès de votre référent données ou de l'autorité compétente (la CNIL en France) : le local réduit les transferts, il ne remplace pas les règles."),
+    },
+    more: [
+      { q: B("The firm's internet connection is down for the day. Which tool keeps working?",
+          "La connexion internet du cabinet est coupée pour la journée. Quel outil continue de fonctionner ?"),
+        options: [
+          B("A local model already downloaded on the PC", "Un modèle local déjà téléchargé sur le PC"),
+          B("A cloud assistant left open before the outage", "Un assistant cloud resté ouvert avant la coupure"),
+          B("A local model you planned to download that day", "Un modèle local que vous comptiez télécharger ce jour-là"),
+        ],
+        answer: 0,
+        why: B("Once the model file is on the disk, generation needs no connection. A cloud assistant needs its servers, even if its page is open, and a model not yet downloaded is not available.",
+          "Une fois le fichier du modèle sur le disque, la génération n'a besoin d'aucune connexion. Un assistant cloud a besoin de ses serveurs, même si sa page est ouverte, et un modèle non téléchargé n'est pas disponible.") },
+      { q: B("Claire compares costs. What is true of a local model?",
+          "Claire compare les coûts. Qu'est-ce qui est vrai d'un modèle local ?"),
+        options: [
+          B("It costs nothing at all once it is installed", "Il ne coûte plus rien une fois installé"),
+          B("It costs more per token than any cloud offer you could buy", "Il coûte plus cher au token que toute offre cloud disponible"),
+          B("No fee per token, but hardware, power and time", "Pas de facturation au token, mais matériel, énergie et temps"),
+        ],
+        answer: 2,
+        why: B("The cost moves: there is no usage fee, but the machine, its electricity and the hours spent installing and updating are real costs. Compare them with your actual usage, not with a general rule.",
+          "Le coût se déplace : plus de facturation à l'usage, mais la machine, son électricité et les heures passées à installer et à mettre à jour sont de vrais coûts. Comparez-les à votre usage réel, pas à une règle générale.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lo-hardware')]: {
+    why: [
+      B("An LLM is first of all a very large table of numbers, its weights. To produce each token, the machine must read through those weights in memory. If they fit in the memory of the graphics card, the VRAM, generation is fast: a GPU computes in parallel and its memory is very quick to read. If not, part of the work falls back on the processor and the ordinary RAM, which are slower.",
+        "Un LLM est d'abord une très grande table de nombres, ses poids. Pour produire chaque token, la machine doit parcourir ces poids en mémoire. S'ils tiennent dans la mémoire de la carte graphique, la VRAM, la génération est rapide : un GPU calcule en parallèle et sa mémoire se lit très vite. Sinon, une partie du travail retombe sur le processeur et la RAM ordinaire, plus lents."),
+      B("Macs with Apple Silicon work differently: the processor and the GPU share one pool of unified memory. A large share of it can serve the model, which lets a Mac with plenty of memory load models that would not fit on many graphics cards. The system and your other apps use the same pool, so not all of it is available.",
+        "Les Mac Apple Silicon fonctionnent autrement : le processeur et le GPU partagent une même mémoire unifiée. Une large part peut servir au modèle, ce qui permet à un Mac bien doté de charger des modèles qui ne tiendraient pas sur bien des cartes graphiques. Le système et vos autres applications puisent dans la même réserve : tout n'est donc pas disponible."),
+      B("Two more resources matter. The disk: each model file weighs several gigabytes, and you will try more than one. And software support: NVIDIA cards are the most widely supported through CUDA, Apple Silicon through Metal, while AMD and Intel cards depend on the tool and the system. Check the documentation of your tool for your exact hardware.",
+        "Deux autres ressources comptent. Le disque : chaque fichier de modèle pèse plusieurs gigaoctets, et vous en essaierez plusieurs. Et la prise en charge logicielle : les cartes NVIDIA sont les mieux prises en charge via CUDA, Apple Silicon via Metal, tandis que les cartes AMD et Intel dépendent de l'outil et du système. Vérifiez la documentation de votre outil pour votre matériel exact."),
+    ],
+    example: {
+      context: B("Malik, who looks after the IT of the Delorme firm, asks an assistant which models the office PC can run, without giving it a single figure.",
+        "Malik, qui s'occupe de l'informatique du cabinet Delorme, demande à un assistant quels modèles le PC du bureau peut faire tourner, sans lui donner un seul chiffre."),
+      before: B("What AI models can my computer run?",
+        "Quels modèles d'IA mon ordinateur peut-il faire tourner ?"),
+      after: B("I want to run LLMs locally with Ollama or LM Studio. Here is my machine:\n- Graphics card: NVIDIA, 12 GB of VRAM (read with nvidia-smi).\n- RAM: 32 GB.\n- Free disk space: 180 GB.\n- System: Windows 11.\nExplain which model sizes (in billions of parameters) can run entirely on the GPU, which would spill over into RAM, and what that means for speed.\nDo not give me benchmark scores; give me the reasoning in memory, so that I can redo it myself for any model.\nIf something is missing from my description, ask.",
+        "Je veux faire tourner des LLM en local avec Ollama ou LM Studio. Voici ma machine :\n- Carte graphique : NVIDIA, 12 Go de VRAM (lus avec nvidia-smi).\n- RAM : 32 Go.\n- Espace disque libre : 180 Go.\n- Système : Windows 11.\nExplique quelles tailles de modèles (en milliards de paramètres) peuvent tourner entièrement sur le GPU, lesquelles déborderaient en RAM, et ce que cela change pour la vitesse.\nNe me donne pas de scores de benchmark ; donne-moi le raisonnement en mémoire, pour que je puisse le refaire seul pour n'importe quel modèle.\nS'il manque quelque chose dans ma description, demande-le."),
+      takeaway: B("With measured figures and a request for reasoning rather than scores, the answer becomes a method Malik can apply to any model, not a list that will be out of date next month.",
+        "Avec des chiffres mesurés et une demande de raisonnement plutôt que de scores, la réponse devient une méthode que Malik appliquera à tout modèle, et non une liste périmée le mois suivant."),
+    },
+    exercise: {
+      goal: B("A one-line inventory per machine (memory for the model, GPU, disk, system), and the range of model sizes each one can hold.",
+        "Un inventaire d'une ligne par machine (mémoire pour le modèle, GPU, disque, système), et la gamme de tailles de modèles que chacune peut porter."),
+      prompt: B("I want to run AI models locally. Here is my machine, measured with system commands:\n- GPU and VRAM: [OUTPUT OF nvidia-smi, OR NONE, OR THE APPLE CHIP]\n- RAM or unified memory: [AMOUNT]\n- Free disk space: [AMOUNT]\n- Operating system: [SYSTEM AND VERSION]\nExplain, with the memory calculation, which model sizes can run entirely on my GPU or in my unified memory, which ones would be split with the RAM, and which ones are out of reach.\nNo benchmark scores. Tell me what to check in the documentation of [OLLAMA OR LM STUDIO] for my hardware.",
+        "Je veux faire tourner des modèles d'IA en local. Voici ma machine, mesurée avec des commandes système :\n- GPU et VRAM : [SORTIE DE nvidia-smi, OU AUCUN, OU LA PUCE APPLE]\n- RAM ou mémoire unifiée : [QUANTITÉ]\n- Espace disque libre : [QUANTITÉ]\n- Système d'exploitation : [SYSTÈME ET VERSION]\nExplique, avec le calcul de mémoire, quelles tailles de modèles peuvent tourner entièrement sur mon GPU ou dans ma mémoire unifiée, lesquelles seraient partagées avec la RAM, et lesquelles sont hors de portée.\nPas de scores de benchmark. Dis-moi quoi vérifier dans la documentation de [OLLAMA OU LM STUDIO] pour mon matériel."),
+      check: [
+        B("You measured the VRAM or unified memory with a command or a system window", "Vous avez mesuré la VRAM ou la mémoire unifiée avec une commande ou une fenêtre système"),
+        B("The free disk space is noted, with room for several model files", "L'espace disque libre est noté, avec de la place pour plusieurs fichiers de modèles"),
+        B("The answer shows a memory calculation you can redo yourself", "La réponse montre un calcul de mémoire que vous pouvez refaire vous-même"),
+        B("You know whether your GPU is supported by the tool you plan to use", "Vous savez si votre GPU est pris en charge par l'outil que vous comptez utiliser"),
+      ],
+      bonus: B("Run nvidia-smi again while a model is generating, or watch the memory in Activity Monitor on a Mac: you will see what the model really takes, and can compare it with the estimate.",
+        "Relancez nvidia-smi pendant qu'un modèle génère, ou observez la mémoire dans le Moniteur d'activité sur Mac : vous verrez ce que le modèle occupe réellement, à comparer avec l'estimation."),
+    },
+    more: [
+      { q: B("A Mac with Apple Silicon has 16 GB of unified memory. Why can a model not use all 16 GB?",
+          "Un Mac Apple Silicon a 16 Go de mémoire unifiée. Pourquoi un modèle ne peut-il pas utiliser les 16 Go ?"),
+        options: [
+          B("Because the GPU only ever sees half the memory of a Mac", "Parce que le GPU ne voit jamais que la moitié de la mémoire d'un Mac"),
+          B("Because the system and open apps share the same memory", "Parce que le système et les applications partagent cette mémoire"),
+          B("Because unified memory is kept for images and video only", "Parce que la mémoire unifiée est réservée aux images et à la vidéo"),
+        ],
+        answer: 1,
+        why: B("Unified memory is one pool for everything. macOS and the open applications take their share, so the model can only use what remains, minus a margin for its context.",
+          "La mémoire unifiée est une réserve unique. macOS et les applications ouvertes prennent leur part : le modèle ne dispose que du reste, moins une marge pour son contexte.") },
+      { q: B("A laptop has no graphics card, only a recent processor and 16 GB of RAM. What can you expect?",
+          "Un portable n'a pas de carte graphique, seulement un processeur récent et 16 Go de RAM. À quoi vous attendre ?"),
+        options: [
+          B("Small models run on the CPU, more slowly than on a GPU", "De petits modèles tournent sur le processeur, plus lentement"),
+          B("Nothing runs: every local tool requires a graphics card", "Rien ne tourne : tout outil local exige une carte graphique"),
+          B("Any model runs as fast as on a GPU, given enough RAM", "Tout modèle tourne aussi vite que sur GPU, avec assez de RAM"),
+        ],
+        answer: 0,
+        why: B("Tools based on llama.cpp can run entirely on the processor. Small models remain usable, but generation is slower than on a GPU, because the CPU reads and computes the weights less quickly.",
+          "Les outils fondés sur llama.cpp peuvent tourner entièrement sur le processeur. Les petits modèles restent utilisables, mais la génération est plus lente que sur GPU, le processeur lisant et calculant les poids moins vite.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lo-open')]: {
+    why: [
+      B("A model's parameters, or weights, are the numbers adjusted during training. Their count, written 7B, 8B, 14B or 70B for billions, gives an idea of the model's capacity and directly of its memory needs. A larger model of the same family generally answers better, but needs more memory and runs slower: size is a trade-off, not a quality grade.",
+        "Les paramètres d'un modèle, ou poids, sont les nombres ajustés pendant l'entraînement. Leur nombre, noté 7B, 8B, 14B ou 70B pour des milliards, donne une idée de la capacité du modèle et, directement, de ses besoins en mémoire. Un modèle plus grand de la même famille répond en général mieux, mais demande plus de mémoire et tourne plus lentement : la taille est un compromis, pas une note."),
+      B("Publishing the weights is not the same as being open source. Many publishers release only the trained weights, without the training data and sometimes without the training code. The Open Source Initiative has published a definition of open source AI that asks for more than weights; read it to see its criteria. The accurate term for most downloadable models is open weights.",
+        "Publier les poids n'est pas être open source. Beaucoup d'éditeurs ne publient que les poids entraînés, sans les données d'entraînement et parfois sans le code. L'Open Source Initiative a publié une définition de l'IA open source qui demande davantage que les poids ; lisez-la pour en voir les critères. Le terme exact pour la plupart des modèles téléchargeables est : à poids ouverts (open weights)."),
+      B("The licence decides what you may do. Some models are under permissive licences such as Apache 2.0 or MIT; others under licences written by their publisher, which may restrict uses, require attribution or set conditions. The licence can differ between two models of the same family, so read the one attached to the exact file you download.",
+        "La licence décide de ce que vous pouvez faire. Certains modèles sont sous licence permissive, comme Apache 2.0 ou MIT ; d'autres sous une licence rédigée par leur éditeur, qui peut restreindre des usages, exiger une mention ou poser des conditions. Deux modèles d'une même famille peuvent avoir des licences différentes : lisez celle du fichier exact que vous téléchargez."),
+    ],
+    example: {
+      context: B("Malik has found three models that would fit the office PC. Before using one for the firm's work, he asks an assistant about their licences, with too vague a request.",
+        "Malik a trouvé trois modèles qui tiendraient sur le PC du bureau. Avant d'en utiliser un pour le travail du cabinet, il interroge un assistant sur leurs licences, avec une demande trop vague."),
+      before: B("Are Llama, Mistral and Qwen free to use?",
+        "Est-ce que Llama, Mistral et Qwen sont libres d'utilisation ?"),
+      after: B("I am about to use an open-weights model for the professional work of a six-person HR consulting firm: summaries and rewording of internal documents, no resale of the model or of access to it.\nBelow is the licence file from the model card, pasted in full.\nTell me:\n1. Whether our use is allowed, and on which conditions (attribution, notices, limits).\n2. What we must not do with this model or its outputs.\n3. Which points are ambiguous and should be checked by a lawyer.\nQuote the passage of the licence for each answer. Do not rely on what you know of the model family: only this text counts.\n\n[LICENCE TEXT]",
+        "Je m'apprête à utiliser un modèle à poids ouverts pour le travail professionnel d'un cabinet de conseil RH de six personnes : résumés et reformulations de documents internes, sans revente du modèle ni de son accès.\nCi-dessous, le fichier de licence de la fiche du modèle, collé en entier.\nDis-moi :\n1. Si notre usage est permis, et à quelles conditions (mention, avis, limites).\n2. Ce que nous ne devons pas faire de ce modèle ou de ses productions.\n3. Quels points sont ambigus et devraient être vérifiés par un juriste.\nCite le passage de la licence pour chaque réponse. Ne te fonde pas sur ce que tu sais de la famille du modèle : seul ce texte compte.\n\n[TEXTE DE LA LICENCE]"),
+      takeaway: B("The second request ties the answer to the actual licence text and the firm's actual use, and asks for quotes. Malik can check each claim against the text instead of trusting an opinion about a whole family.",
+        "La seconde demande lie la réponse au texte réel de la licence et à l'usage réel du cabinet, et exige des citations. Malik peut confronter chaque affirmation au texte au lieu de se fier à un avis sur toute une famille."),
+    },
+    exercise: {
+      goal: B("A comparison sheet of three models: size, what is published, licence, permitted use for your work, and the points to check.",
+        "Une fiche comparative de trois modèles : taille, ce qui est publié, licence, usage permis pour votre travail, et points à vérifier."),
+      prompt: B("I am comparing open models for this use: [YOUR USE, E.G. SUMMARISING INTERNAL DOCUMENTS IN A SMALL FIRM].\nFor each model below, I paste the key parts of its model card and its licence.\nModel 1: [NAME AND SIZE], card: [EXTRACT], licence: [TEXT OR NAME]\nModel 2: [NAME AND SIZE], card: [EXTRACT], licence: [TEXT OR NAME]\nModel 3: [NAME AND SIZE], card: [EXTRACT], licence: [TEXT OR NAME]\nMake a table: size in parameters, what is published (weights, code, data information), licence, whether my use is allowed and on which conditions, and what remains unclear.\nQuote the licence for each conclusion. If information is missing from what I pasted, write 'not stated' rather than guessing.",
+        "Je compare des modèles ouverts pour cet usage : [VOTRE USAGE, PAR EXEMPLE RÉSUMER DES DOCUMENTS INTERNES DANS UN PETIT CABINET].\nPour chaque modèle ci-dessous, je colle l'essentiel de sa fiche et de sa licence.\nModèle 1 : [NOM ET TAILLE], fiche : [EXTRAIT], licence : [TEXTE OU NOM]\nModèle 2 : [NOM ET TAILLE], fiche : [EXTRAIT], licence : [TEXTE OU NOM]\nModèle 3 : [NOM ET TAILLE], fiche : [EXTRAIT], licence : [TEXTE OU NOM]\nFais un tableau : taille en paramètres, ce qui est publié (poids, code, informations sur les données), licence, si mon usage est permis et à quelles conditions, et ce qui reste flou.\nCite la licence pour chaque conclusion. S'il manque une information dans ce que j'ai collé, écris « non précisé » plutôt que de deviner."),
+      check: [
+        B("Each model has its size in parameters, read from its card", "Chaque modèle a sa taille en paramètres, lue sur sa fiche"),
+        B("The table separates open weights from what is truly open source", "Le tableau distingue les poids ouverts de ce qui est réellement open source"),
+        B("Each permission is backed by a quote from the licence text", "Chaque autorisation s'appuie sur une citation du texte de licence"),
+        B("Unclear points are listed instead of being guessed", "Les points flous sont listés au lieu d'être devinés"),
+      ],
+      bonus: B("Take one family across two successive versions, for instance of Llama, Mistral, Qwen or Gemma, and check whether the licence changed between them. It sometimes does, which is why you read the licence of the exact file.",
+        "Prenez une famille sur deux versions successives, par exemple de Llama, Mistral, Qwen ou Gemma, et vérifiez si la licence a changé entre elles. Cela arrive : c'est pourquoi on lit la licence du fichier exact."),
+    },
+    more: [
+      { q: B("Two files of the same family are labelled 8B and 70B. What does that tell you first?",
+          "Deux fichiers d'une même famille portent 8B et 70B. Qu'est-ce que cela vous dit d'abord ?"),
+        options: [
+          B("The 70B was trained for longer on exactly the same data", "Le 70B a été entraîné plus longtemps sur les mêmes données"),
+          B("The 70B has far more parameters and needs far more memory", "Le 70B a bien plus de paramètres et demande bien plus de mémoire"),
+          B("The 8B is a trial version limited to eight users at once", "Le 8B est une version d'essai limitée à huit utilisateurs"),
+        ],
+        answer: 1,
+        why: B("The figure is the number of parameters in billions. It drives the memory needed: at equal quantization, a 70B model needs roughly nine times the memory of an 8B one.",
+          "Le chiffre est le nombre de paramètres en milliards. Il commande la mémoire nécessaire : à quantification égale, un modèle 70B demande environ neuf fois la mémoire d'un 8B.") },
+      { q: B("The model card says Apache 2.0, but the file comes from a third-party repository. What do you check?",
+          "La fiche du modèle indique Apache 2.0, mais le fichier vient d'un dépôt tiers. Que vérifiez-vous ?"),
+        options: [
+          B("Nothing: the licence of the family covers every copy", "Rien : la licence de la famille couvre toutes les copies"),
+          B("That the repository is popular, which proves the licence", "Que le dépôt est populaire, ce qui prouve la licence"),
+          B("The licence and origin stated for that exact file", "La licence et l'origine indiquées pour ce fichier précis"),
+        ],
+        answer: 2,
+        why: B("A converted or modified file may come from another version, under another licence. Check that the repository names the original model and its licence, and compare with the official card.",
+          "Un fichier converti ou modifié peut venir d'une autre version, sous une autre licence. Vérifiez que le dépôt nomme le modèle d'origine et sa licence, et comparez avec la fiche officielle.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lo-quant')]: {
+    why: [
+      B("Quantization stores each weight with fewer bits. A weight at 16 bits takes 2 bytes; at 8 bits, 1 byte; at 4 bits, about half a byte. The memory for the weights falls roughly in proportion: a model of 8 billion parameters goes from about 16 GB at 16 bits to about 4 to 5 GB at 4 bits. That is what makes models of this size usable on an ordinary graphics card.",
+        "La quantification stocke chaque poids sur moins de bits. Un poids en 16 bits occupe 2 octets ; en 8 bits, 1 octet ; en 4 bits, environ un demi-octet. La mémoire des poids baisse à peu près d'autant : un modèle de 8 milliards de paramètres passe d'environ 16 Go en 16 bits à environ 4 à 5 Go en 4 bits. C'est ce qui rend ces modèles utilisables sur une carte graphique courante."),
+      B("Lost precision is the price. Each weight is rounded, and the answers drift slightly from those of the original model. Formats such as the K-quants of llama.cpp (Q4_K_M, Q5_K_M) use finer schemes than a uniform rounding, which is why 4 and 5-bit files remain usable for many tasks. Below that, losses tend to grow faster: test before relying on a very compressed file.",
+        "La précision perdue est le prix à payer. Chaque poids est arrondi, et les réponses s'écartent légèrement de celles du modèle d'origine. Des formats comme les K-quants de llama.cpp (Q4_K_M, Q5_K_M) emploient des schémas plus fins qu'un arrondi uniforme : les fichiers en 4 et 5 bits restent donc utilisables pour bien des tâches. En dessous, les pertes tendent à croître plus vite : testez avant de vous y fier."),
+      B("Memory is not only for the weights. The context, everything the model reads at once, is held in a cache that grows with its length. A model that fits exactly in VRAM with a short context can overflow with a long document. GGUF, the file format of llama.cpp also used by Ollama and LM Studio, packs the weights and their settings into one file whose name usually states the quantization.",
+        "La mémoire ne sert pas qu'aux poids. Le contexte, tout ce que le modèle lit en une fois, est conservé dans un cache qui grandit avec sa longueur. Un modèle qui tient tout juste en VRAM avec un contexte court peut déborder sur un long document. GGUF, le format de fichier de llama.cpp aussi employé par Ollama et LM Studio, réunit les poids et leurs réglages en un fichier dont le nom indique en général la quantification."),
+    ],
+    example: {
+      context: B("Malik has chosen an 8B model for the office PC. On the download page, he finds a dozen GGUF files and asks an assistant which one to take.",
+        "Malik a choisi un modèle 8B pour le PC du bureau. Sur la page de téléchargement, il trouve une dizaine de fichiers GGUF et demande à un assistant lequel prendre."),
+      before: B("Which GGUF file should I download?",
+        "Quel fichier GGUF dois-je télécharger ?"),
+      after: B("I want to run an 8-billion-parameter model on a PC with an NVIDIA card with 12 GB of VRAM (about 1 GB already used by the system) and 32 GB of RAM.\nThe repository lists files named Q3_K_M, Q4_K_M, Q5_K_M, Q6_K and Q8_0, with these sizes: [SIZES COPIED FROM THE PAGE].\nUse: summarising internal documents of 5 to 15 pages, in French, so I need a fairly long context.\nFor each file, estimate whether the weights plus the context fit in the free VRAM, and what I trade in quality.\nRecommend one file to try first and one fallback, and show the calculation.",
+        "Je veux faire tourner un modèle de 8 milliards de paramètres sur un PC doté d'une carte NVIDIA de 12 Go de VRAM (environ 1 Go déjà pris par le système) et de 32 Go de RAM.\nLe dépôt propose des fichiers Q3_K_M, Q4_K_M, Q5_K_M, Q6_K et Q8_0, avec ces tailles : [TAILLES COPIÉES DE LA PAGE].\nUsage : résumer des documents internes de 5 à 15 pages, en français, donc avec un contexte assez long.\nPour chaque fichier, estime si les poids plus le contexte tiennent dans la VRAM libre, et ce que je sacrifie en qualité.\nRecommande un fichier à essayer d'abord et un de repli, et montre le calcul."),
+      takeaway: B("The request gives the free memory, the files and their sizes, and the real use with its context length. Malik gets a first choice and a fallback, each justified by a calculation.",
+        "La demande donne la mémoire libre, les fichiers et leurs tailles, et l'usage réel avec sa longueur de contexte. Malik obtient un premier choix et un repli, chacun justifié par un calcul."),
+    },
+    exercise: {
+      goal: B("A first-choice file and a fallback for your machine, chosen with a memory calculation that includes the context.",
+        "Un fichier de premier choix et un de repli pour votre machine, choisis par un calcul de mémoire qui inclut le contexte."),
+      prompt: B("Help me choose a GGUF file.\nMy machine: [VRAM OR UNIFIED MEMORY, AND HOW MUCH IS FREE], RAM: [AMOUNT].\nModel: [NAME AND SIZE IN PARAMETERS].\nFiles available and their sizes: [LIST COPIED FROM THE DOWNLOAD PAGE].\nMy use: [TASK, LANGUAGE, LENGTH OF THE DOCUMENTS].\nFor each file, tell me whether the weights plus a context suited to my use fit in my memory, and what I lose in quality.\nRecommend a first choice and a fallback, show the calculation, and tell me how to check the real memory use once the model is loaded.",
+        "Aide-moi à choisir un fichier GGUF.\nMa machine : [VRAM OU MÉMOIRE UNIFIÉE, ET LA PART LIBRE], RAM : [QUANTITÉ].\nModèle : [NOM ET TAILLE EN PARAMÈTRES].\nFichiers disponibles et leurs tailles : [LISTE COPIÉE DE LA PAGE DE TÉLÉCHARGEMENT].\nMon usage : [TÂCHE, LANGUE, LONGUEUR DES DOCUMENTS].\nPour chaque fichier, dis-moi si les poids plus un contexte adapté à mon usage tiennent dans ma mémoire, et ce que je perds en qualité.\nRecommande un premier choix et un repli, montre le calcul, et dis-moi comment vérifier la mémoire réellement occupée une fois le modèle chargé."),
+      check: [
+        B("The calculation counts the weights and a margin for the context", "Le calcul compte les poids et une marge pour le contexte"),
+        B("The first choice fits in the free memory, not the total memory", "Le premier choix tient dans la mémoire libre, pas dans la mémoire totale"),
+        B("You can say why you did not pick the most compressed file", "Vous savez dire pourquoi vous n'avez pas pris le fichier le plus compressé"),
+        B("You have a way to measure the real memory use after loading", "Vous avez un moyen de mesurer la mémoire réelle après chargement"),
+      ],
+      bonus: B("Load your first choice and your fallback, give both the same document and the same prompt, and compare the summaries side by side. Note any fact one of them gets wrong: that is the quality gap that matters for you.",
+        "Chargez le premier choix et le repli, donnez-leur le même document et le même prompt, et comparez les résumés côte à côte. Notez tout fait que l'un des deux déforme : c'est l'écart de qualité qui compte pour vous."),
+    },
+    more: [
+      { q: B("The Q4_K_M file fits in VRAM with a short context, but slows down sharply on a 40-page document. Why?",
+          "Le fichier Q4_K_M tient en VRAM avec un contexte court, mais ralentit fortement sur un document de 40 pages. Pourquoi ?"),
+        options: [
+          B("The quantization changes with the length of the text", "La quantification change avec la longueur du texte"),
+          B("The context cache grows and spills over into the RAM", "Le cache du contexte grandit et déborde en RAM"),
+          B("The model downloads extra weights for long documents", "Le modèle télécharge des poids en plus pour les longs textes"),
+        ],
+        answer: 1,
+        why: B("The weights do not change, but the context cache grows with the length read. When weights and cache exceed the VRAM, part of the work moves to the processor and generation slows down.",
+          "Les poids ne changent pas, mais le cache du contexte grandit avec la longueur lue. Quand poids et cache dépassent la VRAM, une partie du travail passe au processeur et la génération ralentit.") },
+      { q: B("What does Q8_0 in a GGUF file name tell you, compared with Q4_K_M?",
+          "Que vous dit Q8_0 dans le nom d'un fichier GGUF, comparé à Q4_K_M ?"),
+        options: [
+          B("A larger file, closer to the original precision", "Un fichier plus gros, plus proche de la précision d'origine"),
+          B("A smaller file, meant for machines short on memory", "Un fichier plus petit, prévu pour les machines peu dotées"),
+          B("The same weights, with a longer context built in", "Les mêmes poids, avec un contexte plus long intégré"),
+        ],
+        answer: 0,
+        why: B("The number gives the bits per weight. Q8_0 keeps about 8 bits per weight, so the file is roughly twice the size of a 4-bit one and closer to the original model.",
+          "Le chiffre donne les bits par poids. Q8_0 garde environ 8 bits par poids : le fichier fait à peu près le double d'un fichier en 4 bits et reste plus proche du modèle d'origine.") },
+    ],
+  },
+}
+
+const WHY_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'lo-why')]: {
+    intro: B("Running AI locally means that the model, a large file of numbers, is loaded and executed on your own computer instead of a provider's servers. This lesson sets out what that changes: where your data goes, how the cost is structured, what works without a connection, and who controls the version of the model. It also states the limits plainly, because a local model is a different tool, not a free copy of the best cloud models. The fictional Delorme firm, a six-person HR consultancy that handles confidential employee files, runs through this course; at the end of this lesson you will be able to sort any AI task into local, cloud or either, with a reason.",
+      "Faire tourner l'IA en local signifie que le modèle, un gros fichier de nombres, est chargé et exécuté sur votre ordinateur plutôt que sur les serveurs d'un fournisseur. Ce cours expose ce que cela change : où vont vos données, comment se structure le coût, ce qui fonctionne sans connexion, et qui maîtrise la version du modèle. Il énonce aussi franchement les limites, car un modèle local est un autre outil, pas une copie gratuite des meilleurs modèles du cloud. Le cabinet Delorme, cabinet fictif de conseil RH de six personnes qui manipule des dossiers de salariés confidentiels, sert de fil rouge à cette formation ; à la fin de ce cours, vous saurez classer tout usage de l'IA en local, cloud ou indifférent, avec sa raison."),
+    concepts: [
+      { term: B('Inference', 'Inférence'),
+        def: B("Running a trained model to produce an answer. Local AI means doing inference on your machine; the training was done elsewhere, by the publisher of the model.",
+          "Le fait d'exécuter un modèle entraîné pour produire une réponse. L'IA locale, c'est l'inférence sur votre machine ; l'entraînement a été fait ailleurs, par l'éditeur du modèle.") },
+      { term: B('Data path', 'Trajet des données'),
+        def: B("The route your prompt and documents follow. With a cloud service they reach external servers; with a local model they stay on the machine, unless a tool or extension sends them out.",
+          "Le chemin que suivent votre prompt et vos documents. Avec un service cloud, ils rejoignent des serveurs externes ; avec un modèle local, ils restent sur la machine, sauf si un outil ou une extension les envoie ailleurs.") },
+      { term: B('Quality gap', 'Écart de qualité'),
+        def: B("The difference between the largest cloud models and the smaller ones a personal computer can run. It is widest on long reasoning, rare knowledge and complex code.",
+          "La différence entre les plus grands modèles du cloud et les modèles plus petits qu'un ordinateur personnel peut faire tourner. Elle est la plus nette en raisonnement long, en connaissances rares et en code complexe.") },
+      { term: B('Full cost', 'Coût complet'),
+        def: B("What local AI really costs: hardware, electricity, disk space and the time spent installing, updating and checking. There is no fee per token, but it is not free.",
+          "Ce que coûte réellement l'IA locale : matériel, électricité, espace disque et temps passé à installer, mettre à jour et vérifier. Pas de facturation au token, mais ce n'est pas gratuit.") },
+    ],
+    walkthrough: {
+      title: B("Claire sorts the five AI tasks of the Delorme firm into local, cloud or either.",
+        "Claire classe les cinq usages de l'IA du cabinet Delorme en local, cloud ou indifférent."),
+      steps: [
+        B("She lists the tasks the team already does with AI, or wants to: summarising interview notes, drafting job adverts, rewording procedures, preparing training slides, following changes in labour law. Why: the decision is made per task, not for the whole firm.",
+          "Elle liste les tâches que l'équipe confie déjà à l'IA, ou voudrait lui confier : résumer des notes d'entretien, rédiger des offres d'emploi, reformuler des procédures, préparer des supports de formation, suivre le droit du travail. Pourquoi : la décision se prend tâche par tâche, pas pour tout le cabinet."),
+        B("Next to each task, she writes the data involved. Interview notes contain personal and sometimes health information; job adverts are public once published. Why: the sensitivity of the data is the first criterion.",
+          "En face de chaque tâche, elle écrit les données en jeu. Les notes d'entretien contiennent des informations personnelles, parfois de santé ; les offres d'emploi sont publiques une fois parues. Pourquoi : la sensibilité des données est le premier critère."),
+        B("She writes the quality required. Following labour law needs recent, verified sources, which a local model without internet does not have. Why: a local model knows only what it learned, up to its training date.",
+          "Elle écrit la qualité exigée. Suivre le droit du travail demande des sources récentes et vérifiées, qu'un modèle local sans internet n'a pas. Pourquoi : un modèle local ne sait que ce qu'il a appris, jusqu'à sa date d'entraînement."),
+        B("She classes the notes as local, the legal watch as cloud with sources to check, and the adverts and slides as either. Why: where nothing is sensitive, the choice depends on convenience and quality.",
+          "Elle classe les notes en local, la veille juridique en cloud avec des sources à vérifier, les offres et les supports en indifférent. Pourquoi : là où rien n'est sensible, le choix dépend de la commodité et de la qualité."),
+        B("She notes the limits of the local choice: a machine to equip, a smaller model whose summaries must be reread, updates to schedule. Why: these limits become the plan of the next lessons, starting with checking the machine.",
+          "Elle note les limites du choix local : une machine à équiper, un modèle plus petit dont les résumés devront être relus, des mises à jour à prévoir. Pourquoi : ces limites deviennent le plan des cours suivants, à commencer par la vérification de la machine."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Moving everything to local because one task is sensitive.",
+          "Tout passer en local parce qu'une tâche est sensible."),
+        fix: B("Decide per task. Keep local for sensitive data, and use the cloud where quality, freshness or convenience matters more and the data allows it.",
+          "Décidez tâche par tâche. Gardez le local pour les données sensibles, et utilisez le cloud là où la qualité, la fraîcheur ou la commodité comptent davantage et où les données le permettent.") },
+      { wrong: B("Assuming that a local tool never sends anything out.",
+          "Supposer qu'un outil local n'envoie jamais rien à l'extérieur."),
+        fix: B("Check the settings of each tool: some offer web search, connections to cloud models or extensions. Local means local only when everything that goes outside is off or absent.",
+          "Vérifiez les réglages de chaque outil : certains proposent une recherche web, des connexions à des modèles cloud ou des extensions. Le local n'est local que si tout ce qui sort est coupé ou absent.") },
+      { wrong: B("Expecting a local model to match the best cloud model on every task.",
+          "Attendre d'un modèle local qu'il égale le meilleur modèle du cloud sur toutes les tâches."),
+        fix: B("Test it on your real tasks and compare. A smaller model can be excellent at summarising or rewording and weak at complex reasoning; reread its output accordingly.",
+          "Testez-le sur vos vraies tâches et comparez. Un modèle plus petit peut exceller à résumer ou reformuler et rester faible en raisonnement complexe ; relisez ses productions en conséquence.") },
+    ],
+    recap: [
+      B("Local AI keeps the prompt, the documents and the answer on your machine.", "L'IA locale garde le prompt, les documents et la réponse sur votre machine."),
+      B("Once the model is downloaded, it works without a connection.", "Une fois le modèle téléchargé, il fonctionne sans connexion."),
+      B("The cost moves to hardware, electricity and upkeep; it does not vanish.", "Le coût se déplace vers le matériel, l'électricité et l'entretien ; il ne disparaît pas."),
+      B("Local models are smaller and weaker on hard tasks: decide task by task.", "Les modèles locaux sont plus petits et plus faibles sur les tâches difficiles : décidez tâche par tâche."),
+    ],
+    further: B("Read the guidance of your data protection authority (the CNIL in France) on generative AI and personal data, then reread your table: for each task marked cloud, check that the data you would send is allowed to leave.",
+      "Lisez les recommandations de votre autorité de protection des données (la CNIL en France) sur l'IA générative et les données personnelles, puis relisez votre tableau : pour chaque tâche classée cloud, vérifiez que les données envoyées ont le droit de sortir."),
+    more: [
+      { q: B("A local model runs on the firm's PC, but the chat tool has web search turned on. What follows?",
+          "Un modèle local tourne sur le PC du cabinet, mais l'outil de discussion a la recherche web activée. Qu'en déduire ?"),
+        options: [
+          B("Nothing leaves, since the model itself is local", "Rien ne sort, puisque le modèle lui-même est local"),
+          B("Search queries may leave the machine to reach the web", "Des requêtes de recherche peuvent quitter la machine"),
+          B("The model is retrained online on the firm's notes", "Le modèle est réentraîné en ligne sur les notes du cabinet"),
+        ],
+        answer: 1,
+        why: B("The model runs locally, but a web search sends queries, built from your conversation, to an outside service. For sensitive data, turn that option off.",
+          "Le modèle tourne en local, mais une recherche web envoie des requêtes, construites à partir de votre conversation, vers un service extérieur. Pour des données sensibles, désactivez cette option.") },
+      { q: B("Which task of the Delorme firm is the weakest candidate for a local model with no internet access?",
+          "Quelle tâche du cabinet Delorme se prête le moins à un modèle local sans accès à internet ?"),
+        options: [
+          B("Rewording an internal procedure already written", "Reformuler une procédure interne déjà rédigée"),
+          B("Summarising the notes of an employee interview", "Résumer les notes d'un entretien avec un salarié"),
+          B("Following this month's changes in labour law", "Suivre les évolutions du droit du travail ce mois-ci"),
+        ],
+        answer: 2,
+        why: B("A local model knows only what it learned up to its training date and cannot look anything up offline. Recent legal changes require current, verified sources.",
+          "Un modèle local ne connaît que ce qu'il a appris jusqu'à sa date d'entraînement et ne peut rien chercher hors ligne. Les évolutions juridiques récentes demandent des sources actuelles et vérifiées.") },
+    ],
+  },
+
+  [deepKey(M1, 'lo-hardware')]: {
+    intro: B("Before installing anything, you need to know what your machine can hold. Local AI is limited first by memory: the memory of the graphics card (VRAM) on a PC, or the unified memory on a Mac with Apple Silicon; then by RAM, disk space and how well the tools support your hardware. This lesson shows how to read these figures with simple commands, why VRAM matters more than processor speed, and how to note the result in a form you will reuse when choosing a model. You will take the inventory of the two machines of the Delorme firm: the office PC and Claire's laptop.",
+      "Avant d'installer quoi que ce soit, il faut savoir ce que votre machine peut porter. L'IA locale est limitée d'abord par la mémoire : celle de la carte graphique (VRAM) sur un PC, ou la mémoire unifiée sur un Mac Apple Silicon ; puis par la RAM, l'espace disque et la prise en charge de votre matériel par les outils. Ce cours montre comment lire ces chiffres avec des commandes simples, pourquoi la VRAM compte plus que la vitesse du processeur, et comment noter le résultat sous une forme réutilisable pour choisir un modèle. Vous ferez l'inventaire des deux machines du cabinet Delorme : le PC du bureau et le portable de Claire."),
+    concepts: [
+      { term: B('VRAM', 'VRAM'),
+        def: B("The memory built into a graphics card. When the whole model fits in it, the GPU generates quickly; when it does not, part of the model goes to the slower RAM.",
+          "La mémoire intégrée à la carte graphique. Quand tout le modèle y tient, le GPU génère vite ; sinon, une partie du modèle part dans la RAM, plus lente.") },
+      { term: B('Unified memory', 'Mémoire unifiée'),
+        def: B("On Macs with Apple Silicon, one pool of memory shared by the processor and the GPU. A large share can serve a model, but the system and your apps use it too.",
+          "Sur les Mac Apple Silicon, une réserve de mémoire unique partagée par le processeur et le GPU. Une large part peut servir au modèle, mais le système et vos applications y puisent aussi.") },
+      { term: B('Partial offload', 'Répartition GPU et processeur'),
+        def: B("Placing some layers of a model on the GPU and the rest in RAM. Tools based on llama.cpp do it; the model runs, but more slowly.",
+          "Placer une partie des couches d'un modèle sur le GPU et le reste en RAM (offload). Les outils fondés sur llama.cpp le font ; le modèle tourne, mais plus lentement.") },
+      { term: B('Memory bandwidth', 'Bande passante mémoire'),
+        def: B("How fast memory can be read. Producing each token means reading the weights, so this speed largely sets how many tokens per second you get.",
+          "La vitesse à laquelle la mémoire se lit. Produire chaque token suppose de relire les poids : cette vitesse fixe donc en grande partie le nombre de tokens par seconde.") },
+      { term: B('GPU backend', 'Pilote de calcul GPU'),
+        def: B("The software layer that lets a tool use your GPU: CUDA for NVIDIA, Metal for Apple, ROCm or Vulkan for AMD. Support varies with the tool and the system.",
+          "La couche logicielle qui permet à un outil d'utiliser votre GPU : CUDA pour NVIDIA, Metal pour Apple, ROCm ou Vulkan pour AMD. La prise en charge varie selon l'outil et le système.") },
+    ],
+    walkthrough: {
+      title: B("Malik takes the inventory of the office PC and of Claire's MacBook.",
+        "Malik fait l'inventaire du PC du bureau et du MacBook de Claire."),
+      steps: [
+        B("On the PC, he opens a terminal and runs nvidia-smi. The output shows an NVIDIA card with 12 GB of total memory, and the driver version. Why: this is the exact amount the model can use on the GPU, measured rather than guessed.",
+          "Sur le PC, il ouvre un terminal et lance nvidia-smi. La sortie affiche une carte NVIDIA de 12 Go de mémoire totale, et la version du pilote. Pourquoi : c'est la quantité exacte dont le modèle disposera sur le GPU, mesurée et non devinée."),
+        B("He checks the RAM (32 GB) in the Windows system information, and the free space on the disk with the most room. Why: RAM is the fallback when the model overflows the VRAM, and the disk must hold several files of several gigabytes.",
+          "Il vérifie la RAM (32 Go) dans les informations système de Windows, et l'espace libre du disque le mieux pourvu. Pourquoi : la RAM est le repli quand le modèle déborde de la VRAM, et le disque doit accueillir plusieurs fichiers de plusieurs gigaoctets."),
+        B("On Claire's MacBook, he reads the chip (Apple Silicon) and the memory (16 GB) in the About This Mac window. Why: this memory is unified; a share will serve the model, the rest stays with macOS and the open apps.",
+          "Sur le MacBook de Claire, il lit la puce (Apple Silicon) et la mémoire (16 Go) dans la fenêtre À propos de ce Mac. Pourquoi : cette mémoire est unifiée ; une part servira au modèle, le reste à macOS et aux applications ouvertes."),
+        B("He writes two lines in a shared document: PC, NVIDIA 12 GB VRAM, 32 GB RAM, free disk, Windows; MacBook, Apple Silicon, 16 GB unified, free disk, macOS. Why: the next lessons will choose models from these two lines.",
+          "Il écrit deux lignes dans un document partagé : PC, NVIDIA 12 Go de VRAM, 32 Go de RAM, disque libre, Windows ; MacBook, Apple Silicon, 16 Go unifiés, disque libre, macOS. Pourquoi : les cours suivants choisiront les modèles à partir de ces deux lignes."),
+        B("He checks in the Ollama and LM Studio documentation that both kinds of hardware are supported. Why: GPU support changes with versions, and the official documentation is the only reliable source.",
+          "Il vérifie dans la documentation d'Ollama et de LM Studio que les deux types de matériel sont pris en charge. Pourquoi : la prise en charge des GPU évolue avec les versions, et la documentation officielle est la seule source fiable."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Reading the shared GPU memory shown by Windows as if it were VRAM.",
+          "Lire la mémoire GPU partagée affichée par Windows comme si c'était de la VRAM."),
+        fix: B("Windows can display shared memory next to the dedicated memory of the card. Only the dedicated memory, which nvidia-smi reports as total, is the real VRAM.",
+          "Windows peut afficher une mémoire partagée à côté de la mémoire dédiée de la carte. Seule la mémoire dédiée, celle que nvidia-smi indique comme totale, est la vraie VRAM.") },
+      { wrong: B("Choosing a machine for local AI by its processor alone.",
+          "Choisir une machine pour l'IA locale sur son seul processeur."),
+        fix: B("Compare memory first: VRAM on a PC, unified memory on a Mac. The processor matters mostly when there is no usable GPU.",
+          "Comparez d'abord la mémoire : la VRAM sur un PC, la mémoire unifiée sur un Mac. Le processeur compte surtout quand aucun GPU n'est utilisable.") },
+      { wrong: B("Forgetting the disk until a download fails halfway.",
+          "Oublier le disque jusqu'à ce qu'un téléchargement échoue à mi-chemin."),
+        fix: B("Check the free space before downloading, and keep room for several models: you will compare more than one, and old files must be deleted by hand.",
+          "Vérifiez l'espace libre avant de télécharger, et gardez de la place pour plusieurs modèles : vous en comparerez plusieurs, et les anciens fichiers se suppriment à la main.") },
+    ],
+    recap: [
+      B("Memory is the first limit: VRAM on a PC, unified memory on a Mac.", "La mémoire est la première limite : la VRAM sur un PC, la mémoire unifiée sur un Mac."),
+      B("A model that overflows the VRAM still runs, but more slowly.", "Un modèle qui déborde de la VRAM tourne encore, mais plus lentement."),
+      B("nvidia-smi and the About This Mac window give the real figures.", "nvidia-smi et la fenêtre À propos de ce Mac donnent les vrais chiffres."),
+      B("Disk space and GPU support are checked before the first download.", "L'espace disque et la prise en charge du GPU se vérifient avant le premier téléchargement."),
+    ],
+    further: B("Read the hardware section of the Ollama and LM Studio documentation, and the llama.cpp page on backends if you want to go further. Note which GPUs are listed as supported on your system, and whether a driver must be installed first.",
+      "Lisez la partie matériel de la documentation d'Ollama et de LM Studio, et la page de llama.cpp sur les backends pour aller plus loin. Notez quels GPU sont pris en charge sur votre système, et si un pilote doit être installé d'abord."),
+    more: [
+      { q: B("nvidia-smi shows 12 GB in total and 3 GB already used before any model is loaded. What do you plan for?",
+          "nvidia-smi affiche 12 Go au total et 3 Go déjà utilisés avant tout chargement. Sur quoi tablez-vous ?"),
+        options: [
+          B("The full 12 GB, as other programs will free theirs", "Les 12 Go entiers, les autres programmes libérant les leurs"),
+          B("About 9 GB, the rest being taken by other programs", "Environ 9 Go, le reste étant pris par d'autres programmes"),
+          B("Only 3 GB, the amount already reserved for the AI", "Seulement 3 Go, la part déjà réservée à l'IA"),
+        ],
+        answer: 1,
+        why: B("Memory used by the display and other programs is not available to the model. Plan with the free memory, and keep a margin for the context.",
+          "La mémoire prise par l'affichage et les autres programmes n'est pas disponible pour le modèle. Raisonnez sur la mémoire libre, et gardez une marge pour le contexte.") },
+      { q: B("A PC with an 8 GB card and a Mac with 32 GB of unified memory: which can load the larger model?",
+          "Un PC avec une carte de 8 Go et un Mac avec 32 Go de mémoire unifiée : lequel charge le plus gros modèle ?"),
+        options: [
+          B("The PC, since a graphics card always beats a Mac", "Le PC, une carte graphique battant toujours un Mac"),
+          B("Neither, since local models need more than 64 GB", "Aucun, les modèles locaux demandant plus de 64 Go"),
+          B("The Mac, since a large share of its 32 GB can serve", "Le Mac, une large part de ses 32 Go pouvant servir"),
+        ],
+        answer: 2,
+        why: B("On the Mac, a large share of the 32 GB of unified memory can hold the model; the PC is limited to its 8 GB of VRAM before spilling into slower RAM.",
+          "Sur le Mac, une large part des 32 Go de mémoire unifiée peut accueillir le modèle ; le PC est limité à ses 8 Go de VRAM avant de déborder vers la RAM, plus lente.") },
+    ],
+  },
+
+  [deepKey(M1, 'lo-open')]: {
+    intro: B("Choosing a model begins with reading its card. Three pieces of information matter before any download: its size in parameters, which sets its memory needs and gives an idea of its capacity; what is actually published, the weights alone or more; and its licence, which says what you may do with it. This lesson explains these notions and the difference between open weights and open source, which is often blurred. It also introduces the families you will meet most, Llama, Mistral, Qwen and Gemma, without ranking them: rankings change with each release, and only a test on your tasks counts. You will build the comparison sheet the Delorme firm will use to pick its models.",
+      "Choisir un modèle commence par la lecture de sa fiche. Trois informations comptent avant tout téléchargement : sa taille en paramètres, qui fixe ses besoins en mémoire et donne une idée de sa capacité ; ce qui est réellement publié, les poids seuls ou davantage ; et sa licence, qui dit ce que vous avez le droit d'en faire. Ce cours explique ces notions et la différence, souvent brouillée, entre poids ouverts et open source. Il présente aussi les familles que vous croiserez le plus, Llama, Mistral, Qwen et Gemma, sans les classer : les classements changent à chaque sortie, et seul un test sur vos tâches compte. Vous construirez la fiche comparative qui servira au cabinet Delorme pour choisir ses modèles."),
+    concepts: [
+      { term: B('Parameters (weights)', 'Paramètres (poids)'),
+        def: B("The numbers adjusted during training. Their count (7B, 8B, 70B) gives the size of the model; memory needs grow with it.",
+          "Les nombres ajustés pendant l'entraînement. Leur nombre (7B, 8B, 70B) donne la taille du modèle ; les besoins en mémoire croissent avec lui.") },
+      { term: B('Open weights', 'Poids ouverts'),
+        def: B("The trained weights are published and can be downloaded. That alone says nothing about the training data or the freedom of use.",
+          "Les poids entraînés sont publiés et téléchargeables. Cela ne dit rien, à soi seul, des données d'entraînement ni de la liberté d'usage.") },
+      { term: B('Open source AI', 'IA open source'),
+        def: B("A stricter notion: freedom to use, study, modify and share, with the material needed to do so. The Open Source Initiative has published a definition of it.",
+          "Une notion plus exigeante : liberté d'utiliser, d'étudier, de modifier et de partager, avec le matériel nécessaire pour le faire. L'Open Source Initiative en a publié une définition.") },
+      { term: B('Model card', 'Fiche du modèle'),
+        def: B("The page that describes a model on a hub such as Hugging Face: size, intended use, limits, licence, sometimes the training data. It is the first thing to read.",
+          "La page qui décrit un modèle sur une plateforme comme Hugging Face : taille, usage prévu, limites, licence, parfois les données d'entraînement. C'est la première chose à lire.") },
+      { term: B('Model family', 'Famille de modèles'),
+        def: B("Models from one publisher sharing an architecture, released in several sizes and versions: Llama (Meta), Mistral (Mistral AI), Qwen (Alibaba), Gemma (Google).",
+          "Des modèles d'un même éditeur partageant une architecture, publiés en plusieurs tailles et versions : Llama (Meta), Mistral (Mistral AI), Qwen (Alibaba), Gemma (Google).") },
+    ],
+    walkthrough: {
+      title: B("Malik compares three candidate models for the summaries of the Delorme firm.",
+        "Malik compare trois modèles candidats pour les résumés du cabinet Delorme."),
+      steps: [
+        B("He opens on Hugging Face the cards of three models from different families, in sizes the office PC can hold. Why: comparing models of similar size isolates the other criteria.",
+          "Il ouvre sur Hugging Face les fiches de trois modèles de familles différentes, dans des tailles que le PC du bureau peut porter. Pourquoi : comparer des modèles de taille voisine isole les autres critères."),
+        B("For each one, he notes the size, the languages the card says it supports, and the intended uses. Why: the firm works in French, so a model whose card does not mention French must be tested with care.",
+          "Pour chacun, il note la taille, les langues que la fiche dit prises en charge, et les usages prévus. Pourquoi : le cabinet travaille en français ; un modèle dont la fiche ne mentionne pas le français devra être testé avec soin."),
+        B("He opens the licence file of each, writes its name, then the conditions that concern a professional use: attribution, acceptable use policy, limits. Why: two models of the same size can differ entirely on what is allowed.",
+          "Il ouvre le fichier de licence de chacun, en écrit le nom, puis les conditions qui touchent un usage professionnel : mention, politique d'usage acceptable, limites. Pourquoi : deux modèles de même taille peuvent différer du tout au tout sur ce qui est permis."),
+        B("He notes what is published besides the weights: training code, information on the data. Why: it tells him whether the model is only open weights or closer to open source, and how much he can learn about its origin.",
+          "Il note ce qui est publié en plus des poids : code d'entraînement, informations sur les données. Pourquoi : il sait ainsi si le modèle est seulement à poids ouverts ou plus proche de l'open source, et ce qu'il peut apprendre de son origine."),
+        B("He keeps two candidates whose licence clearly allows the firm's use, and sets the third aside, whose terms are unclear to him, until a lawyer has read them. Why: an unclear licence is a risk, not a detail.",
+          "Il garde deux candidats dont la licence permet clairement l'usage du cabinet, et met de côté le troisième, dont les termes lui semblent flous, jusqu'à la lecture d'un juriste. Pourquoi : une licence floue est un risque, pas un détail."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Trusting a blog post or a forum about the licence of a model.",
+          "Se fier à un billet de blog ou à un forum sur la licence d'un modèle."),
+        fix: B("Read the licence file attached to the model you download. Summaries found elsewhere may be outdated or concern another version.",
+          "Lisez le fichier de licence joint au modèle que vous téléchargez. Les résumés trouvés ailleurs peuvent être périmés ou porter sur une autre version.") },
+      { wrong: B("Thinking that a bigger model is always the better choice.",
+          "Penser qu'un modèle plus gros est toujours le meilleur choix."),
+        fix: B("Bigger needs more memory and runs slower. Take the largest size your machine runs comfortably, then check on real tasks whether it is good enough.",
+          "Plus gros demande plus de mémoire et tourne plus lentement. Prenez la plus grande taille que votre machine fait tourner à l'aise, puis vérifiez sur de vraies tâches qu'elle suffit.") },
+      { wrong: B("Choosing a model from a public ranking alone.",
+          "Choisir un modèle d'après un classement public, et lui seul."),
+        fix: B("Rankings measure general tasks and change with each release. Test two or three candidates on samples of your own work, in your language.",
+          "Les classements mesurent des tâches générales et changent à chaque sortie. Testez deux ou trois candidats sur des échantillons de votre propre travail, dans votre langue.") },
+    ],
+    recap: [
+      B("The size in parameters sets the memory needs and gives an idea of capacity.", "La taille en paramètres fixe les besoins en mémoire et donne une idée de la capacité."),
+      B("Most downloadable models are open weights, not open source in the strict sense.", "La plupart des modèles téléchargeables sont à poids ouverts, pas open source au sens strict."),
+      B("The licence of the exact file decides what you may do with it.", "La licence du fichier exact décide de ce que vous pouvez en faire."),
+      B("Rankings change; a test on your own tasks decides.", "Les classements changent ; un test sur vos propres tâches tranche."),
+    ],
+    further: B("Read the open source AI definition published by the Open Source Initiative, then the licence of a model you plan to use. List the differences between the two texts: the distinction between open weights and open source will become concrete.",
+      "Lisez la définition de l'IA open source publiée par l'Open Source Initiative, puis la licence d'un modèle que vous comptez utiliser. Listez les différences entre les deux textes : la distinction entre poids ouverts et open source deviendra concrète."),
+    more: [
+      { q: B("The card of a model does not mention French among its languages. What do you do before using it for the firm?",
+          "La fiche d'un modèle ne mentionne pas le français parmi ses langues. Que faites-vous avant de l'utiliser au cabinet ?"),
+        options: [
+          B("Test it on samples of the firm's French documents", "Le tester sur des échantillons de documents du cabinet"),
+          B("Use it anyway, since all models speak French equally", "L'utiliser quand même, tous les modèles parlant français"),
+          B("Discard it, since no model learns French by accident", "L'écarter, aucun modèle n'apprenant le français par hasard"),
+        ],
+        answer: 0,
+        why: B("A model may handle a language its card does not list, or handle it poorly. Only a test on your own French documents tells you whether it is good enough.",
+          "Un modèle peut gérer une langue que sa fiche ne cite pas, ou la gérer mal. Seul un test sur vos propres documents en français vous dit s'il suffit.") },
+      { q: B("Which piece of information on a model card tells you what you may do with the model?",
+          "Quelle information de la fiche d'un modèle vous dit ce que vous pouvez en faire ?"),
+        options: [
+          B("The number of downloads, which reflects acceptance", "Le nombre de téléchargements, signe d'acceptation"),
+          B("The size in parameters, which sets the conditions", "La taille en paramètres, qui fixe les conditions"),
+          B("The licence, attached to that exact model", "La licence, jointe à ce modèle précis"),
+        ],
+        answer: 2,
+        why: B("Only the licence sets rights and conditions. Popularity says nothing about what is allowed, and the size concerns memory, not law.",
+          "Seule la licence fixe les droits et les conditions. La popularité ne dit rien de ce qui est permis, et la taille concerne la mémoire, pas le droit.") },
+    ],
+  },
+
+  [deepKey(M1, 'lo-quant')]: {
+    intro: B("A model is rarely downloaded in its original precision. On hubs such as Hugging Face, the same model often exists as a series of quantized GGUF files, each a different compromise between size and fidelity. This lesson explains what quantization does to the weights, how to estimate the memory a file will take, why the context needs its own share, and how to read names such as Q4_K_M or Q8_0. You will then choose, for each machine of the Delorme firm, a first file to try and a fallback, with a calculation you can redo for any model.",
+      "Un modèle se télécharge rarement dans sa précision d'origine. Sur des plateformes comme Hugging Face, un même modèle existe souvent en une série de fichiers GGUF quantifiés, chacun étant un compromis différent entre taille et fidélité. Ce cours explique ce que la quantification fait aux poids, comment estimer la mémoire qu'un fichier occupera, pourquoi le contexte demande sa propre part, et comment lire des noms comme Q4_K_M ou Q8_0. Vous choisirez ensuite, pour chaque machine du cabinet Delorme, un premier fichier à essayer et un repli, avec un calcul que vous pourrez refaire pour tout modèle."),
+    concepts: [
+      { term: B('Quantization', 'Quantification'),
+        def: B("Storing each weight with fewer bits (8, 5, 4) than the original 16. The file shrinks in proportion; precision drops a little, more as the bits decrease.",
+          "Stocker chaque poids sur moins de bits (8, 5, 4) que les 16 d'origine. Le fichier rétrécit d'autant ; la précision baisse un peu, davantage à mesure que les bits diminuent.") },
+      { term: B('GGUF', 'GGUF'),
+        def: B("The model file format used by llama.cpp and by tools built on it, such as Ollama and LM Studio. One file holds the weights, the quantization and the settings needed to run them.",
+          "Le format de fichier de modèle de llama.cpp et des outils qui s'appuient dessus, comme Ollama et LM Studio. Un seul fichier contient les poids, la quantification et les réglages nécessaires.") },
+      { term: B('Quantization label', 'Étiquette de quantification'),
+        def: B("The code in the file name. Q8_0 is close to the original; Q4_K_M and Q5_K_M are common compromises; Q2 or Q3 files are very compressed, with more loss.",
+          "Le code dans le nom du fichier. Q8_0 est proche de l'original ; Q4_K_M et Q5_K_M sont des compromis courants ; les fichiers Q2 ou Q3 sont très compressés, avec davantage de perte.") },
+      { term: B('Context length', 'Longueur de contexte'),
+        def: B("How many tokens the model reads at once. Each token of context takes memory in a cache, so a long context needs a margin beyond the weights.",
+          "Le nombre de tokens que le modèle lit en une fois. Chaque token de contexte occupe de la mémoire dans un cache : un long contexte demande une marge au-delà des poids.") },
+      { term: B('Memory estimate', 'Estimation de mémoire'),
+        def: B("Parameters times bytes per weight, plus a margin for the context and the runtime. It gives an order of magnitude, to be checked once the model is loaded.",
+          "Paramètres fois octets par poids, plus une marge pour le contexte et le moteur. Elle donne un ordre de grandeur, à vérifier une fois le modèle chargé.") },
+    ],
+    walkthrough: {
+      title: B("Malik chooses the files for the office PC and for Claire's MacBook.",
+        "Malik choisit les fichiers pour le PC du bureau et pour le MacBook de Claire."),
+      steps: [
+        B("For the PC (12 GB of VRAM, about 1 GB used by the system), he takes an 8B model. At 4 bits, the weights take roughly 4 to 5 GB; at 8 bits, about 8 to 9 GB. Why: he compares each option with the free memory, not the total.",
+          "Pour le PC (12 Go de VRAM, environ 1 Go pris par le système), il retient un modèle 8B. En 4 bits, les poids occupent à peu près 4 à 5 Go ; en 8 bits, environ 8 à 9 Go. Pourquoi : il compare chaque option à la mémoire libre, pas à la mémoire totale."),
+        B("He keeps a margin of a few gigabytes for the context, since the firm summarises documents of several pages. The Q5_K_M file fits with that margin; Q8_0 would leave too little. Why: a model that fits only with a short context fails on real documents.",
+          "Il garde une marge de quelques gigaoctets pour le contexte, car le cabinet résume des documents de plusieurs pages. Le fichier Q5_K_M tient avec cette marge ; Q8_0 en laisserait trop peu. Pourquoi : un modèle qui ne tient qu'avec un contexte court échoue sur les vrais documents."),
+        B("For the MacBook (16 GB unified, shared with macOS and the apps), he picks the Q4_K_M file of the same model. Why: several gigabytes must stay free for the system, and a smaller file leaves room for the context.",
+          "Pour le MacBook (16 Go unifiés, partagés avec macOS et les applications), il prend le fichier Q4_K_M du même modèle. Pourquoi : plusieurs gigaoctets doivent rester libres pour le système, et un fichier plus petit laisse de la place au contexte."),
+        B("He loads each file and measures the real memory use: nvidia-smi on the PC, Activity Monitor on the Mac. Why: the estimate gives an order of magnitude; the measurement confirms it.",
+          "Il charge chaque fichier et mesure la mémoire réellement occupée : nvidia-smi sur le PC, le Moniteur d'activité sur le Mac. Pourquoi : l'estimation donne un ordre de grandeur ; la mesure le confirme."),
+        B("He gives the same five-page document to both machines and compares the summaries. Why: the quality difference between two quantizations is judged on the firm's task, not in the abstract.",
+          "Il donne le même document de cinq pages aux deux machines et compare les résumés. Pourquoi : l'écart de qualité entre deux quantifications se juge sur la tâche du cabinet, pas dans l'abstrait."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Comparing the size of the file with the total VRAM.",
+          "Comparer la taille du fichier à la VRAM totale."),
+        fix: B("Compare it with the free memory, minus a margin for the context. What the system and other programs already use is not available.",
+          "Comparez-la à la mémoire libre, moins une marge pour le contexte. Ce que le système et les autres programmes occupent déjà n'est pas disponible.") },
+      { wrong: B("Taking the most compressed file by default.",
+          "Prendre par défaut le fichier le plus compressé."),
+        fix: B("Start with a 4 or 5-bit file if memory allows, and go lower only if nothing else fits, testing the quality on your own documents.",
+          "Commencez par un fichier en 4 ou 5 bits si la mémoire le permet, et ne descendez plus bas que si rien d'autre ne tient, en testant la qualité sur vos propres documents.") },
+      { wrong: B("Raising the context length without watching the memory.",
+          "Augmenter la longueur de contexte sans surveiller la mémoire."),
+        fix: B("A longer context fills a cache that grows with it. Raise it step by step and watch the memory; if it overflows, generation slows down or fails.",
+          "Un contexte plus long remplit un cache qui grandit avec lui. Augmentez-le par paliers en surveillant la mémoire ; s'il déborde, la génération ralentit ou échoue.") },
+    ],
+    recap: [
+      B("Memory for the weights is roughly parameters times bytes per weight.", "La mémoire des poids vaut à peu près paramètres fois octets par poids."),
+      B("4 and 5-bit files are common compromises; below, losses tend to grow.", "Les fichiers en 4 et 5 bits sont des compromis courants ; en dessous, les pertes tendent à croître."),
+      B("The context takes its own memory, which grows with its length.", "Le contexte occupe sa propre mémoire, qui grandit avec sa longueur."),
+      B("Choose against the free memory, then measure once the model is loaded.", "Choisissez d'après la mémoire libre, puis mesurez une fois le modèle chargé."),
+    ],
+    further: B("Read the llama.cpp documentation on quantization types, then the page of a GGUF repository you use: compare the description of each file with the sizes listed. Note which files the publisher recommends, and check that recommendation on your own task.",
+      "Lisez la documentation de llama.cpp sur les types de quantification, puis la page d'un dépôt GGUF que vous utilisez : comparez la description de chaque fichier avec les tailles affichées. Notez les fichiers recommandés par l'auteur, et vérifiez cette recommandation sur votre propre tâche."),
+    more: [
+      { q: B("Claire's MacBook has 16 GB of unified memory. Why not choose a 12 GB file?",
+          "Le MacBook de Claire a 16 Go de mémoire unifiée. Pourquoi ne pas choisir un fichier de 12 Go ?"),
+        options: [
+          B("Because macOS and the open apps need their share of it", "Parce que macOS et les applications en prennent leur part"),
+          B("Because a Mac can only ever load files under half its memory", "Parce qu'un Mac ne charge que des fichiers sous la moitié de sa mémoire"),
+          B("Because a 12 GB file is always a model stored at 16 bits", "Parce qu'un fichier de 12 Go est toujours un modèle en 16 bits"),
+        ],
+        answer: 0,
+        why: B("Unified memory is shared. With macOS, the open apps and the context to hold, a 12 GB file would leave almost nothing and push the system to swap, which slows everything down.",
+          "La mémoire unifiée est partagée. Avec macOS, les applications ouvertes et le contexte à loger, un fichier de 12 Go ne laisserait presque rien et pousserait le système à utiliser le disque, ce qui ralentit tout.") },
+      { q: B("Two quantizations give summaries that look equally good. Which do you keep for daily use?",
+          "Deux quantifications donnent des résumés qui semblent aussi bons. Laquelle garder au quotidien ?"),
+        options: [
+          B("The larger one, since it must be better in some hidden way", "La plus grosse, qui doit être meilleure d'une façon cachée"),
+          B("The one that leaves more free memory for context and apps", "Celle qui laisse le plus de mémoire au contexte et aux applications"),
+          B("Whichever was downloaded first, since they are the same", "Celle téléchargée en premier, puisqu'elles se valent"),
+        ],
+        answer: 1,
+        why: B("If your own test shows no difference on your task, the smaller file gives you the same result with more room for long documents and other programs.",
+          "Si votre propre test ne montre aucune différence sur votre tâche, le fichier le plus léger donne le même résultat avec plus de place pour les longs documents et les autres programmes.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DU COURS (PARTIE A)                                     */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'grid', tint: '#16a34a', at: [12, 82], levels: WHY,
+    title: B('Why, and with which machine', 'Pourquoi et avec quelle machine'),
+    blurb: B('What local AI brings and demands, reading your hardware, open models and their licences, and choosing a quantized file.',
+      "Ce que l'IA locale apporte et exige, lire son matériel, les modèles ouverts et leurs licences, et choisir un fichier quantifié."),
+  },
+]
+
+export const LOCALE_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...WHY_ENRICH },
+  deep: { ...WHY_DEEP },
+}

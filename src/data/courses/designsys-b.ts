@@ -102,7 +102,7 @@ const COMPOSANTS: Level[] = [
     ),
     quiz: {
       q: B('The Field needs an optional icon, chosen among the icons of the library. Which modelling do you choose?',
-        "Le Champ doit pouvoir porter une icône facultative, choisie parmi celles de la bibliothèque. Quelle modélisation retenez-vous ?"),
+        "Le Champ doit porter une icône facultative, choisie parmi celles de la bibliothèque. Quelle modélisation retenir ?"),
       options: [
         B('One variant per icon, grouped under an Icon property of the set', 'Une variante par icône, regroupées sous une propriété Icône du jeu'),
         B('An icon layer that designers detach and replace in each screen', "Un calque d'icône que l'on détache et remplace dans chaque écran"),
@@ -184,7 +184,7 @@ const COMPOSANTS: Level[] = [
     ),
     quiz: {
       q: B("A 'Featured event' block appears on one screen only. The product team wants it in the library. What do you do?",
-        "Un bloc « Événement à la une » n'apparaît que sur un écran. L'équipe produit le veut dans la bibliothèque. Que faites-vous ?"),
+        "Un bloc « Événement à la une » ne sert que sur un écran. L'équipe produit le veut en bibliothèque. Que faites-vous ?"),
       options: [
         B('Add it at once, since any request from a product team is a need', "L'ajouter aussitôt : toute demande d'une équipe produit est un besoin"),
         B('Keep it local, and promote it if a second screen needs it', "Le garder local, et le promouvoir si un second écran en a besoin"),
@@ -249,7 +249,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
           "Un badge « Complet » doit rester dans le coin supérieur droit de l'image, quelle que soit la largeur. Comment le placer ?"),
         options: [
           B("In absolute position, with constraints set to right and top", "En position absolue, avec des contraintes droite et haut"),
-          B("As the last child of the auto layout, aligned to the end", "Comme dernier enfant de l'auto layout, aligné à la fin"),
+          B("As the last child of the image frame, aligned to the end of the row", "Comme dernier enfant du cadre de l'image, aligné en fin de ligne"),
           B("In a separate frame laid over the card in each screen", "Dans un cadre séparé, posé sur la carte dans chaque écran"),
         ],
         answer: 0,
@@ -296,7 +296,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
           "Un designer a détaché une instance de Champ pour changer son libellé. Que se passe-t-il à la prochaine mise à jour ?"),
         options: [
           B("The detached layers get the update, like every other instance", "Les calques détachés reçoivent la mise à jour, comme les autres"),
-          B("Nothing reaches it: the layers are no longer linked to the Field", "Rien ne leur parvient : les calques ne sont plus liés au Champ"),
+          B("Nothing: the layers are no longer linked to the Field", "Rien : les calques ne sont plus liés au Champ"),
           B("Figma reattaches the layers to the Field automatically", "Figma rattache automatiquement les calques au Champ"),
         ],
         answer: 1,
@@ -307,7 +307,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
         options: [
           B("Because Figma refuses two different spellings in one library", "Parce que Figma refuse deux graphies dans une même bibliothèque"),
           B("Because short values make the component heavier to load", "Parce que des valeurs courtes alourdissent le composant"),
-          B("Because names form an interface that designers and code share", "Parce que les noms forment une interface partagée avec le code"),
+          B("Because names are an interface shared with the code", "Parce que les noms forment une interface partagée avec le code"),
         ],
         answer: 2,
         why: B("Figma accepts both spellings. The problem is human: designers must guess, and developers map each component differently. One naming convention makes the whole library predictable.",
@@ -318,7 +318,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
   [enrichKey(M3, 'ds-a11y')]: {
     why: [
       B("Contrast is a ratio of luminance between two colors. WCAG 2.2, at level AA, sets minimum ratios for text against its background, a lower one for large text, and another for non-text elements needed to use the interface, such as a field border or a focus indicator. Read the exact criteria in the W3C text. Tokens make these checks durable: if a text and surface pair passes, every component using it passes.",
-        "Le contraste est un rapport de luminance entre deux couleurs. Les WCAG 2.2, au niveau AA, fixent des ratios minimaux pour le texte sur son fond, un ratio plus bas pour le grand texte, et un autre pour les éléments non textuels nécessaires à l'usage, comme une bordure de champ ou un indicateur de focus. Lisez les critères exacts dans le texte du W3C. Les tokens rendent ces vérifications durables : si une paire texte et surface passe, tout composant qui l'emploie passe."),
+        "Le contraste est un rapport de luminance entre deux couleurs. Les WCAG 2.2, niveau AA, fixent un ratio minimal pour le texte sur son fond, un plus bas pour le grand texte, et un autre pour les éléments non textuels utiles à l'usage, comme une bordure de champ ou un indicateur de focus. Lisez les critères exacts dans le texte du W3C. Les tokens rendent ces vérifications durables : si une paire texte et surface passe, tout composant qui l'emploie passe."),
       B("People who navigate with a keyboard need to see where they are. The focus state is a variant like any other: designed once in the system, every product team gets it for free. A good ring stands apart from the component (an offset), contrasts with both the component and the background, and is not clipped when the frame clips its content.",
         "Les personnes qui naviguent au clavier doivent voir où elles se trouvent. L'état focus est une variante comme une autre : dessinée une fois dans le système, chaque équipe produit l'obtient sans effort. Un bon anneau se détache du composant (un décalage), contraste à la fois avec le composant et avec le fond, et n'est pas rogné quand le cadre masque ce qui dépasse."),
       B("Pointer targets need a minimum size: WCAG 2.2 has a criterion on it at level AA, and platform guides such as Apple Human Interface Guidelines and Material Design recommend larger touch areas. Store your minimum in a size token and document it. In France, the RGAA, based on WCAG, is the reference for public services: see its official site, accessibilite.numerique.gouv.fr.",
@@ -352,7 +352,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
       { q: B("The focus ring of the Field is drawn outside its border, but it disappears in the screens. What is the likely cause?",
           "L'anneau de focus du Champ est dessiné hors de sa bordure, mais il disparaît dans les écrans. Quelle est la cause probable ?"),
         options: [
-          B("The parent frame clips its content and cuts what extends past it", "Le cadre parent masque ce qui dépasse et coupe l'anneau"),
+          B("The parent frame clips what extends past its edges", "Le cadre parent masque ce qui dépasse et coupe l'anneau"),
           B("Focus states cannot be shown in Figma, only in the code", "Les états focus ne peuvent pas s'afficher dans Figma"),
           B("The ring color is a variable, and variables are hidden", "La couleur de l'anneau est une variable, et elles sont masquées"),
         ],
@@ -375,7 +375,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
   [enrichKey(M3, 'ds-patterns')]: {
     why: [
       B("A design system has levels. Tokens hold decisions, components hold reusable pieces, patterns assemble components to solve a recurring problem (a form, a filter bar, an empty state), templates give the skeleton of a page with its zones, and pages are templates with real content. Brad Frost's atomic design named a similar ladder. The words matter less than the rule: each level is built only from the level below.",
-        "Un design system a des niveaux. Les tokens portent les décisions, les composants les pièces réutilisables, les motifs assemblent des composants pour résoudre un problème récurrent (un formulaire, une barre de filtres, un état vide), les gabarits donnent le squelette d'une page avec ses zones, et les pages sont des gabarits remplis de vrai contenu. L'atomic design de Brad Frost a nommé une échelle voisine. Les mots comptent moins que la règle : chaque niveau se construit à partir du niveau inférieur."),
+        "Un design system a des niveaux. Les tokens portent les décisions, les composants les pièces réutilisables, les motifs les assemblent pour un problème récurrent (formulaire, barre de filtres, état vide), les gabarits donnent le squelette d'une page, et les pages sont des gabarits au vrai contenu. L'atomic design de Brad Frost a nommé une échelle voisine. Les mots comptent moins que la règle : chaque niveau se construit sur le niveau inférieur."),
       B("A pattern is not always a component. Some are stable enough to lock (a page header). Others vary too much in content and are better documented as a recipe with examples: labels above fields, one column, the main action at the end. A locked pattern that does not fit gets detached; a documented recipe gets followed and adapted.",
         "Un motif n'est pas toujours un composant. Certains sont assez stables pour être figés (un en-tête de page). D'autres varient trop dans leur contenu et gagnent à être documentés comme une recette illustrée : libellés au-dessus des champs, une seule colonne, l'action principale à la fin. Un motif figé qui ne convient pas finit détaché ; une recette documentée est suivie et adaptée."),
       B("Templates rest on layout grids (columns, gutters, margins, ideally bound to variables) and on auto layout. They prove their worth with extreme content: a long association name, an empty list, a translated label. An AI assistant is useful here to produce realistic edge-case content quickly; you then paste it in, or use a content plugin.",
@@ -409,7 +409,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
       { q: B("The search filter bar appears on three screens, with different filters each time. How should Sève offer it?",
           "La barre de filtres de recherche apparaît sur trois écrans, avec des filtres différents à chaque fois. Comment Sève doit-il la proposer ?"),
         options: [
-          B("As a documented recipe with examples, built from existing components", "Comme une recette documentée, construite avec les composants existants"),
+          B("As a documented recipe, built from existing components", "Comme une recette documentée, construite avec les composants existants"),
           B("As one locked component holding every filter of the three screens", "Comme un composant figé qui contient tous les filtres des trois écrans"),
           B("As three separate components, one for each screen of the product", "Comme trois composants séparés, un pour chaque écran du produit"),
         ],
@@ -496,7 +496,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
       { q: B("The footer of the card must show the attendees on the left and the action on the right, whatever the width. Which setting?",
           "Le pied de la carte doit montrer les inscrits à gauche et l'action à droite, quelle que soit la largeur. Quel réglage ?"),
         options: [
-          B("A horizontal auto layout with space between, set to fill the card", "Un auto layout horizontal en space between, réglé en fill dans la carte"),
+          B("A horizontal auto layout in space between, filling the card", "Un auto layout horizontal en space between, réglé en fill dans la carte"),
           B("Two separate frames placed by hand at each end of the footer", "Deux cadres séparés posés à la main aux deux bouts du pied"),
           B("A vertical auto layout, with the action aligned to the bottom", "Un auto layout vertical, avec l'action alignée en bas"),
         ],
@@ -508,7 +508,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
         options: [
           B("Stacking the date, the title and the place of the card", "Empiler la date, le titre et le lieu de la carte"),
           B("Spacing the tags of a row evenly with a spacing variable", "Espacer les tags d'une ligne avec une variable d'espacement"),
-          B("Keeping a badge pinned to a corner of an image as it resizes", "Garder un badge épinglé dans un coin d'une image qui change de taille"),
+          B("Pinning a badge to a corner of an image as it resizes", "Épingler un badge dans le coin d'une image qui change de taille"),
         ],
         answer: 2,
         why: B("Stacking and spacing are the flow of content, handled by auto layout. A badge pinned to a corner is outside that flow: absolute position plus constraints keep it there.",
@@ -579,7 +579,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
           "Le Champ doit afficher un message d'erreur seulement dans l'état error. Comment modéliser ce message ?"),
         options: [
           B("As a separate component that designers add under the field", "Comme un composant séparé que l'on ajoute sous le champ"),
-          B("As a layer of the error variant, with a text property for it", "Comme un calque de la variante error, avec une propriété texte"),
+          B("As a layer of the error variant, with a text property", "Comme un calque de la variante error, avec une propriété texte"),
           B("As a boolean available in every state of the Field", "Comme un booléen disponible dans tous les états du Champ"),
         ],
         answer: 1,
@@ -589,7 +589,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
           "Tom détache souvent le Champ pour retirer son libellé dans une barre de recherche. Qu'est-ce que cela révèle ?"),
         options: [
           B("That Tom does not respect the rules of the system", "Que Tom ne respecte pas les règles du système"),
-          B("That the search bar should be drawn without components", "Que la barre de recherche doit se dessiner sans composant"),
+          B("That the search bar should be drawn by hand, without any component", "Que la barre de recherche doit se dessiner à la main, sans composant"),
           B("A missing need, to settle with a property or a separate component", "Un besoin manquant, à régler par une propriété ou un composant dédié"),
         ],
         answer: 2,
@@ -671,7 +671,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
       { q: B("Why design the focus state in the design system rather than leaving it to developers?",
           "Pourquoi dessiner l'état focus dans le design system plutôt que de le laisser aux développeurs ?"),
         options: [
-          B("Because a focus designed once reaches every product, consistent", "Parce qu'un focus dessiné une fois atteint chaque produit, cohérent"),
+          B("Because a focus designed once is consistent in every product", "Parce qu'un focus dessiné une fois atteint chaque produit, cohérent"),
           B("Because browsers show no focus at all without a Figma design", "Parce que les navigateurs n'affichent aucun focus sans maquette"),
           B("Because the focus state only matters on screens built in Figma", "Parce que le focus ne compte que sur les écrans faits dans Figma"),
         ],
@@ -744,7 +744,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
           "En construisant le formulaire, Tom ne trouve aucun composant pour le nombre de places. Que doit-il faire ?"),
         options: [
           B("Draw a local stepper in the form and reuse it in other screens", "Dessiner un sélecteur local et le réutiliser dans d'autres écrans"),
-          B("File a request to the system team, with the need and its context", "Déposer une demande à l'équipe du système, avec le besoin et son contexte"),
+          B("File a request to the system team, with the need and context", "Déposer une demande à l'équipe du système, avec le besoin et son contexte"),
           B("Drop the number of seats from the form until a component exists", "Retirer le nombre de places du formulaire en attendant un composant"),
         ],
         answer: 1,
@@ -755,7 +755,7 @@ const COMPOSANTS_DEEP: Record<string, Deepening> = {
         options: [
           B("A template is always larger and holds more components than a page", "Un gabarit est toujours plus grand et contient plus de composants"),
           B("A page is built in code, while a template only exists in Figma", "Une page se construit en code, un gabarit n'existe que dans Figma"),
-          B("A template gives zones and rules; a page fills them with real content", "Un gabarit donne zones et règles ; une page les remplit de vrai contenu"),
+          B("A template gives zones and rules; a page adds real content", "Un gabarit donne zones et règles ; une page les remplit de vrai contenu"),
         ],
         answer: 2,
         why: B("The template is the reusable skeleton; the page is one case of it, with real content. Keeping them apart lets the template serve many pages and be tested against all of them.",

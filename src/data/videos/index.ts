@@ -2,6 +2,7 @@
 // pour que plusieurs mains les cherchent en même temps (voir ./types).
 import type { Video } from './types'
 import { videoKey } from './types'
+import { V_LOGO_CHARTE } from './v-logo-charte'
 import { V_ARCHITECTURE_LOGICIELLE } from './v-architecture-logicielle'
 import { V_FLOW_UX } from './v-flow-ux'
 import { V_BD_MANGA } from './v-bd-manga'
@@ -15,7 +16,7 @@ import { V_TRADES_C } from './v-trades-c'
 import { V_TRADES_D } from './v-trades-d'
 import { V_TRADES_E } from './v-trades-e'
 
-const PARTS: Record<string, Video[]>[] = [V_ARCHITECTURE_LOGICIELLE, V_FLOW_UX, V_BD_MANGA, V_ECRIRE_UN_LIVRE, V_STORYBOARD, V_PATH, V_CODE, V_LOVABLE_A, V_TRADES_B, V_TRADES_C, V_TRADES_D, V_TRADES_E]
+const PARTS: Record<string, Video[]>[] = [V_LOGO_CHARTE, V_ARCHITECTURE_LOGICIELLE, V_FLOW_UX, V_BD_MANGA, V_ECRIRE_UN_LIVRE, V_STORYBOARD, V_PATH, V_CODE, V_LOVABLE_A, V_TRADES_B, V_TRADES_C, V_TRADES_D, V_TRADES_E]
 
 export const VIDEOS: Record<string, Video[]> = Object.assign({}, ...PARTS)
 
