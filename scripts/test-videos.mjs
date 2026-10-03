@@ -35,7 +35,7 @@ const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u
 const DASH = /[–—―]/
 
 ok('chaque vidéo a un identifiant YouTube valide', all.every((v) => /^[A-Za-z0-9_-]{11}$/.test(v.id)), all.filter((v) => !/^[A-Za-z0-9_-]{11}$/.test(v.id)).map((v) => v.id).slice(0, 3).join(', '))
-ok('chaque vidéo a un titre, une chaîne et sa langue', all.every((v) => v.title?.trim() && v.channel?.trim() && (v.lang === 'fr' || v.lang === 'en')))
+ok('chaque vidéo a un titre et sa langue', all.every((v) => v.title?.trim() && typeof v.channel === 'string' && (v.lang === 'fr' || v.lang === 'en')))
 const lost = entries.filter(([k]) => !lessons.has(k)).map(([k]) => k)
 ok('chaque clé désigne une leçon qui existe', lost.length === 0, lost.slice(0, 4).join(', '))
 ok('aucun titre ne porte d\'emoji ni de tiret long', all.every((v) => !EMOJI.test(v.title + v.channel) && !DASH.test(v.title + v.channel)))

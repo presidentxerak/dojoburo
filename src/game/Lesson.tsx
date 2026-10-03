@@ -585,7 +585,7 @@ function VideoBox({ v }: { v: Video }) {
       )}
       <figcaption>
         <b>{v.title}</b>
-        <span>{v.channel} · {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')}</span>
+        <span>{v.channel ? `${v.channel} · ` : ''}YouTube · {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')}</span>
       </figcaption>
     </figure>
   )

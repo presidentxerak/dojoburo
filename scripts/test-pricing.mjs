@@ -163,11 +163,18 @@ ok('le parcours découverte dure une semaine', DISCOVERY_DAYS === 7, `${DISCOVER
     const PK = await load('src/data/packs.ts', 'packs.mjs')
     const sess = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
     const block = sess.slice(sess.indexOf('export const TEMPLE_NAMES'), sess.indexOf('}', sess.indexOf('export const TEMPLE_NAMES')))
-    const names = Object.fromEntries([...block.matchAll(/\n\s+'?([a-z-]+)'?: '([^']+)'/g)].map((m) => [m[1], m[2]]))
+    // les noms à apostrophe (« L'IA pour les commerciaux ») sont entre guillemets doubles
+    const names = Object.fromEntries([...block.matchAll(/\n\s+'?([a-z-]+)'?: (?:'([^']+)'|"([^"]+)")/g)].map((m) => [m[1], m[2] ?? m[3]]))
     const keyOf = (p) => (p.door === 'path' ? 'path' : p.trade || p.course)
     const sold = PK.PACKS.filter((p) => PK.eurOf(p) > 0)
     const wrong = sold.filter((p) => names[keyOf(p)] !== p.title.fr).map((p) => `${keyOf(p)} : ${names[keyOf(p)] ?? 'absent'} ≠ ${p.title.fr}`)
-    ok('chaque temple vendu a son nom sur la page de paiement, identique au jeu', wrong.length === 0 && sold.length === Object.keys(names).length,
+    // RÉPARÉE · « enrichi nos formations en en créant des nouvelles très
+    // détaillées ». Un cours encore en rédaction a déjà son nom (il est vendu
+    // dès sa publication) ; seuls ces noms-là peuvent attendre leur temple.
+    const CO = await load('src/data/courses/index.ts', 'courses-names.mjs')
+    const extra = Object.keys(names).filter((k) => !sold.some((p) => keyOf(p) === k))
+    const strayNames = extra.filter((k) => !(CO.COURSE_IDS.includes(k) && !CO.COURSE_READY[k]))
+    ok('chaque temple vendu a son nom sur la page de paiement, identique au jeu', wrong.length === 0 && strayNames.length === 0,
       wrong.join(' | ') || `${sold.length} temples`)
   }
   // LE WEBHOOK DES ACHATS · chaque événement qui compte, et le remboursement

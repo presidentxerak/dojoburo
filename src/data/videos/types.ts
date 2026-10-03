@@ -13,7 +13,8 @@ export interface Video {
   id: string
   /** le titre de la vidéo, tel quel (sans emoji ni tiret long) */
   title: string
-  /** la chaîne qui la publie */
+  /** la chaîne qui la publie, seulement si elle est connue avec certitude ;
+   *  sinon la chaîne vide (on ne devine pas un auteur) */
   channel: string
   /** la langue parlée dans la vidéo */
   lang: 'fr' | 'en'
