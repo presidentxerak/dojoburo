@@ -3,14 +3,17 @@
 // LES MODULES 3 ET 4 · les images, la vidéo et l'audio en local, puis la
 // sécurité, l'entretien et la combinaison du local et du cloud.
 //
-// UN SEUL FIL ROUGE · le « the Delorme firm », un studio de communication
-// fictif de cinq personnes, qui travaille pour des clients sous accord de
-// confidentialité, dont la « Ferrand », une coopérative
-// ostréicole tout aussi fictive. Malik, le graphiste (fictif), installe et
-// fait tourner les outils sur le poste du studio : une tour équipée d'une
-// carte graphique NVIDIA, et un Mac Apple Silicon. Une règle tient les deux
-// modules : un fichier client ne quitte pas la machine sans qu'on l'ait
-// décidé, par écrit.
+// LE MÊME FIL ROUGE QUE LA PARTIE A · le cabinet Delorme, petit cabinet
+// fictif de conseil en ressources humaines de six personnes, dirigé par
+// Claire Delorme ; Malik s'occupe de l'informatique à temps partiel. Il
+// manipule des dossiers de salariés confidentiels. Ses deux machines : un PC
+// de bureau sous Windows doté d'une carte NVIDIA (12 Go de VRAM, 32 Go de
+// RAM), qui sert Open WebUI à l'équipe, et le MacBook Apple Silicon de Claire
+// (16 Go de mémoire unifiée). Ici s'ajoute un client tout aussi fictif,
+// Ferrand, une PME industrielle sous NDA dont le cabinet prépare le parcours
+// d'accueil des nouveaux salariés et mène le diagnostic social. Une règle
+// tient les deux modules : une donnée de salarié ou de client ne quitte pas la
+// machine sans qu'on l'ait décidé, par écrit.
 //
 // CE QUE LE COURS AFFIRME, ET CE QU'IL S'INTERDIT. Il s'en tient aux principes
 // stables (graphe de nœuds, familles de modèles, résolution native, licences
@@ -144,8 +147,8 @@ const MEDIA: Level[] = [
       "Lancer d'emblée un rendu long en haute résolution : sur une carte grand public, il peut tourner longtemps sans rien vous apprendre avant la fin.",
     ),
     quiz: {
-      q: B('Your first Wan clip is blurry and the sailboat warps as it turns. What do you change first?',
-        'Votre premier clip Wan est flou et le voilier se déforme en virant. Que changez-vous d\'abord ?'),
+      q: B('Your first Wan clip is blurry and the mentor's hand warps as it moves. What do you change first?',
+        'Votre premier clip Wan est flou et la main du tuteur se déforme en bougeant. Que changez-vous d\'abord ?'),
       options: [
         B('Describe one simple motion and one camera move in the prompt', 'Décrire un seul mouvement simple et un seul mouvement de caméra'),
         B('Double the duration so the model has time to settle the motion', 'Doubler la durée pour laisser au modèle le temps de stabiliser'),
@@ -213,8 +216,8 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Le prix de cette liberté est un risque. Les nœuds personnalisés, installés à la main ou par ComfyUI Manager, sont du code Python qui s'exécute avec vos droits d'utilisateur. Sur un poste qui détient des fichiers clients, n'installez que les nœuds nécessaires, issus de dépôts entretenus, et laissez ComfyUI à l'écoute sur 127.0.0.1, sauf raison de l'ouvrir au réseau."),
     ],
     example: {
-      context: B("the Delorme firm, a fictional five-person communication studio, works for clients under non-disclosure agreements. Malik, its designer, has just installed ComfyUI and wants a first workflow he can hand to the team.",
-        "Le cabinet Delorme, un studio de communication fictif de cinq personnes, travaille pour des clients sous accord de confidentialité. Malik, son graphiste, vient d'installer ComfyUI et veut un premier workflow à confier à l'équipe."),
+      context: B("The Delorme firm, a fictional six-person HR consultancy, prepares training materials for its clients. Malik, who looks after its IT, has just installed ComfyUI on the office PC and wants a first workflow for the team.",
+        "Le cabinet Delorme, cabinet de conseil RH fictif de six personnes, prépare des supports de formation pour ses clients. Malik, qui s'occupe de son informatique, vient d'installer ComfyUI sur le PC du bureau et veut un premier workflow pour l'équipe."),
       before: B("Workflow \"ultimate-realism.json\" downloaded from a forum.\nThe 14 missing custom nodes it asked for: all installed.\nSeed, steps, sampler, size and prompt changed together until something looked good.\nComfyUI started with --listen to use it from the meeting room.\nNothing written down.",
         "Workflow « ultimate-realism.json » téléchargé sur un forum.\nLes 14 nœuds personnalisés manquants qu'il réclamait : tous installés.\nSeed, steps, sampler, taille et prompt changés ensemble jusqu'à ce que quelque chose plaise.\nComfyUI lancé avec --listen pour s'en servir depuis la salle de réunion.\nRien de noté."),
       after: B("Workflow \"delorme-base-sdxl-v1.json\", built from the default graph, no custom node:\nLoad Checkpoint: one SDXL model, downloaded from its official page, hash and licence noted.\nCLIP Text Encode (positive): subject, setting, light, framing, medium.\nCLIP Text Encode (negative): a short list of what to avoid.\nEmpty Latent Image: 1024 x 1024, the native size of SDXL.\nKSampler: seed fixed, steps and CFG as advised on the model card, one change per run.\nVAE Decode, then Save Image with the prefix delorme/[client]/[date].\nComfyUI listens on 127.0.0.1 only. A Note node explains the graph in two sentences.",
@@ -270,12 +273,12 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Le choix dépend aussi de la machine et de la licence. Flux est plus lourd que SDXL ; des versions réduites (fp8, GGUF quantifié) tiennent sur des cartes plus modestes, au prix d'un peu de fidélité. Les licences diffèrent : Flux.1 [schnell] est sous Apache 2.0, Flux.1 [dev] sous licence non commerciale, les modèles Stable Diffusion sous licences Stability AI. Lisez les conditions sur chaque page de modèle."),
     ],
     example: {
-      context: B("the Delorme firm must produce a banner for Ferrand, a fictional oyster cooperative under NDA: an oyster table on a pontoon at dusk, with the word MARAIS painted on a crate.",
-        "Le cabinet Delorme doit produire une bannière pour la société Ferrand, une coopérative ostréicole fictive sous NDA : une table d'huîtres sur un ponton au crépuscule, avec le mot MARAIS peint sur une caisse."),
-      before: B("Model: Flux.1 [dev], CFG 7, licence not read.\nPositive: oysters, wooden table, pontoon, sunset, crate, text MARAIS, masterpiece, best quality, 8k, ultra detailed\nNegative: blurry, bad text, deformed, ugly, watermark, lowres",
-        "Modèle : Flux.1 [dev], CFG 7, licence non lue.\nPositif : huîtres, table en bois, ponton, coucher de soleil, caisse, texte MARAIS, chef-d'oeuvre, meilleure qualité, 8k, ultra détaillé\nNégatif : flou, mauvais texte, déformé, laid, filigrane, basse résolution"),
-      after: B("Flux.1 [dev], licence read on its model page and checked against the job; CFG 1, guidance as advised on the model card, native size.\nPrompt: A rustic wooden table on a pontoon at dusk, covered with freshly opened oysters on crushed ice and two lemon halves. In the foreground, a weathered wooden crate with the word \"MARAIS\" painted in white capital letters. Warm low sun from the left, calm water and oyster beds in the soft-focus background. Documentary photograph, natural colours, slight film grain.\n\nSame scene for SDXL, CFG as advised, 1024 x 1024:\nrustic wooden table on a pontoon, opened oysters on crushed ice, lemon halves, weathered wooden crate, dusk, low warm sun from the left, oyster beds in the background, documentary photo, natural colours, slight film grain\nNegative (SDXL only): watermark, oversaturated, text artefacts",
-        "Flux.1 [dev], licence lue sur sa page de modèle et confrontée à la commande ; CFG 1, guidance selon la fiche du modèle, taille native.\nPrompt : A rustic wooden table on a pontoon at dusk, covered with freshly opened oysters on crushed ice and two lemon halves. In the foreground, a weathered wooden crate with the word \"MARAIS\" painted in white capital letters. Warm low sun from the left, calm water and oyster beds in the soft-focus background. Documentary photograph, natural colours, slight film grain.\n(Le prompt reste en anglais : plusieurs modèles le suivent mieux ainsi.)\n\nMême scène pour SDXL, CFG conseillée, 1024 x 1024 :\nrustic wooden table on a pontoon, opened oysters on crushed ice, lemon halves, weathered wooden crate, dusk, low warm sun from the left, oyster beds in the background, documentary photo, natural colours, slight film grain\nNégatif (SDXL seulement) : watermark, oversaturated, text artefacts"),
+      context: B("For Ferrand, a fictional industrial SME and client under NDA, the firm prepares an onboarding programme. Malik makes its cover: a mentor welcomes a new employee in a workshop, with BIENVENUE on a chalkboard.",
+        "Pour Ferrand, PME industrielle fictive cliente sous NDA, le cabinet prépare un parcours d'accueil. Malik en fait la couverture : un tuteur accueille une salariée dans un atelier, BIENVENUE écrit sur un tableau."),
+      before: B("Model: Flux.1 [dev], CFG 7, licence not read.\nPositive: workshop, mentor, new employee, machine, chalkboard, text BIENVENUE, masterpiece, best quality, 8k, ultra detailed\nNegative: blurry, bad text, deformed, ugly, watermark, lowres",
+        "Modèle : Flux.1 [dev], CFG 7, licence non lue.\nPositif : atelier, tuteur, nouvelle salariée, machine, tableau noir, texte BIENVENUE, chef-d'oeuvre, meilleure qualité, 8k, ultra détaillé\nNégatif : flou, mauvais texte, déformé, laid, filigrane, basse résolution"),
+      after: B("Flux.1 [dev], licence read on its model page and checked against the job; CFG 1, guidance as advised on the model card, native size.\nPrompt: A bright workshop of a small industrial company in the morning. A mentor in a navy work jacket shows a new employee how a control panel works, both seen in three-quarter view. In the foreground, a black chalkboard on an easel with the word \"BIENVENUE\" written in white chalk capital letters. Soft daylight from high windows on the left. Editorial illustration, gouache texture, muted blue and ochre palette.\n\nSame scene for SDXL, CFG as advised, 1024 x 1024:\nbright small factory workshop, morning, mentor in navy work jacket showing a control panel to a new employee, three-quarter view, chalkboard on an easel in the foreground, soft daylight from high windows on the left, editorial illustration, gouache texture, muted blue and ochre palette\nNegative (SDXL only): watermark, photorealistic, text artefacts",
+        "Flux.1 [dev], licence lue sur sa page de modèle et confrontée à la commande ; CFG 1, guidance selon la fiche du modèle, taille native.\nPrompt : A bright workshop of a small industrial company in the morning. A mentor in a navy work jacket shows a new employee how a control panel works, both seen in three-quarter view. In the foreground, a black chalkboard on an easel with the word \"BIENVENUE\" written in white chalk capital letters. Soft daylight from high windows on the left. Editorial illustration, gouache texture, muted blue and ochre palette.\n(Le prompt reste en anglais : plusieurs modèles le suivent mieux ainsi.)\n\nMême scène pour SDXL, CFG conseillée, 1024 x 1024 :\nbright small factory workshop, morning, mentor in navy work jacket showing a control panel to a new employee, three-quarter view, chalkboard on an easel in the foreground, soft daylight from high windows on the left, editorial illustration, gouache texture, muted blue and ochre palette\nNégatif (SDXL seulement) : watermark, photorealistic, text artefacts"),
       takeaway: B("The first prompt treats Flux like SDXL: keyword soup, quality labels, a CFG that does not suit it and a negative it ignores. The second writes sentences for Flux, keeps keywords and a negative for SDXL, and follows each model card.",
         "Le premier prompt traite Flux comme SDXL : mots-clés en vrac, étiquettes de qualité, une CFG qui ne lui convient pas et un négatif qu'il ignore. Le second écrit des phrases pour Flux, garde mots-clés et négatif pour SDXL, et suit la fiche de chaque modèle."),
     },
@@ -327,12 +330,12 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "La méthode est celle du brouillon. Vous rendez d'abord des clips courts en basse résolution pour juger composition et mouvement, gardez la seed du bon, puis montez un paramètre à la fois. L'image vers vidéo aide aussi : partir d'une image fixe déjà validée (faite dans ComfyUI, par exemple) fixe cadrage et style, et le modèle n'a plus qu'à animer."),
     ],
     example: {
-      context: B("For Ferrand social media, the Delorme firm wants a short loop: the banner scene with a slight movement. The footage must stay on the workstation until the client approves it.",
-        "Pour les réseaux sociaux de la société Ferrand, le cabinet Delorme veut une courte boucle : la scène de la bannière, avec un léger mouvement. Les images doivent rester sur le poste jusqu'à validation du client."),
-      before: B("Text-to-video, maximum resolution, longest duration, largest model.\nPrompt: cinematic epic shot of oyster farmers working at sunset, boats arriving, seagulls flying, camera flying over the bay then zooming on the table, people laughing, 8k, masterpiece",
-        "Texte vers vidéo, résolution maximale, durée la plus longue, plus grand modèle.\nPrompt : plan cinématographique épique d'ostréiculteurs au travail au coucher du soleil, bateaux qui arrivent, mouettes en vol, caméra qui survole la baie puis zoome sur la table, gens qui rient, 8k, chef-d'oeuvre"),
-      after: B("Image-to-video, from the validated banner (delorme/ferrand/couverture-v3.png).\nDraft settings: low resolution, short duration, seed fixed, memory profile advised by Wan2GP for the card.\nPrompt: The camera slowly pushes in towards the table of oysters. Light ripples move on the water in the background, a thin wisp of mist drifts from left to right. Nothing else moves. Calm, documentary feel.\nThen: same seed, higher resolution; then more steps if detail is lacking. Time of each render noted in the project sheet.",
-        "Image vers vidéo, à partir de la bannière validée (delorme/ferrand/couverture-v3.png).\nRéglages de brouillon : basse résolution, durée courte, seed fixée, profil mémoire conseillé par Wan2GP pour la carte.\nPrompt : La caméra avance lentement vers la table d'huîtres. De légers reflets bougent sur l'eau à l'arrière-plan, un mince voile de brume glisse de gauche à droite. Rien d'autre ne bouge. Ambiance calme, documentaire.\nEnsuite : même seed, résolution plus haute ; puis plus de steps si le détail manque. Durée de chaque rendu notée dans la fiche projet."),
+      context: B("To open the Ferrand onboarding e-learning module, the firm wants a short loop: the cover scene with a slight movement. The footage stays on the office PC until the client approves it.",
+        "Pour ouvrir le module e-learning d'accueil de Ferrand, le cabinet veut une courte boucle : la scène de couverture, avec un léger mouvement. Les images restent sur le PC du bureau jusqu'à validation du client."),
+      before: B("Text-to-video, maximum resolution, longest duration, largest model.\nPrompt: cinematic epic shot of a busy factory, workers walking everywhere, forklifts passing, camera flying through the hall then zooming on the chalkboard, people laughing, 8k, masterpiece",
+        "Texte vers vidéo, résolution maximale, durée la plus longue, plus grand modèle.\nPrompt : plan cinématographique épique d'une usine animée, ouvriers qui circulent partout, chariots élévateurs qui passent, caméra qui traverse le hall puis zoome sur le tableau, gens qui rient, 8k, chef-d'oeuvre"),
+      after: B("Image-to-video, from the validated cover (delorme/ferrand/couverture-v3.png).\nDraft settings: low resolution, short duration, seed fixed, memory profile advised by Wan2GP for the card.\nPrompt: The camera slowly pushes in towards the chalkboard. The mentor points at the control panel. Dust motes drift in the light from the windows. Nothing else moves. Calm, welcoming feel.\nThen: same seed, higher resolution; then more steps if detail is lacking. Time of each render noted in the project sheet.",
+        "Image vers vidéo, à partir de la couverture validée (delorme/ferrand/couverture-v3.png).\nRéglages de brouillon : basse résolution, durée courte, seed fixée, profil mémoire conseillé par Wan2GP pour la carte.\nPrompt : La caméra avance lentement vers le tableau. Le tuteur désigne le panneau de commande. Des poussières flottent dans la lumière des fenêtres. Rien d'autre ne bouge. Ambiance calme et accueillante.\nEnsuite : même seed, résolution plus haute ; puis plus de steps si le détail manque. Durée de chaque rendu notée dans la fiche projet."),
       takeaway: B("The first request asks for many subjects, several camera moves and maximum settings at once: the render is long and the motion incoherent. The second animates a validated image with one camera move and two small motions, in draft first.",
         "La première demande réclame beaucoup de sujets, plusieurs mouvements de caméra et des réglages maximaux à la fois : rendu long, mouvement incohérent. La seconde anime une image validée, un mouvement de caméra et deux petits mouvements, en brouillon d'abord."),
     },
@@ -384,12 +387,12 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Whisper prédit un texte plausible, il peut donc aussi inventer : sur un silence, de la musique ou du bruit, il écrit parfois des phrases jamais dites, ou en répète une en boucle. Il ne sait pas non plus qui parle. Une transcription professionnelle demande donc deux étapes de plus : la diarisation (qui parle quand) avec un outil dédié, et la relecture à l'écoute des noms, chiffres et citations."),
     ],
     example: {
-      context: B("the Delorme firm records a one-hour interview with the director of Ferrand, for a portrait on its website. The recording is confidential and must not go through an online service.",
-        "Le cabinet Delorme enregistre un entretien d'une heure avec la directrice de la société Ferrand, pour un portrait sur son site. L'enregistrement est confidentiel et ne doit passer par aucun service en ligne."),
-      before: B("whisper entretien-marais.m4a\n(default model, language detected automatically, raw text pasted straight into the portrait)",
-        "whisper entretien-marais.m4a\n(modèle par défaut, langue détectée automatiquement, texte brut collé tel quel dans le portrait)"),
-      after: B("ffmpeg -i entretien-marais.m4a -ar 16000 -ac 1 -c:a pcm_s16le entretien-marais.wav\n\nwhisper-cli -m models/ggml-[MODEL SIZE].bin -f entretien-marais.wav -l fr -otxt -osrt\n(whisper.cpp; the executable was called main in older versions, see its README)\n\nThen: diarization with pyannote run locally, speakers named in the text, and every proper noun, figure and quote checked against the audio through the SRT timecodes before the portrait is written.",
-        "ffmpeg -i entretien-marais.m4a -ar 16000 -ac 1 -c:a pcm_s16le entretien-marais.wav\n\nwhisper-cli -m models/ggml-[TAILLE DU MODÈLE].bin -f entretien-marais.wav -l fr -otxt -osrt\n(whisper.cpp ; l'exécutable s'appelait main dans les anciennes versions, voir son README)\n\nEnsuite : diarisation avec pyannote en local, voix nommées dans le texte, et chaque nom propre, chiffre et citation vérifié à l'écoute grâce aux timecodes du SRT avant d'écrire le portrait."),
+      context: B("Claire Delorme records a one-hour interview with a Ferrand employee for a social climate assessment. The recording holds personal data, sometimes about health, and must not go through an online service.",
+        "Claire Delorme enregistre un entretien d'une heure avec un salarié de Ferrand, pour un diagnostic social. L'enregistrement contient des données personnelles, parfois de santé, et ne doit passer par aucun service en ligne."),
+      before: B("whisper entretien-ferrand-07.m4a\n(default model, language detected automatically, raw text pasted straight into the interview report)",
+        "whisper entretien-ferrand-07.m4a\n(modèle par défaut, langue détectée automatiquement, texte brut collé tel quel dans le compte rendu)"),
+      after: B("ffmpeg -i entretien-ferrand-07.m4a -ar 16000 -ac 1 -c:a pcm_s16le entretien-ferrand-07.wav\n\nwhisper-cli -m models/ggml-[MODEL SIZE].bin -f entretien-ferrand-07.wav -l fr -otxt -osrt\n(whisper.cpp on Claire's MacBook; the executable was called main in older versions, see its README)\n\nThen: diarization with pyannote run locally, speakers named in the text, and every proper noun, figure and quote checked against the audio through the SRT timecodes before the report is written.",
+        "ffmpeg -i entretien-ferrand-07.m4a -ar 16000 -ac 1 -c:a pcm_s16le entretien-ferrand-07.wav\n\nwhisper-cli -m models/ggml-[TAILLE DU MODÈLE].bin -f entretien-ferrand-07.wav -l fr -otxt -osrt\n(whisper.cpp sur le MacBook de Claire ; l'exécutable s'appelait main dans les anciennes versions, voir son README)\n\nEnsuite : diarisation avec pyannote en local, voix nommées dans le texte, et chaque nom propre, chiffre et citation vérifié à l'écoute grâce aux timecodes du SRT avant de rédiger le compte rendu."),
       takeaway: B("The first command leaves the language to chance, uses the default model and trusts the raw text. The second prepares the audio, fixes the language, exports subtitles, separates the speakers and plans a proofreading pass, all on the machine.",
         "La première commande laisse la langue au hasard, prend le modèle par défaut et se fie au texte brut. La seconde prépare l'audio, fixe la langue, exporte des sous-titres, sépare les voix et prévoit une relecture, le tout sur la machine."),
     },
@@ -517,7 +520,7 @@ const MEDIA_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(M3, 'lo-sd-flux')]: {
-    intro: B("Stable Diffusion and Flux are the two families of open image models most used locally. They share the diffusion principle but differ in text understanding, weight, native resolution, settings and licence. This lesson teaches you to read a model card, load the right files in ComfyUI and drive each family as it expects, with Ferrand banner made by the Delorme firm. At the end, you will choose a model for a need and explain why a setting that works with one fails with the other.",
+    intro: B("Stable Diffusion and Flux are the two families of open image models most used locally. They share the diffusion principle but differ in text understanding, weight, native resolution, settings and licence. This lesson teaches you to read a model card, load the right files in ComfyUI and drive each family as it expects, with Ferrand cover made by the Delorme firm. At the end, you will choose a model for a need and explain why a setting that works with one fails with the other.",
       "Stable Diffusion et Flux sont les deux familles de modèles d'image ouverts les plus employées en local. Elles partagent le principe de la diffusion mais diffèrent par la compréhension du texte, le poids, la résolution native, les réglages et la licence. Ce cours vous apprend à lire une fiche de modèle, à charger les bons fichiers dans ComfyUI et à piloter chaque famille comme elle l'attend, avec la bannière de la société Ferrand réalisée par le cabinet Delorme. À la fin, vous choisirez un modèle selon le besoin et saurez expliquer pourquoi un réglage qui marche avec l'un échoue avec l'autre."),
     concepts: [
       { term: B('SD 1.5, SDXL, SD 3.5', 'SD 1.5, SDXL, SD 3.5'),
@@ -537,8 +540,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un petit fichier d'appoint qui oriente un modèle vers un style, un sujet ou un produit. Il ne fonctionne qu'avec la famille pour laquelle il a été entraîné : un LoRA SDXL sur SDXL.") },
     ],
     walkthrough: {
-      title: B("Malik produces Ferrand banner with SDXL, then with Flux, and chooses.",
-        "Malik produit la bannière de la société Ferrand avec SDXL, puis avec Flux, et choisit."),
+      title: B("Malik produces the Ferrand cover illustration with SDXL, then with Flux, and chooses.",
+        "Malik produit l'illustration de couverture de Ferrand avec SDXL, puis avec Flux, et choisit."),
       steps: [
         B("He reads both model cards: native resolution, advised sampler, CFG or guidance, required files, licence. Why: these settings are each model's operating range, and the licence decides whether the client use is allowed.",
           "Il lit les deux fiches : résolution native, sampler conseillé, CFG ou guidance, fichiers requis, licence. Pourquoi : ces réglages sont la plage de fonctionnement de chaque modèle, et la licence décide si l'usage client est permis."),
@@ -546,10 +549,10 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Pour SDXL, il charge le checkpoint, écrit un prompt en mots-clés et un court négatif, et rend en 1024 x 1024 avec une seed fixée. Pourquoi : SDXL répond aux mots-clés, et son négatif agit vraiment à une CFG supérieure à 1."),
         B("For Flux, he loads the diffusion model, the two text encoders (CLIP-L and T5) and the VAE with their dedicated nodes, sets CFG to 1 and the guidance as advised, and writes three sentences. Why: Flux is driven by sentences and guidance, not by a negative.",
           "Pour Flux, il charge le modèle de diffusion, les deux encodeurs de texte (CLIP-L et T5) et le VAE avec leurs nœuds dédiés, règle la CFG à 1 et la guidance selon la fiche, et écrit trois phrases. Pourquoi : Flux se pilote par des phrases et la guidance, pas par un négatif."),
-        B("He compares on his own machine: in his tests, Flux renders the word MARAIS legibly more often, SDXL is faster. He notes the time per image of each run. Why: the decision rests on results observed on his hardware, not on a ranking found online.",
-          "Il compare sur sa propre machine : dans ses essais, Flux rend plus souvent le mot MARAIS lisible, SDXL va plus vite. Il note le temps par image de chaque rendu. Pourquoi : la décision repose sur des résultats observés sur son matériel, pas sur un classement trouvé en ligne."),
-        B("He checks the licences against the client job and records his choice, the files and the settings in the project sheet. Why: in six months, someone must be able to reproduce the banner and justify the right to use it.",
-          "Il confronte les licences à la commande et consigne son choix, les fichiers et les réglages dans la fiche projet. Pourquoi : dans six mois, quelqu'un doit pouvoir reproduire la bannière et justifier le droit de l'utiliser."),
+        B("He compares on his own machine: in his tests, Flux renders the word BIENVENUE legibly more often, SDXL is faster. He notes the time per image of each run. Why: the decision rests on results observed on his hardware, not on a ranking found online.",
+          "Il compare sur sa propre machine : dans ses essais, Flux rend plus souvent le mot BIENVENUE lisible, SDXL va plus vite. Il note le temps par image de chaque rendu. Pourquoi : la décision repose sur des résultats observés sur son matériel, pas sur un classement trouvé en ligne."),
+        B("He checks the licences against the client job and records his choice, the files and the settings in the project sheet. Why: in six months, someone must be able to reproduce the cover and justify the right to use it.",
+          "Il confronte les licences à la commande et consigne son choix, les fichiers et les réglages dans la fiche projet. Pourquoi : dans six mois, quelqu'un doit pouvoir reproduire la couverture et justifier le droit de l'utiliser."),
       ],
     },
     mistakes: [
@@ -585,8 +588,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
         answer: 0,
         why: B("Open weights do not mean free use: each model has its own licence, and Flux.1 [dev] is released under a non-commercial licence. Read the terms on the official page, or pick a model whose licence covers the job, such as Flux.1 [schnell].",
           "Poids ouverts ne veut pas dire usage libre : chaque modèle a sa licence, et Flux.1 [dev] est publié sous licence non commerciale. Lisez les conditions sur la page officielle, ou prenez un modèle dont la licence couvre la commande, comme Flux.1 [schnell].") },
-      { q: B("A Flux run fails for lack of VRAM on the studio's card. Which response keeps you working locally?",
-          "Un rendu Flux échoue faute de VRAM sur la carte du studio. Quelle réponse permet de continuer en local ?"),
+      { q: B("A Flux run fails for lack of VRAM on the office PC's card. Which response keeps you working locally?",
+          "Un rendu Flux échoue faute de VRAM sur la carte du PC du bureau. Quelle réponse permet de continuer en local ?"),
         options: [
           B("Switch to SD 1.5 and upscale its images eight times to match", "Passer à SD 1.5 et agrandir ses images huit fois pour compenser"),
           B("Load a quantized Flux version (fp8 or GGUF) suited to the card", "Charger une version quantifiée de Flux (fp8 ou GGUF) adaptée à la carte"),
@@ -619,15 +622,15 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un rendu court en basse résolution, qui sert à juger composition et mouvement avant de consacrer du temps à la version finale. Sa seed est gardée pour reproduire le bon.") },
     ],
     walkthrough: {
-      title: B("Malik animates Ferrand banner on the Delorme firm's office PC.",
-        "Malik anime la bannière de la société Ferrand sur le PC du bureau du cabinet Delorme."),
+      title: B("Malik animates the Ferrand cover on the Delorme firm's office PC.",
+        "Malik anime la couverture de Ferrand sur le PC du bureau du cabinet Delorme."),
       steps: [
         B("He reads the Wan2GP README and the Wan model pages to see which models and profiles suit his card's VRAM. Why: these notes are maintained by the projects and change with versions; they spare him a failed install or a render that never ends.",
           "Il lit le README de Wan2GP et les pages des modèles Wan pour voir quels modèles et profils conviennent à la VRAM de sa carte. Pourquoi : ces notes sont tenues par les projets et changent avec les versions ; elles lui évitent une installation ratée ou un rendu sans fin."),
         B("He installs Wan2GP in a dedicated Python environment, launches it and checks that the interface only listens locally. Why: a separate environment protects ComfyUI's dependencies, and a local address keeps the client files private.",
           "Il installe Wan2GP dans un environnement Python dédié, le lance et vérifie que l'interface n'écoute qu'en local. Pourquoi : un environnement séparé protège les dépendances de ComfyUI, et une adresse locale garde les fichiers clients privés."),
-        B("He chooses image-to-video, loads couverture-v3.png and writes a prompt with one slow push-in and two small motions (ripples, mist). Why: the image fixes framing and style, and a simple motion has the best chance of staying coherent.",
-          "Il choisit l'image vers vidéo, charge couverture-v3.png et écrit un prompt avec une lente avancée de caméra et deux petits mouvements (reflets, brume). Pourquoi : l'image fixe cadrage et style, et un mouvement simple a le plus de chances de rester cohérent."),
+        B("He chooses image-to-video, loads couverture-v3.png and writes a prompt with one slow push-in and two small motions (the mentor's gesture, dust in the light). Why: the image fixes framing and style, and a simple motion has the best chance of staying coherent.",
+          "Il choisit l'image vers vidéo, charge couverture-v3.png et écrit un prompt avec une lente avancée de caméra et deux petits mouvements (le geste du tuteur, la poussière dans la lumière). Pourquoi : l'image fixe cadrage et style, et un mouvement simple a le plus de chances de rester cohérent."),
         B("He renders three drafts at low resolution and short duration, with the same seed, changing only the wording of the motion. He keeps the second. Why: drafts are fast enough to compare several ideas in one session.",
           "Il rend trois brouillons en basse résolution et durée courte, avec la même seed, en ne changeant que la formulation du mouvement. Il garde le deuxième. Pourquoi : les brouillons sont assez rapides pour comparer plusieurs idées en une séance."),
         B("He launches the final render at higher resolution during the lunch break, with the kept seed, and notes how long it took. Why: a long render is planned like a print job, and the noted time helps schedule the next ones.",
@@ -701,19 +704,19 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un texte produit par le modèle qui ne correspond à rien dans l'audio, souvent sur un silence, de la musique ou du bruit. Il se lit avec fluidité, et c'est justement pourquoi il faut le vérifier.") },
     ],
     walkthrough: {
-      title: B("the Delorme firm transcribes the confidential interview with the director of Ferrand.",
-        "Le cabinet Delorme transcrit l'entretien confidentiel avec la directrice de la société Ferrand."),
+      title: B("The Delorme firm transcribes a confidential interview with a Ferrand employee.",
+        "Le cabinet Delorme transcrit un entretien confidentiel avec un salarié de Ferrand."),
       steps: [
-        B("Malik converts the recording with ffmpeg to a 16 kHz mono WAV and trims the long silences at the start and end. Why: whisper.cpp expects this format, and silences are where invented text tends to appear.",
-          "Malik convertit l'enregistrement avec ffmpeg en WAV mono 16 kHz et coupe les longs silences du début et de la fin. Pourquoi : whisper.cpp attend ce format, et c'est sur les silences que le texte inventé apparaît volontiers."),
-        B("He tests two model sizes with whisper.cpp on a five-minute extract, with the language set to French, and compares the names of places and people. Why: the extract shows quality and time before he commits the full hour.",
-          "Il teste deux tailles de modèle avec whisper.cpp sur un extrait de cinq minutes, langue fixée au français, et compare les noms de lieux et de personnes. Pourquoi : l'extrait montre qualité et durée avant d'engager l'heure entière."),
-        B("He transcribes the full hour with the chosen size, exporting TXT and SRT. Why: the text is for writing, the SRT for finding each quote in the audio by its timecode.",
-          "Il transcrit l'heure entière avec la taille retenue, en exportant TXT et SRT. Pourquoi : le texte sert à écrire, le SRT à retrouver chaque citation dans l'audio par son timecode."),
-        B("He runs pyannote locally to separate the two voices, after downloading its model once and accepting its terms on Hugging Face, then names the speakers. Why: a portrait quotes the director, not the interviewer.",
-          "Il fait tourner pyannote en local pour séparer les deux voix, après avoir téléchargé son modèle une fois et accepté ses conditions sur Hugging Face, puis nomme les interlocuteurs. Pourquoi : un portrait cite la directrice, pas l'intervieweur."),
-        B("A colleague proofreads every quote, figure and proper noun against the audio, and the WAV and transcripts go into the client's encrypted folder. Why: a published quote commits the studio, and the files remain under the NDA.",
-          "Une collègue relit à l'écoute chaque citation, chiffre et nom propre, et le WAV et les transcriptions rejoignent le dossier chiffré du client. Pourquoi : une citation publiée engage le studio, et les fichiers restent sous NDA."),
+        B("On her MacBook, Claire converts the recording with ffmpeg to a 16 kHz mono WAV and trims the long silences at the start and end. Why: whisper.cpp expects this format, and silences are where invented text tends to appear.",
+          "Sur son MacBook, Claire convertit l'enregistrement avec ffmpeg en WAV mono 16 kHz et coupe les longs silences du début et de la fin. Pourquoi : whisper.cpp attend ce format, et c'est sur les silences que le texte inventé apparaît volontiers."),
+        B("She tests two model sizes with whisper.cpp on a five-minute extract, with the language set to French, and compares the names of places, teams and people. Why: the extract shows quality and time before she commits the full hour.",
+          "Elle teste deux tailles de modèle avec whisper.cpp sur un extrait de cinq minutes, langue fixée au français, et compare les noms de lieux, d'équipes et de personnes. Pourquoi : l'extrait montre qualité et durée avant d'engager l'heure entière."),
+        B("She transcribes the full hour with the chosen size, exporting TXT and SRT. Why: the text feeds the firm's local summary model, the SRT for finding each quote in the audio by its timecode.",
+          "Elle transcrit l'heure entière avec la taille retenue, en exportant TXT et SRT. Pourquoi : le texte nourrit le modèle de résumé local du cabinet, le SRT à retrouver chaque citation dans l'audio par son timecode."),
+        B("Malik has installed pyannote on the MacBook, after downloading its model once and accepting its terms on Hugging Face; Claire runs it to separate the two voices. Why: the report must tell the employee's words from her questions.",
+          "Malik a installé pyannote sur le MacBook, après avoir téléchargé son modèle une fois et accepté ses conditions sur Hugging Face ; Claire le lance pour séparer les deux voix. Pourquoi : le compte rendu doit distinguer les propos du salarié de ses questions."),
+        B("Claire checks every quote, figure and name against the audio, pseudonymises the employee in the report and stores the files in the client's encrypted folder. Why: a quote commits the firm, and these personal data must be protected.",
+          "Claire vérifie à l'écoute chaque citation, chiffre et nom, pseudonymise le salarié dans le compte rendu et range les fichiers dans le dossier chiffré du client. Pourquoi : une citation engage le cabinet, et ces données personnelles doivent être protégées."),
       ],
     },
     mistakes: [

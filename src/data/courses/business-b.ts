@@ -7,13 +7,19 @@
 // automatisation des opérations) puis apprend à tenir dans la durée (mesurer,
 // se concentrer, gérer le doute, trouver le temps).
 //
-// LE FIL ROUGE EST FICTIF · « Relais Devis », la petite activité imaginaire de
-// Nora Vidal, assistante de direction salariée à plein temps dans une PME du
-// bâtiment. Le soir, elle installe chez de petits artisans (plombiers,
-// électriciens, carreleurs) un système simple de suivi et de relance des devis
-// avec des outils d'IA et de no-code : un tableau de suivi, des modèles de
-// messages, un kit de prompts, une automatisation. Les artisans nommés (Karim,
-// Sophie...) sont fictifs eux aussi.
+// LE FIL ROUGE EST CELUI DE LA PARTIE A, ET IL EST FICTIF · Nora, assistante
+// administrative salariée à plein temps dans une agence immobilière, environ
+// six heures par semaine pour son activité (hypothèse du cas). Ses entretiens
+// lui ont montré que le vrai problème des petits artisans du bâtiment de sa
+// région (plombiers, électriciens, peintres) est la relance des devis restés
+// sans réponse. Son offre, « Atelier Relance », en deux formules : des relances
+// rédigées avec l'IA, ajustées par Nora et validées par l'artisan avant envoi
+// en son nom ; la seconde formule ajoute une liste hebdomadaire de devis à
+// appeler et l'installation d'un tableau de suivi simple. Un plombier a testé
+// le prototype en pilote ; il s'appelle ici Karim. Les autres artisans nommés
+// (Marc, Sophie) sont fictifs eux aussi. Règle posée dans la partie A et
+// reprise ici : ne jamais prospecter depuis les fichiers de l'agence ni sur
+// son temps de travail.
 //
 // CE QUE LE COURS S'INTERDIT. Aucun revenu promis, aucun chiffre de marché,
 // aucun taux de conversion « normal », aucun prix inventé, aucun témoignage.
@@ -47,8 +53,8 @@ const SELL: Level[] = [
       'You will build a list of qualified prospects and contact them with personal messages, starting with your network.',
       'Vous saurez dresser une liste de prospects qualifiés et les contacter par des messages personnels, en partant de votre réseau.',
     ),
-    act: B('Build the list of the first 30 artisans for Relais Devis, then write and send ten personal messages.',
-      'Dressez la liste des 30 premiers artisans de Relais Devis, puis rédigez et envoyez dix messages personnels.'),
+    act: B('Build a list of 30 artisans to contact for Atelier Relance, then write and send ten personal messages.',
+      'Dressez la liste de 30 artisans pour Atelier Relance, puis rédigez et envoyez dix messages personnels.'),
     steps: [
       B('Start with your warm network: people who know you, then their introductions, before any cold message.',
         'Commencez par votre réseau proche : ceux qui vous connaissent, puis leurs mises en relation, avant tout message à froid.'),
@@ -129,8 +135,8 @@ const SELL: Level[] = [
       'You will deliver to a written scope with a quality checklist, then ask for feedback, a testimonial and a referral.',
       'Vous saurez livrer selon un périmètre écrit et une liste de contrôle, puis demander un retour, un témoignage, une recommandation.',
     ),
-    act: B('Write the delivery checklist of Relais Devis and the email that asks for feedback and an introduction.',
-      'Rédigez la liste de contrôle de livraison de Relais Devis et l\'email qui demande un retour et une mise en relation.'),
+    act: B('Write the delivery checklist of Atelier Relance and the email that asks for feedback and an introduction.',
+      'Rédigez la liste de contrôle de livraison d\'Atelier Relance et l\'email qui demande un retour et une mise en relation.'),
     steps: [
       B('Start each job with a kickoff that writes down scope, deadlines, what the client provides and what "done" means.',
         'Lancez chaque mission par un point qui fixe par écrit périmètre, délais, apports du client et définition de « terminé ».'),
@@ -215,12 +221,12 @@ const SELL_ENRICH: Record<string, Enrichment> = {
         "La prospection est encadrée. En France, la CNIL décrit les règles de la prospection par email, qui diffèrent entre professionnels et particuliers, et des plateformes comme LinkedIn limitent les messages automatisés dans leurs conditions d'utilisation. Vérifiez les deux avant tout volume. Le contenu (publications, guides courts) agit en arrière-plan : il donne au prospect de quoi lire quand il se renseigne sur vous."),
     ],
     example: {
-      context: B("Nora wants her first clients for Relais Devis. She asks an AI for a prospecting message and gets a generic pitch that she plans to send to every artisan she can find online.",
-        "Nora veut ses premiers clients pour Relais Devis. Elle demande à une IA un message de prospection et obtient un argumentaire générique qu'elle compte envoyer à tous les artisans trouvés en ligne."),
+      context: B("Nora wants her first clients for Atelier Relance. She asks an AI for a prospecting message and gets a generic pitch that she plans to send to every artisan she can find online.",
+        "Nora veut ses premiers clients pour Atelier Relance. Elle demande à une IA un message de prospection et obtient un argumentaire générique qu'elle compte envoyer à tous les artisans trouvés en ligne."),
       before: B("Write a prospecting message to sell my AI service to artisans.",
         "Écris un message de prospection pour vendre mon service IA aux artisans."),
-      after: B("I am writing a first message to one artisan, not a campaign. Help me keep it personal and short.\nAbout me: I help small building firms follow up their quotes so that fewer are forgotten.\nThe person: Karim, plumber with two employees. Our mutual contact Julien told me Karim loses track of his quotes in busy weeks.\nWhat I saw: his website promises a quote within 48 hours and only has a contact form.\nConstraints:\n1. Fewer than 80 words, no attachment, no link, no price.\n2. Mention Julien and what I noticed, one sentence each.\n3. End with one easy question offering a 15-minute call.\n4. Plain tone, no hype words (revolutionary, unique, game-changer).\nGive me two versions, then point out the sentence that sounds most like a mass mailing so I can rewrite it.",
-        "J'écris un premier message à un artisan, pas une campagne. Aide-moi à le garder personnel et court.\nQui je suis : j'aide de petites entreprises du bâtiment à relancer leurs devis pour en oublier moins.\nLa personne : Karim, plombier avec deux salariés. Notre contact commun Julien m'a dit que Karim perd le fil de ses devis les semaines chargées.\nCe que j'ai vu : son site promet un devis sous 48 heures et ne propose qu'un formulaire de contact.\nContraintes :\n1. Moins de 80 mots, sans pièce jointe, sans lien, sans prix.\n2. Mentionne Julien et ce que j'ai remarqué, une phrase chacun.\n3. Termine par une question simple qui propose un appel de 15 minutes.\n4. Ton simple, sans mots creux (révolutionnaire, unique, incontournable).\nDonne-moi deux versions, puis signale la phrase qui sonne le plus comme un envoi de masse, pour que je la réécrive."),
+      after: B("I am writing a first message to one artisan, not a campaign. Help me keep it personal and short.\nAbout me: I follow up unanswered quotes for small building firms, with reminders drafted with AI that the artisan validates before they leave in his name.\nThe person: Marc, painter with two employees. Our mutual contact Julien told me Marc loses track of his quotes in busy weeks.\nWhat I saw: his website promises a quote within 48 hours and only has a contact form.\nConstraints:\n1. Fewer than 80 words, no attachment, no link, no price.\n2. Mention Julien and what I noticed, one sentence each.\n3. End with one easy question offering a 15-minute call.\n4. Plain tone, no hype words (revolutionary, unique, game-changer).\nGive me two versions, then point out the sentence that sounds most like a mass mailing so I can rewrite it.",
+        "J'écris un premier message à un artisan, pas une campagne. Aide-moi à le garder personnel et court.\nQui je suis : je relance les devis sans réponse de petites entreprises du bâtiment, avec des messages rédigés avec l'IA que l'artisan valide avant leur envoi en son nom.\nLa personne : Marc, peintre avec deux salariés. Notre contact commun Julien m'a dit que Marc perd le fil de ses devis les semaines chargées.\nCe que j'ai vu : son site promet un devis sous 48 heures et ne propose qu'un formulaire de contact.\nContraintes :\n1. Moins de 80 mots, sans pièce jointe, sans lien, sans prix.\n2. Mentionne Julien et ce que j'ai remarqué, une phrase chacun.\n3. Termine par une question simple qui propose un appel de 15 minutes.\n4. Ton simple, sans mots creux (révolutionnaire, unique, incontournable).\nDonne-moi deux versions, puis signale la phrase qui sonne le plus comme un envoi de masse, pour que je la réécrive."),
       takeaway: B("The second prompt gives a real person, a real link (the mutual contact) and a real observation. The AI shortens and polishes; the substance comes from Nora's research, and that is what makes the artisan answer.",
         "Le second prompt donne une vraie personne, un vrai lien (le contact commun) et une vraie observation. L'IA raccourcit et polit ; le fond vient des recherches de Nora, et c'est lui qui fait répondre l'artisan."),
     },
@@ -329,12 +335,12 @@ const SELL_ENRICH: Record<string, Enrichment> = {
         "La recommandation suit le résultat, pas la livraison. Le bon moment est celui où le client a vu le bénéfice, souvent au point de suivi quelques semaines plus tard. L'ordre compte : un retour d'abord, puis un témoignage dans ses mots et avec son accord, puis une mise en relation avec une personne nommée. Les faux avis ou avis embellis sont interdits en France ; la DGCCRF explique les règles sur les avis."),
     ],
     example: {
-      context: B("Nora has just set up the quote follow-up system at Karim's. She wants a testimonial and introductions, and drafts the request on delivery day.",
-        "Nora vient d'installer le système de relance chez Karim. Elle veut un témoignage et des mises en relation, et prépare sa demande le jour même de la livraison."),
+      context: B("Karim, the plumber of the pilot, has just finished his first paid month of Atelier Relance. Nora wants a testimonial and introductions, and drafts the request on the last day.",
+        "Karim, le plombier du pilote, termine son premier mois payant d'Atelier Relance. Nora veut un témoignage et des mises en relation, et prépare sa demande le dernier jour."),
       before: B("Write an email asking my client for a 5-star review and the contacts of other plumbers.",
         "Écris un email qui demande à mon client un avis 5 étoiles et les contacts d'autres plombiers."),
-      after: B("Context: three weeks ago I set up a quote follow-up system for Karim, a plumber. At our check-in today he told me, in his words: \"[HIS EXACT WORDS ABOUT WHAT CHANGED]\".\nHelp me write a short email, in a warm and simple tone, that:\n1. Thanks him and recalls in one sentence what we set up.\n2. Asks two feedback questions: what was most useful, and what I should improve.\n3. Asks whether I may quote his words above on my website, with his first name and trade, and tells him he can edit or refuse.\n4. Asks whether he knows one artisan facing the same problem, and offers to write the introduction text for him.\nNo star rating request, no pressure, under 150 words. Do not add any claim he did not make.",
-        "Contexte : il y a trois semaines, j'ai installé un système de relance de devis chez Karim, plombier. À notre point de suivi aujourd'hui, il m'a dit, avec ses mots : « [SES MOTS EXACTS SUR CE QUI A CHANGÉ] ».\nAide-moi à écrire un email court, au ton chaleureux et simple, qui :\n1. Le remercie et rappelle en une phrase ce que nous avons mis en place.\n2. Pose deux questions de retour : ce qui a été le plus utile, ce que je devrais améliorer.\n3. Demande si je peux citer ses mots ci-dessus sur mon site, avec son prénom et son métier, en précisant qu'il peut les modifier ou refuser.\n4. Demande s'il connaît un artisan qui a le même problème, et propose de rédiger pour lui le texte de mise en relation.\nAucune demande d'étoiles, aucune pression, moins de 150 mots. N'ajoute aucune affirmation qu'il n'a pas faite."),
+      after: B("Context: for a month, I have followed up the unanswered quotes of Karim, a plumber, with reminders he validates before they leave. At our check-in today he told me, in his words: \"[HIS EXACT WORDS ABOUT WHAT CHANGED]\".\nHelp me write a short email, in a warm and simple tone, that:\n1. Thanks him and recalls in one sentence what we did together.\n2. Asks two feedback questions: what was most useful, and what I should improve.\n3. Asks whether I may quote his words above on my website, with his first name and trade, and tells him he can edit or refuse.\n4. Asks whether he knows one artisan facing the same problem, and offers to write the introduction text for him.\nNo star rating request, no pressure, under 150 words. Do not add any claim he did not make.",
+        "Contexte : depuis un mois, je relance les devis sans réponse de Karim, plombier, avec des messages qu'il valide avant envoi. À notre point de suivi aujourd'hui, il m'a dit, avec ses mots : « [SES MOTS EXACTS SUR CE QUI A CHANGÉ] ».\nAide-moi à écrire un email court, au ton chaleureux et simple, qui :\n1. Le remercie et rappelle en une phrase ce que nous avons fait ensemble.\n2. Pose deux questions de retour : ce qui a été le plus utile, ce que je devrais améliorer.\n3. Demande si je peux citer ses mots ci-dessus sur mon site, avec son prénom et son métier, en précisant qu'il peut les modifier ou refuser.\n4. Demande s'il connaît un artisan qui a le même problème, et propose de rédiger pour lui le texte de mise en relation.\nAucune demande d'étoiles, aucune pression, moins de 150 mots. N'ajoute aucune affirmation qu'il n'a pas faite."),
       takeaway: B("The request now comes after a visible result, quotes the client's real words, asks permission explicitly and makes the introduction easy. It produces a true testimonial and a warm lead, not a forced review.",
         "La demande arrive désormais après un résultat visible, cite les vrais mots du client, demande explicitement l'accord et facilite la mise en relation. Elle produit un témoignage exact et un contact chaleureux, pas un avis forcé."),
     },
@@ -363,16 +369,16 @@ const SELL_ENRICH: Record<string, Enrichment> = {
         answer: 1,
         why: B("A written scope makes additions visible. Treating the request as a separate, priced addition keeps the relationship good and the workload under control; silent extras set an expectation for every future client.",
           "Un périmètre écrit rend les ajouts visibles. Traiter la demande comme un ajout chiffré à part garde une bonne relation et une charge maîtrisée ; les extras silencieux créent une attente pour tous les clients suivants.") },
-      { q: B("Nora's AI generated a client guide that names the wrong accounting software. Who is responsible for the error?",
-          "L'IA de Nora a produit un guide client qui cite le mauvais logiciel comptable. Qui est responsable de l'erreur ?"),
+      { q: B("A reminder drafted by Nora's AI names the wrong job site, and it reached Karim's customer. Who answers for the error?",
+          "Une relance rédigée par l'IA de Nora cite le mauvais chantier et a atteint le client de Karim. Qui répond de l'erreur ?"),
         options: [
-          B("Nora, who delivered the guide to her client", "Nora, qui a remis le guide à son client"),
+          B("Nora, who delivered the draft as part of her service", "Nora, qui a livré le brouillon dans le cadre de son service"),
           B("The AI provider, whose model produced the error", "Le fournisseur de l'IA, dont le modèle a produit l'erreur"),
           B("The client, who should have checked it on receipt", "Le client, qui aurait dû le vérifier à la réception"),
         ],
         answer: 0,
-        why: B("The client bought a result from Nora, not from a model. Whatever the tool, the person who delivers answers for the deliverable: this is why the review before handover is not optional.",
-          "Le client a acheté un résultat à Nora, pas à un modèle. Quel que soit l'outil, celle qui livre répond du livrable : c'est pourquoi la relecture avant remise n'est pas facultative.") },
+        why: B("Karim bought a service from Nora, not from a model. Whatever the tool, the person who delivers answers for the deliverable: this is why her review before Karim validates is not optional.",
+          "Karim a acheté un service à Nora, pas à un modèle. Quel que soit l'outil, celle qui livre répond du livrable : c'est pourquoi sa relecture avant la validation de Karim n'est pas facultative.") },
     ],
   },
 
@@ -436,8 +442,8 @@ const SELL_ENRICH: Record<string, Enrichment> = {
 
 const SELL_DEEP: Record<string, Deepening> = {
   [deepKey(M3, 'bz-first-clients')]: {
-    intro: B("Finding your first customers is a matter of conversations, not of reach. This lesson orders the channels by trust (your network, introductions, targeted direct contact, then content), shows how to build a list of qualified prospects and how to write a first message that gets an answer. It opens the second part of the course with a fictional case: Nora Vidal, an office manager who works full time and runs Relais Devis in the evenings. She sets up, for small building firms (plumbers, electricians, tilers), a simple system to follow up their quotes with AI and no-code tools. At the end, you will have a prospect list, a message template and a weekly outreach routine.",
-      "Trouver ses premiers clients est une affaire de conversations, pas d'audience. Ce cours classe les canaux selon la confiance (votre réseau, les mises en relation, le contact direct ciblé, puis le contenu), montre comment dresser une liste de prospects qualifiés et comment écrire un premier message qui obtient une réponse. Il ouvre la seconde partie de la formation avec un cas fictif : Nora Vidal, assistante de direction à plein temps, qui fait vivre Relais Devis le soir. Elle installe chez de petites entreprises du bâtiment (plombiers, électriciens, carreleurs) un système simple de relance des devis avec des outils d'IA et de no-code. À la fin, vous aurez une liste de prospects, un gabarit de message et une routine de prospection hebdomadaire."),
+    intro: B("Finding your first customers is a matter of conversations, not of reach. This lesson orders the channels by trust (your network, introductions, targeted direct contact, then content), shows how to build a list of qualified prospects and how to write a first message that gets an answer. It continues the fictional case of the first part: Nora, an office assistant who works full time in a real estate agency. After her interviews and a pilot with Karim, a plumber, she now sells Atelier Relance to small building firms of her region: unanswered quotes followed up with reminders drafted with AI and validated by the artisan. At the end, you will have a prospect list, a message template and a weekly outreach routine.",
+      "Trouver ses premiers clients est une affaire de conversations, pas d'audience. Ce cours classe les canaux selon la confiance (votre réseau, les mises en relation, le contact direct ciblé, puis le contenu), montre comment dresser une liste de prospects qualifiés et comment écrire un premier message qui obtient une réponse. Il poursuit le cas fictif de la première partie : Nora, assistante administrative à plein temps dans une agence immobilière. Après ses entretiens et un pilote avec Karim, plombier, elle vend désormais Atelier Relance aux petits artisans du bâtiment de sa région : la relance des devis sans réponse, par des messages rédigés avec l'IA et validés par l'artisan. À la fin, vous aurez une liste de prospects, un gabarit de message et une routine de prospection hebdomadaire."),
     concepts: [
       { term: B('Warm network', 'Réseau proche'),
         def: B("The people who already know you: former colleagues, friends, family, past clients. They answer more readily because trust already exists.",
@@ -453,11 +459,11 @@ const SELL_DEEP: Record<string, Deepening> = {
           "Un second message, plus court, envoyé après quelques jours sans réponse. Une relance courtoise est utile ; une série de relances devient une pression.") },
     ],
     walkthrough: {
-      title: B("Nora prepares her first two weeks of outreach for Relais Devis.",
-        "Nora prépare ses deux premières semaines de prospection pour Relais Devis."),
+      title: B("Nora prepares her first two weeks of outreach for Atelier Relance.",
+        "Nora prépare ses deux premières semaines de prospection pour Atelier Relance."),
       steps: [
-        B("She lists the people in her network linked to the building trades: colleagues at her employer's suppliers, her brother-in-law Julien, a former client of her uncle. Why: these people can answer, or introduce her, without any trust to build.",
-          "Elle liste les personnes de son réseau liées au bâtiment : des contacts chez les fournisseurs de son employeur, son beau-frère Julien, un ancien client de son oncle. Pourquoi : ces personnes peuvent répondre ou la présenter sans confiance à construire."),
+        B("She lists her personal contacts linked to the building trades: Karim, the plumber of the pilot, her brother-in-law Julien, a friend who just had work done. Never the agency's files. Why: these people can answer, or introduce her, without any trust to build.",
+          "Elle liste ses contacts personnels liés au bâtiment : Karim, le plombier du pilote, son beau-frère Julien, une amie qui vient de faire des travaux. Jamais les fichiers de l'agence. Pourquoi : ces personnes peuvent répondre ou la présenter sans confiance à construire."),
         B("She asks three of them for an introduction, with a two-line text they can forward as is. Why: making the introduction easy multiplies the chances that it actually happens.",
           "Elle demande à trois d'entre elles une mise en relation, avec un texte de deux lignes qu'elles peuvent transférer tel quel. Pourquoi : faciliter la mise en relation multiplie les chances qu'elle ait vraiment lieu."),
         B("She completes her sheet up to 30 artisans from local directories and websites, noting for each a visible sign: a site promising quick quotes, reviews mentioning slow answers. Why: the sign justifies the message and makes it personal.",
@@ -543,8 +549,8 @@ const SELL_DEEP: Record<string, Deepening> = {
           "Elle répète avec une IA qui joue Sophie, à partir de ses notes, puis lit le tableau de retour. Pourquoi : elle découvre qu'elle présente trop tôt et oublie de demander qui décide."),
         B("During the call, Sophie says she lost a large job because a competitor called back first. Nora asks what that job represented and lets the silence work. Why: the cost stated by Sophie herself will weigh more than any argument.",
           "Pendant l'appel, Sophie raconte avoir perdu un gros chantier parce qu'un concurrent a rappelé le premier. Nora demande ce que représentait ce chantier et laisse le silence agir. Pourquoi : le coût énoncé par Sophie pèsera plus que tout argument."),
-        B("Sophie objects about the setup time. Nora asks how much time she could free, rephrases, and explains that the setup takes two short sessions at her pace. They agree that Nora sends the proposal on Thursday. Why: the objection was about time, not price.",
-          "Sophie objecte le temps de mise en place. Nora demande combien de temps elle pourrait dégager, reformule, puis explique que la mise en place tient en deux courtes séances à son rythme. Elles conviennent d'un envoi de proposition jeudi. Pourquoi : l'objection portait sur le temps, pas sur le prix."),
+        B("Sophie objects that she has no time to get started. Nora asks how much time she could free, rephrases, and explains that the start takes one 30-minute session: Nora collects the quotes, Sophie only validates the reminders. They agree that Nora sends the proposal on Thursday. Why: the objection was about time, not price.",
+          "Sophie objecte qu'elle n'a pas le temps de démarrer. Nora demande combien de temps elle pourrait dégager, reformule, puis explique que le démarrage tient en une séance de 30 minutes : Nora récupère les devis, Sophie ne fait que valider les relances. Elles conviennent d'un envoi de proposition jeudi. Pourquoi : l'objection portait sur le temps, pas sur le prix."),
       ],
     },
     mistakes: [
@@ -595,8 +601,8 @@ const SELL_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(M3, 'bz-delivery')]: {
-    intro: B("Delivering well is what turns a first client into a second one, through referrals. This lesson shows how to frame a job with a written scope, how to review AI-assisted deliverables with a checklist, how to hand over, and when and how to ask for feedback, a testimonial and an introduction. You will follow Nora delivering her quote follow-up system to Karim, a fictional plumber. At the end, you will have a delivery checklist and a follow-up template that respects your clients and the rules on reviews.",
-      "Bien livrer est ce qui transforme un premier client en un second, par la recommandation. Ce cours montre comment cadrer une mission par un périmètre écrit, relire les livrables produits avec une IA grâce à une liste de contrôle, remettre le travail, puis quand et comment demander un retour, un témoignage et une mise en relation. Vous suivrez Nora qui livre son système de relance à Karim, plombier fictif. À la fin, vous aurez une liste de contrôle de livraison et un modèle de suivi qui respecte vos clients et les règles sur les avis."),
+    intro: B("Delivering well is what turns a first client into a second one, through referrals. This lesson shows how to frame a job with a written scope, how to review AI-assisted deliverables with a checklist, how to hand over, and when and how to ask for feedback, a testimonial and an introduction. You will follow Nora delivering the second package of Atelier Relance to Karim, the plumber of her pilot. At the end, you will have a delivery checklist and a follow-up template that respects your clients and the rules on reviews.",
+      "Bien livrer est ce qui transforme un premier client en un second, par la recommandation. Ce cours montre comment cadrer une mission par un périmètre écrit, relire les livrables produits avec une IA grâce à une liste de contrôle, remettre le travail, puis quand et comment demander un retour, un témoignage et une mise en relation. Vous suivrez Nora qui livre la seconde formule d'Atelier Relance à Karim, le plombier de son pilote. À la fin, vous aurez une liste de contrôle de livraison et un modèle de suivi qui respecte vos clients et les règles sur les avis."),
     concepts: [
       { term: B('Scope', 'Périmètre'),
         def: B("The written list of what the job includes and excludes, with deadlines and what the client provides. It is the reference for quality and for additions.",
@@ -612,15 +618,15 @@ const SELL_DEEP: Record<string, Deepening> = {
           "Les propres mots du client sur le résultat, publiés uniquement avec son accord explicite, qu'il peut modifier ou retirer.") },
     ],
     walkthrough: {
-      title: B("Nora delivers the quote follow-up system to Karim, then asks for feedback and an introduction.",
-        "Nora livre le système de relance à Karim, puis demande un retour et une mise en relation."),
+      title: B("Nora delivers the second package of Atelier Relance to Karim, then asks for feedback and an introduction.",
+        "Nora livre la seconde formule d'Atelier Relance à Karim, puis demande un retour et une mise en relation."),
       steps: [
-        B("At the kickoff, she writes with Karim the scope: tracking sheet, three message templates, a prompt kit, one reminder automation; the definition of done; and what he provides (his current quotes). Why: both now share the same list.",
-          "Au lancement, elle écrit avec Karim le périmètre : tableau de suivi, trois modèles de messages, un kit de prompts, une automatisation de rappel ; la définition de « terminé » ; et ce qu'il fournit (ses devis en cours). Pourquoi : ils partagent désormais la même liste."),
-        B("She produces the message templates with an AI, then reviews them with her checklist: plumbing vocabulary, Karim's name and firm, no promise he cannot keep. Why: she finds a template mentioning a guarantee Karim does not offer, and removes it.",
-          "Elle produit les modèles de messages avec une IA, puis les relit avec sa liste : vocabulaire de la plomberie, nom de Karim et de son entreprise, aucune promesse qu'il ne peut tenir. Pourquoi : elle trouve un modèle qui évoque une garantie que Karim n'offre pas, et la retire."),
-        B("She hands over with a 20-minute demo on one real quote, a two-page guide and a check-in date three weeks later. Why: a demo on his own data proves the system works for him, not in theory.",
-          "Elle remet le travail avec une démonstration de 20 minutes sur un vrai devis, un guide de deux pages et un point de suivi trois semaines plus tard. Pourquoi : une démonstration sur ses propres données prouve que le système marche pour lui, pas en théorie."),
+        B("At the kickoff, she writes the scope with Karim: reminders for unanswered quotes, validated by him, a weekly list of quotes to call, a tracking sheet installed; what is excluded (writing his quotes); what he provides. Why: both now share the same list.",
+          "Au lancement, elle écrit le périmètre avec Karim : relances des devis sans réponse validées par lui, liste hebdomadaire de devis à appeler, tableau de suivi installé ; ce qui est exclu (rédiger ses devis) ; ce qu'il fournit. Pourquoi : ils partagent désormais la même liste."),
+        B("She drafts the reminders with an AI, then reviews them with her checklist: right job and date, plumbing vocabulary, no promise Karim cannot keep. Why: she finds a reminder mentioning a guarantee Karim does not offer, and removes it.",
+          "Elle rédige les relances avec une IA, puis les relit avec sa liste : bon chantier et bonne date, vocabulaire de la plomberie, aucune promesse que Karim ne peut tenir. Pourquoi : elle trouve une relance qui évoque une garantie que Karim n'offre pas, et la retire."),
+        B("At the end of the first week, she shows Karim the tracking sheet on his real quotes in 20 minutes, leaves a one-page guide and sets a check-in at the end of the month. Why: seeing his own quotes proves the service works for him, not in theory.",
+          "À la fin de la première semaine, elle montre en 20 minutes à Karim le tableau de suivi sur ses vrais devis, laisse un guide d'une page et fixe un point en fin de mois. Pourquoi : voir ses propres devis prouve que le service marche pour lui, pas en théorie."),
         B("At the check-in, Karim explains in his words what changed. Nora notes them exactly and asks what she should improve. Why: the feedback improves the offer, and the exact words are the basis of a true testimonial.",
           "Au point de suivi, Karim explique avec ses mots ce qui a changé. Nora les note exactement et demande ce qu'elle devrait améliorer. Pourquoi : le retour améliore l'offre, et les mots exacts fondent un témoignage fidèle."),
         B("She sends the follow-up email: permission to quote his words, which he may edit, and an introduction to one artisan, with a ready-made text. Why: consent keeps the testimonial lawful, and the ready text makes the introduction easy.",
@@ -770,8 +776,8 @@ const LAST: Level[] = [
       'You will track a handful of weekly indicators, from outreach to cash collected, and decide from them rather than from feelings.',
       'Vous saurez suivre chaque semaine quelques indicateurs, de la prospection à l\'encaissement, et décider sur cette base.',
     ),
-    act: B('Build the weekly dashboard of Relais Devis and run its first 20-minute review with an AI.',
-      'Construisez le tableau de bord hebdomadaire de Relais Devis et menez sa première revue de 20 minutes avec une IA.'),
+    act: B('Build the weekly dashboard of Atelier Relance and run its first 20-minute review with an AI.',
+      'Construisez le tableau de bord hebdomadaire d\'Atelier Relance et menez sa première revue de 20 minutes avec une IA.'),
     steps: [
       B('Choose five indicators along your sales path: messages, conversations, proposals, clients signed, cash collected.',
         'Choisissez cinq indicateurs le long de votre parcours : messages, échanges, propositions, clients signés, encaissements.'),
@@ -999,8 +1005,8 @@ const LAST_ENRICH: Record<string, Enrichment> = {
         "Une nouvelle plateforme d'agents IA est partout dans les fils de Nora. Elle demande à une IA si elle doit y transférer tout son système."),
       before: B("Should I switch to this new agent platform? Everyone says it's the future.",
         "Est-ce que je dois passer à cette nouvelle plateforme d'agents ? Tout le monde dit que c'est l'avenir."),
-      after: B("I run a small service activity in the evenings: I set up quote follow-up systems for artisans. My current bottleneck, from my weekly dashboard, is that few prospects book a call.\nI am considering [NAME OF THE NEW PLATFORM] after seeing it announced.\n1. In two sentences, say what problem this kind of tool is designed to solve, and say clearly if you are unsure what it does today.\n2. Does it address my bottleneck? Answer yes, no or partly, with your reasoning.\n3. If yes, propose a test of at most two hours, with a measurable result.\n4. If no, write a one-line entry for my waiting list: tool, possible use, when to reconsider.\nI will check its current features and price in its official documentation, not in your answer.",
-        "Je mène le soir une petite activité de services : j'installe des systèmes de relance de devis chez des artisans. Mon blocage actuel, d'après mon tableau de bord, est que peu de prospects réservent un appel.\nJ'envisage [NOM DE LA NOUVELLE PLATEFORME] après l'avoir vue annoncée.\n1. En deux phrases, dis quel problème ce type d'outil est conçu pour résoudre, et dis clairement si tu n'es pas sûr de ce qu'il fait aujourd'hui.\n2. Répond-il à mon blocage ? Réponds oui, non ou en partie, avec ton raisonnement.\n3. Si oui, propose un test de deux heures au plus, avec un résultat mesurable.\n4. Si non, écris une ligne pour ma liste d'attente : outil, usage possible, date pour y revenir.\nJe vérifierai ses fonctions et son prix actuels dans sa documentation officielle, pas dans ta réponse."),
+      after: B("I run a small service activity in the evenings, Atelier Relance: I follow up the unanswered quotes of small building firms. My current bottleneck, from my weekly dashboard, is that few prospects book a call.\nI am considering [NAME OF THE NEW PLATFORM] after seeing it announced.\n1. In two sentences, say what problem this kind of tool is designed to solve, and say clearly if you are unsure what it does today.\n2. Does it address my bottleneck? Answer yes, no or partly, with your reasoning.\n3. If yes, propose a test of at most two hours, with a measurable result.\n4. If no, write a one-line entry for my waiting list: tool, possible use, when to reconsider.\nI will check its current features and price in its official documentation, not in your answer.",
+        "Je mène le soir une petite activité de services, Atelier Relance : je relance les devis sans réponse de petits artisans du bâtiment. Mon blocage actuel, d'après mon tableau de bord, est que peu de prospects réservent un appel.\nJ'envisage [NOM DE LA NOUVELLE PLATEFORME] après l'avoir vue annoncée.\n1. En deux phrases, dis quel problème ce type d'outil est conçu pour résoudre, et dis clairement si tu n'es pas sûr de ce qu'il fait aujourd'hui.\n2. Répond-il à mon blocage ? Réponds oui, non ou en partie, avec ton raisonnement.\n3. Si oui, propose un test de deux heures au plus, avec un résultat mesurable.\n4. Si non, écris une ligne pour ma liste d'attente : outil, usage possible, date pour y revenir.\nJe vérifierai ses fonctions et son prix actuels dans sa documentation officielle, pas dans ta réponse."),
       takeaway: B("The question is no longer \"is it the future?\" but \"does it solve my bottleneck now?\". The AI helps classify the tool; the decision is tied to Nora's dashboard, and the test, if any, is short and measurable.",
         "La question n'est plus « est-ce l'avenir ? » mais « est-ce que cela lève mon blocage maintenant ? ». L'IA aide à classer l'outil ; la décision s'appuie sur le tableau de bord de Nora, et le test éventuel est court et mesurable."),
     },
@@ -1052,14 +1058,14 @@ const LAST_ENRICH: Record<string, Enrichment> = {
         "La confusion vient souvent de trop de sources : formations, vidéos, conseils contradictoires. Réduisez-les, revenez aux clients et appuyez-vous sur des pairs pour éprouver votre lecture. Une IA peut structurer un journal de décision ou jouer l'avocat du diable ; elle ne décide pas pour vous. Si le doute devient une détresse durable, parlez-en à un professionnel de santé : ce n'est plus une question d'activité."),
     ],
     example: {
-      context: B("After three refusals in a row, Nora asks an AI whether she should change niche and target estate agencies instead of artisans.",
-        "Après trois refus d'affilée, Nora demande à une IA si elle doit changer de niche et viser les agences immobilières plutôt que les artisans."),
-      before: B("Three artisans said no. Should I drop artisans and target estate agencies?",
-        "Trois artisans ont dit non. Est-ce que je laisse tomber les artisans pour les agences immobilières ?"),
-      after: B("Help me make a decision without reacting in the heat of the moment.\nFacts over the last four weeks: 9 conversations, 4 proposals, 1 client signed and satisfied. The three recent refusals gave these reasons, in their words: \"no time to set it up\" (twice), \"too expensive for now\" (once).\nMy criteria, written eight weeks ago: continue if at least one signature a month; adjust the offer if the same reason appears in most refusals; change niche if, after eight weeks, conversations reveal no real pain.\n1. Separate the facts above from the interpretations in my question.\n2. Compare the facts with my criteria and say which case applies, or that it is too early to tell.\n3. If a refusal reason repeats, propose one adjustment to test over two weeks.\n4. Play devil's advocate: give the best argument against what you recommend.\nDo not decide for me; I will write the decision in my journal.",
-        "Aide-moi à prendre une décision sans réagir à chaud.\nFaits des quatre dernières semaines : 9 échanges, 4 propositions, 1 client signé et satisfait. Les trois refus récents ont donné ces raisons, avec leurs mots : « pas le temps de mettre ça en place » (deux fois), « trop cher pour l'instant » (une fois).\nMes critères, écrits il y a huit semaines : continuer si au moins une signature par mois ; ajuster l'offre si la même raison revient dans la plupart des refus ; changer de niche si, après huit semaines, les échanges ne révèlent aucun vrai problème.\n1. Sépare les faits ci-dessus des interprétations de ma question.\n2. Confronte les faits à mes critères et dis quel cas s'applique, ou qu'il est trop tôt pour le dire.\n3. Si une raison de refus se répète, propose un ajustement à tester sur deux semaines.\n4. Joue l'avocat du diable : donne le meilleur argument contre ce que tu recommandes.\nNe décide pas à ma place ; j'écrirai la décision dans mon journal."),
-      takeaway: B("The prompt separates facts from fears, brings back criteria written in a calm moment and asks for a counter-argument. The answer is a reading of evidence (here, an adjustment of the setup, not a new niche), and the decision stays Nora's.",
-        "Le prompt sépare les faits des peurs, rappelle des critères écrits à froid et demande un contre-argument. La réponse est une lecture des faits (ici, ajuster la mise en place, pas changer de niche), et la décision reste celle de Nora."),
+      context: B("After three refusals in a row, Nora asks an AI whether she should change niche and target small shops instead of artisans.",
+        "Après trois refus d'affilée, Nora demande à une IA si elle doit changer de niche et viser les petits commerces plutôt que les artisans."),
+      before: B("Three artisans said no. Should I drop artisans and target small shops?",
+        "Trois artisans ont dit non. Est-ce que je laisse tomber les artisans pour les petits commerces ?"),
+      after: B("Help me make a decision without reacting in the heat of the moment.\nFacts over the last four weeks: 9 conversations, 4 proposals, 1 client signed and satisfied. The three recent refusals gave these reasons, in their words: \"no time to get started\" (twice), \"too expensive for now\" (once).\nMy criteria, written eight weeks ago: continue if at least one signature a month; adjust the offer if the same reason appears in most refusals; change niche if, after eight weeks, conversations reveal no real pain.\n1. Separate the facts above from the interpretations in my question.\n2. Compare the facts with my criteria and say which case applies, or that it is too early to tell.\n3. If a refusal reason repeats, propose one adjustment to test over two weeks.\n4. Play devil's advocate: give the best argument against what you recommend.\nDo not decide for me; I will write the decision in my journal.",
+        "Aide-moi à prendre une décision sans réagir à chaud.\nFaits des quatre dernières semaines : 9 échanges, 4 propositions, 1 client signé et satisfait. Les trois refus récents ont donné ces raisons, avec leurs mots : « pas le temps de démarrer ça » (deux fois), « trop cher pour l'instant » (une fois).\nMes critères, écrits il y a huit semaines : continuer si au moins une signature par mois ; ajuster l'offre si la même raison revient dans la plupart des refus ; changer de niche si, après huit semaines, les échanges ne révèlent aucun vrai problème.\n1. Sépare les faits ci-dessus des interprétations de ma question.\n2. Confronte les faits à mes critères et dis quel cas s'applique, ou qu'il est trop tôt pour le dire.\n3. Si une raison de refus se répète, propose un ajustement à tester sur deux semaines.\n4. Joue l'avocat du diable : donne le meilleur argument contre ce que tu recommandes.\nNe décide pas à ma place ; j'écrirai la décision dans mon journal."),
+      takeaway: B("The prompt separates facts from fears, brings back criteria written in a calm moment and asks for a counter-argument. The answer is a reading of evidence (here, an easier start, not a new niche), and the decision stays Nora's.",
+        "Le prompt sépare les faits des peurs, rappelle des critères écrits à froid et demande un contre-argument. La réponse est une lecture des faits (ici, faciliter le démarrage, pas changer de niche), et la décision reste celle de Nora."),
     },
     exercise: {
       goal: B("A decision journal with your criteria to continue, adjust or stop over the next eight weeks, and a first entry on a current doubt.",
@@ -1109,12 +1115,12 @@ const LAST_ENRICH: Record<string, Enrichment> = {
         "Le regroupement et les outils asynchrones étirent un petit budget. Groupez les tâches semblables dans le même créneau, laissez les prospects réserver vos créneaux libres avec un outil comme Calendly ou Cal.com, et utilisez la vidéo enregistrée (Loom, par exemple) pour expliquer un livrable sans réunion. Annoncez d'emblée vos disponibilités aux clients : certains soirs et midis, jamais vos heures de travail."),
     ],
     example: {
-      context: B("Nora tries to fit Relais Devis into her week. She asks an AI for a schedule and gets two hours every evening and client calls every lunchtime.",
-        "Nora cherche à caser Relais Devis dans sa semaine. Elle demande un planning à une IA et obtient deux heures chaque soir et des appels clients tous les midis."),
+      context: B("Nora tries to fit Atelier Relance into her week. She asks an AI for a schedule and gets two hours every evening and client calls every lunchtime.",
+        "Nora cherche à caser Atelier Relance dans sa semaine. Elle demande un planning à une IA et obtient deux heures chaque soir et des appels clients tous les midis."),
       before: B("Make me a schedule to work on my side business every day.",
         "Fais-moi un planning pour travailler sur mon activité tous les jours."),
-      after: B("Help me build a weekly time budget for my side activity that I can hold for six months.\nMy job: full time, 9 am to 5.30 pm, 45 minutes of commute each way. Fixed commitments: sport on Wednesday evening, family on Saturday.\nMy real free time last week, measured: about 12 hours, mostly after 8 pm and on Sunday.\nMy activity needs: outreach, sales calls, delivery, admin and a weekly review.\n1. Propose a budget below my measured free time, with a safety margin.\n2. Give each slot one type of task; put calls only in slots outside my working hours.\n3. Say which tasks can be asynchronous (booking link, recorded video, templates).\n4. Keep one evening a week with no business work at all.\n5. List what I must check in my employment contract and on Service-Public before taking clients.\nPlan nothing during my working hours.",
-        "Aide-moi à construire un budget de temps hebdomadaire pour mon activité, tenable six mois.\nMon emploi : temps plein, de 9 h à 17 h 30, 45 minutes de trajet à l'aller comme au retour. Engagements fixes : sport le mercredi soir, famille le samedi.\nMon vrai temps libre la semaine dernière, mesuré : environ 12 heures, surtout après 20 h et le dimanche.\nMon activité demande : prospection, appels de vente, livraison, gestion et une revue hebdomadaire.\n1. Propose un budget inférieur à mon temps libre mesuré, avec une marge de sécurité.\n2. Donne à chaque créneau un type de tâche ; place les appels uniquement hors de mes heures de travail.\n3. Dis quelles tâches peuvent être asynchrones (lien de réservation, vidéo enregistrée, modèles).\n4. Garde une soirée par semaine sans aucun travail pour l'activité.\n5. Liste ce que je dois vérifier dans mon contrat de travail et sur Service-Public avant de prendre des clients.\nNe planifie rien pendant mes heures de travail."),
+      after: B("Help me build a weekly time budget for my side activity that I can hold for six months.\nMy job: full time, 9 am to 5.30 pm, 45 minutes of commute each way. Fixed commitments: sport on Wednesday evening, family on Saturday.\nMy real free time last week, measured: about 9 hours, mostly after 8 pm and on Sunday.\nMy activity needs: outreach, sales calls, delivery, admin and a weekly review.\n1. Propose a budget below my measured free time, with a safety margin.\n2. Give each slot one type of task; put calls only in slots outside my working hours.\n3. Say which tasks can be asynchronous (booking link, recorded video, templates).\n4. Keep one evening a week with no business work at all.\n5. List what I must check in my employment contract and on Service-Public before taking clients.\nPlan nothing during my working hours.",
+        "Aide-moi à construire un budget de temps hebdomadaire pour mon activité, tenable six mois.\nMon emploi : temps plein, de 9 h à 17 h 30, 45 minutes de trajet à l'aller comme au retour. Engagements fixes : sport le mercredi soir, famille le samedi.\nMon vrai temps libre la semaine dernière, mesuré : environ 9 heures, surtout après 20 h et le dimanche.\nMon activité demande : prospection, appels de vente, livraison, gestion et une revue hebdomadaire.\n1. Propose un budget inférieur à mon temps libre mesuré, avec une marge de sécurité.\n2. Donne à chaque créneau un type de tâche ; place les appels uniquement hors de mes heures de travail.\n3. Dis quelles tâches peuvent être asynchrones (lien de réservation, vidéo enregistrée, modèles).\n4. Garde une soirée par semaine sans aucun travail pour l'activité.\n5. Liste ce que je dois vérifier dans mon contrat de travail et sur Service-Public avant de prendre des clients.\nNe planifie rien pendant mes heures de travail."),
       takeaway: B("The second prompt starts from measured free time, keeps a margin, protects an evening off and excludes working hours. The plan is smaller, and that is precisely why Nora can keep it.",
         "Le second prompt part du temps libre mesuré, garde une marge, protège une soirée de repos et exclut les heures de travail. Le plan est plus petit, et c'est précisément pour cela que Nora peut le tenir."),
     },
@@ -1143,12 +1149,12 @@ const LAST_ENRICH: Record<string, Enrichment> = {
         answer: 2,
         why: B("Calls during working hours clash with her duties to her employer. Offering her own slots is normal for a small business; most prospects accept a clear time, and a booking link makes it easy.",
           "Des appels pendant ses heures de travail heurtent ses devoirs envers l'employeur. Proposer ses propres créneaux est normal pour une petite activité ; la plupart des prospects acceptent un horaire clair, et un lien de réservation le facilite.") },
-      { q: B("Nora measured 12 free hours last week. Which weekly budget is the most realistic for six months?",
-          "Nora a mesuré 12 heures libres la semaine dernière. Quel budget hebdomadaire est le plus réaliste sur six mois ?"),
+      { q: B("Nora measured 9 free hours last week. Which weekly budget is the most realistic for six months?",
+          "Nora a mesuré 9 heures libres la semaine dernière. Quel budget hebdomadaire est le plus réaliste sur six mois ?"),
         options: [
-          B("12 hours, since that is exactly her measured free time", "12 heures, puisque c'est exactement son temps libre mesuré"),
-          B("About 8 hours, keeping a margin for heavy weeks", "Environ 8 heures, en gardant une marge pour les semaines chargées"),
-          B("15 hours, by also using part of her family Saturdays", "15 heures, en prenant aussi sur ses samedis en famille"),
+          B("9 hours, since that is exactly her measured free time", "9 heures, puisque c'est exactement son temps libre mesuré"),
+          B("About 6 hours, keeping a margin for heavy weeks", "Environ 6 heures, en gardant une marge pour les semaines chargées"),
+          B("12 hours, by also using part of her family Saturdays", "12 heures, en prenant aussi sur ses samedis en famille"),
         ],
         answer: 1,
         why: B("One measured week is not every week: work peaks, illness and family events will come. A budget below the measure, with a margin, holds for months; using all of it, or more, breaks at the first heavy week.",
@@ -1159,8 +1165,8 @@ const LAST_ENRICH: Record<string, Enrichment> = {
 
 const LAST_DEEP: Record<string, Deepening> = {
   [deepKey(M4, 'bz-metrics')]: {
-    intro: B("Measuring is not about producing nice charts; it is about deciding better each week. This lesson defines a short chain of indicators for a service business, from messages sent to cash collected, adds two health indicators, and shows how to run a 20-minute weekly review that ends with one decision. You will follow Nora building the dashboard of Relais Devis in a simple sheet. At the end, you will know which figures to watch, how to read small numbers without over-interpreting them, and how to use an AI to read your sheet.",
-      "Mesurer ne consiste pas à produire de beaux graphiques, mais à mieux décider chaque semaine. Ce cours définit une courte chaîne d'indicateurs pour une activité de services, des messages envoyés aux encaissements, ajoute deux indicateurs de santé, et montre comment mener une revue hebdomadaire de 20 minutes qui se conclut par une décision. Vous suivrez Nora qui construit le tableau de bord de Relais Devis dans un simple tableur. À la fin, vous saurez quels chiffres suivre, comment lire de petits nombres sans les surinterpréter et comment faire lire votre tableau par une IA."),
+    intro: B("Measuring is not about producing nice charts; it is about deciding better each week. This lesson defines a short chain of indicators for a service business, from messages sent to cash collected, adds two health indicators, and shows how to run a 20-minute weekly review that ends with one decision. You will follow Nora building the dashboard of Atelier Relance in a simple sheet. At the end, you will know which figures to watch, how to read small numbers without over-interpreting them, and how to use an AI to read your sheet.",
+      "Mesurer ne consiste pas à produire de beaux graphiques, mais à mieux décider chaque semaine. Ce cours définit une courte chaîne d'indicateurs pour une activité de services, des messages envoyés aux encaissements, ajoute deux indicateurs de santé, et montre comment mener une revue hebdomadaire de 20 minutes qui se conclut par une décision. Vous suivrez Nora qui construit le tableau de bord d'Atelier Relance dans un simple tableur. À la fin, vous saurez quels chiffres suivre, comment lire de petits nombres sans les surinterpréter et comment faire lire votre tableau par une IA."),
     concepts: [
       { term: B('Sales path', 'Parcours de vente'),
         def: B("The chain of steps from first contact to payment: messages, conversations, proposals, signatures, cash collected. Each step feeds the next.",
@@ -1188,8 +1194,8 @@ const LAST_DEEP: Record<string, Deepening> = {
           "Le dimanche soir, elle le remplit depuis ses registres : messages envoyés, agenda, dossier des propositions, compte bancaire. Pourquoi : la mémoire surestime l'effort et oublie les trous ; les registres, non."),
         B("She asks an AI to compute the rates between steps over four weeks and to state what is not conclusive. It points out that conversations are frequent but few lead to a proposal. Why: the weakest link is where one action has the most effect.",
           "Elle demande à une IA de calculer les taux entre étapes sur quatre semaines et de dire ce qui n'est pas concluant. L'IA relève que les échanges sont fréquents mais mènent rarement à une proposition. Pourquoi : le maillon faible est là où une action a le plus d'effet."),
-        B("She rereads her call notes: several prospects did not see concretely what she would set up. She decides to show a one-page example of the tracking sheet during calls. Why: the decision targets the weakest link, not everything at once.",
-          "Elle relit ses notes d'appel : plusieurs prospects ne voyaient pas concrètement ce qu'elle installerait. Elle décide de montrer pendant les appels un exemple d'une page du tableau de suivi. Pourquoi : la décision vise le maillon faible, pas tout à la fois."),
+        B("She rereads her call notes: several prospects did not see concretely what a reminder would look like. She decides to show, during calls, a reminder drafted for a fictional quote. Why: the decision targets the weakest link, not everything at once.",
+          "Elle relit ses notes d'appel : plusieurs prospects ne voyaient pas concrètement à quoi ressemblerait une relance. Elle décide de montrer pendant les appels une relance rédigée pour un devis fictif. Pourquoi : la décision vise le maillon faible, pas tout à la fois."),
         B("She writes the decision in the sheet with the indicator to watch next week: proposals per conversation. Why: writing it down makes the next review a check, not a fresh start.",
           "Elle écrit la décision dans le tableau avec l'indicateur à surveiller la semaine suivante : propositions par échange. Pourquoi : l'écrire fait de la revue suivante une vérification, pas un nouveau départ."),
       ],
@@ -1227,8 +1233,8 @@ const LAST_DEEP: Record<string, Deepening> = {
         answer: 1,
         why: B("Stable signatures with less cash point to payments: late invoices, long payment terms, a forgotten reminder. Followers and new tools have nothing to do with money already owed.",
           "Des signatures stables avec moins d'encaissements désignent les paiements : factures en retard, délais longs, relance oubliée. Les abonnés et les nouveaux outils n'ont rien à voir avec l'argent déjà dû.") },
-      { q: B("Which of these is a leading indicator for Relais Devis?",
-          "Lequel de ces chiffres est un indicateur avancé pour Relais Devis ?"),
+      { q: B("Which of these is a leading indicator for Atelier Relance?",
+          "Lequel de ces chiffres est un indicateur avancé pour Atelier Relance ?"),
         options: [
           B("Cash collected at the end of the month", "Les encaissements de fin de mois"),
           B("Number of clients signed this quarter", "Le nombre de clients signés ce trimestre"),
@@ -1263,8 +1269,8 @@ const LAST_DEEP: Record<string, Deepening> = {
       steps: [
         B("She writes her bottleneck, read from her dashboard: few prospects book a call. Why: the filter needs a reference; without a named bottleneck, every tool looks useful.",
           "Elle écrit son blocage, lu sur son tableau de bord : peu de prospects réservent un appel. Pourquoi : le filtre a besoin d'une référence ; sans blocage nommé, chaque outil paraît utile."),
-        B("She fixes three blocks: Tuesday from 8.30 to 10 pm for outreach, Thursday at the same time for delivery, Sunday from 6 to 7 pm for the review. Notifications off, one task per block. Why: fixed times remove the daily decision.",
-          "Elle fixe trois plages : mardi de 20 h 30 à 22 h pour la prospection, jeudi à la même heure pour la livraison, dimanche de 18 h à 19 h pour la revue. Notifications coupées, une tâche par plage. Pourquoi : des heures fixes suppriment la décision quotidienne."),
+        B("She fixes three blocks matching her six weekly hours: Tuesday from 8 to 10 pm for outreach, Thursday at the same time for delivery, Sunday from 5 to 7 pm for the review. Notifications off, one task per block. Why: fixed times remove the daily decision.",
+          "Elle fixe trois plages qui font ses six heures hebdomadaires : mardi de 20 h à 22 h pour la prospection, jeudi à la même heure pour la livraison, dimanche de 17 h à 19 h pour la revue. Notifications coupées, une tâche par plage. Pourquoi : des heures fixes suppriment la décision quotidienne."),
         B("She defines the minimum versions: one message on Tuesday, one delivery task on Thursday, filling the sheet on Sunday. Why: in a bad week, the chain holds and restarting costs nothing.",
           "Elle définit les versions minimales : un message le mardi, une tâche de livraison le jeudi, le tableau rempli le dimanche. Pourquoi : une mauvaise semaine, la chaîne tient et la reprise ne coûte rien."),
         B("When a new agent platform makes the news, she writes it in her waiting list: possible use, automating onboarding; link to her bottleneck, none; to reconsider in two months. Why: the idea is kept, the evening is not lost.",
@@ -1344,10 +1350,10 @@ const LAST_DEEP: Record<string, Deepening> = {
           "Elle écrit le doute (les artisans n'en veulent peut-être pas), puis les faits : trois refus, deux faute de temps pour la mise en place, un pour le prix ; un client signé et satisfait. Pourquoi : sur le papier, les faits sont plus étroits que la peur."),
         B("She rereads her criteria written eight weeks earlier: adjust the offer if the same reason appears in most refusals. Two out of three cite setup time. Why: criteria set in a calm moment point to an adjustment, not to a new niche.",
           "Elle relit ses critères écrits huit semaines plus tôt : ajuster l'offre si la même raison revient dans la plupart des refus. Deux sur trois citent le temps de mise en place. Pourquoi : des critères écrits à froid désignent un ajustement, pas une nouvelle niche."),
-        B("She calls her satisfied client, Karim, and asks what made the setup bearable for him. He mentions the two short sessions. Why: one call brings a fact, an evening of rumination brings none.",
-          "Elle appelle son client satisfait, Karim, et lui demande ce qui a rendu la mise en place supportable. Il cite les deux courtes séances. Pourquoi : un appel apporte un fait, une soirée de rumination n'en apporte aucun."),
-        B("She adjusts the offer: the setup is presented as two 45-minute sessions at the artisan's premises, and she tests this version for two weeks. Why: a small, dated test answers the doubt with evidence.",
-          "Elle ajuste l'offre : la mise en place est présentée comme deux séances de 45 minutes chez l'artisan, et elle teste cette version pendant deux semaines. Pourquoi : un petit test daté répond au doute par des faits."),
+        B("She calls her satisfied client, Karim, and asks what made the start easy for him. He says Nora collected his quotes herself; he only had to validate. Why: one call brings a fact, an evening of rumination brings none.",
+          "Elle appelle son client satisfait, Karim, et lui demande ce qui a rendu le démarrage facile. Il répond que Nora a récupéré elle-même ses devis ; il n'avait qu'à valider. Pourquoi : un appel apporte un fait, une soirée de rumination n'en apporte aucun."),
+        B("She adjusts the offer page: the start is presented as one 30-minute session where Nora collects the quotes, and she tests this version for two weeks. Why: a small, dated test answers the doubt with evidence.",
+          "Elle ajuste sa page d'offre : le démarrage est présenté comme une séance de 30 minutes où Nora récupère les devis, et elle teste cette version deux semaines. Pourquoi : un petit test daté répond au doute par des faits."),
         B("She writes the entry in her journal and shares her reasoning with two peers at their monthly exchange. One notes that she had read \"no time\" as \"no interest\". Why: an outside eye catches the interpretation taken for a fact.",
           "Elle écrit l'entrée dans son journal et partage son raisonnement avec deux pairs lors de leur échange mensuel. L'un remarque qu'elle avait lu « pas le temps » comme « pas d'intérêt ». Pourquoi : un regard extérieur repère l'interprétation prise pour un fait."),
       ],
@@ -1400,8 +1406,8 @@ const LAST_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(M4, 'bz-time')]: {
-    intro: B("Many businesses start beside a full-time job. This lesson covers the two conditions to do it well: respecting your obligations as an employee, and building a time budget you can keep for months. You will learn what to check in your contract and on official sources, how to measure your real free time, how to assign slots to types of task, and how to sell and deliver in the evening with asynchronous tools. You will follow Nora organising Relais Devis around her job. This lesson gives principles, not legal advice: for your own case, refer to Service-Public, URSSAF or a lawyer.",
-      "Beaucoup d'activités naissent à côté d'un emploi à plein temps. Ce cours traite des deux conditions pour bien le faire : respecter vos obligations de salarié, et bâtir un budget de temps tenable des mois. Vous apprendrez ce qu'il faut vérifier dans votre contrat et aux sources officielles, comment mesurer votre vrai temps libre, comment attribuer des créneaux à des types de tâches, et comment vendre et livrer le soir avec des outils asynchrones. Vous suivrez Nora qui organise Relais Devis autour de son emploi. Ce cours donne des principes, pas un conseil juridique : pour votre cas, reportez-vous à Service-Public, à l'URSSAF ou à un juriste."),
+    intro: B("Many businesses start beside a full-time job. This lesson covers the two conditions to do it well: respecting your obligations as an employee, and building a time budget you can keep for months. You will learn what to check in your contract and on official sources, how to measure your real free time, how to assign slots to types of task, and how to sell and deliver in the evening with asynchronous tools. You will follow Nora organising Atelier Relance around her job. This lesson gives principles, not legal advice: for your own case, refer to Service-Public, URSSAF or a lawyer.",
+      "Beaucoup d'activités naissent à côté d'un emploi à plein temps. Ce cours traite des deux conditions pour bien le faire : respecter vos obligations de salarié, et bâtir un budget de temps tenable des mois. Vous apprendrez ce qu'il faut vérifier dans votre contrat et aux sources officielles, comment mesurer votre vrai temps libre, comment attribuer des créneaux à des types de tâches, et comment vendre et livrer le soir avec des outils asynchrones. Vous suivrez Nora qui organise Atelier Relance autour de son emploi. Ce cours donne des principes, pas un conseil juridique : pour votre cas, reportez-vous à Service-Public, à l'URSSAF ou à un juriste."),
     concepts: [
       { term: B('Duty of loyalty', 'Obligation de loyauté'),
         def: B("The obligation of every employee not to harm the employer: no competing activity, no use of the employer's time, tools, information or clients.",
@@ -1420,13 +1426,13 @@ const LAST_DEEP: Record<string, Deepening> = {
           "Vendre et livrer sans être disponible en direct : liens de réservation sur vos propres créneaux, vidéos enregistrées, guides écrits et modèles.") },
     ],
     walkthrough: {
-      title: B("Nora organises Relais Devis around her full-time job.",
-        "Nora organise Relais Devis autour de son emploi à plein temps."),
+      title: B("Nora organises Atelier Relance around her full-time job.",
+        "Nora organise Atelier Relance autour de son emploi à plein temps."),
       steps: [
-        B("She rereads her contract: a confidentiality clause, no exclusivity clause. She checks on Service-Public the rules for combining a job and a business, and decides never to approach her employer's clients. Why: the legal frame comes before the first client.",
-          "Elle relit son contrat : une clause de confidentialité, aucune clause d'exclusivité. Elle vérifie sur Service-Public les règles du cumul d'un emploi et d'une activité, et décide de ne jamais solliciter les clients de son employeur. Pourquoi : le cadre juridique précède le premier client."),
-        B("She notes her real free time for one week: about 12 hours, scattered. She commits to 8: Tuesday and Thursday evenings, Sunday late afternoon. Why: a margin absorbs heavy weeks without breaking the routine.",
-          "Elle relève son vrai temps libre sur une semaine : environ 12 heures, éparses. Elle s'engage sur 8 : mardi et jeudi soir, dimanche en fin d'après-midi. Pourquoi : une marge absorbe les semaines chargées sans casser la routine."),
+        B("She rereads her contract: a confidentiality clause, no exclusivity clause. She checks on Service-Public the rules for combining a job and a business, and keeps the rule set in the first part: never prospect from the agency's files or on her working time. Why: the legal frame comes before the first client.",
+          "Elle relit son contrat : une clause de confidentialité, aucune clause d'exclusivité. Elle vérifie sur Service-Public les règles du cumul d'un emploi et d'une activité, et garde la règle posée dans la première partie : jamais de prospection depuis les fichiers de l'agence ni sur son temps de travail. Pourquoi : le cadre juridique précède le premier client."),
+        B("She notes her real free time for one week: about 9 hours, scattered. She commits to 6: Tuesday and Thursday evenings, Sunday late afternoon. Why: a margin absorbs heavy weeks without breaking the routine.",
+          "Elle relève son vrai temps libre sur une semaine : environ 9 heures, éparses. Elle s'engage sur 6 : mardi et jeudi soir, dimanche en fin d'après-midi. Pourquoi : une marge absorbe les semaines chargées sans casser la routine."),
         B("She batches: outreach and calls on Tuesday, delivery on Thursday, review and admin on Sunday. Why: grouping similar tasks avoids switching costs in short evenings.",
           "Elle regroupe : prospection et appels le mardi, livraison le jeudi, revue et gestion le dimanche. Pourquoi : grouper les tâches semblables évite le coût des changements dans des soirées courtes."),
         B("She sets up a booking link (Cal.com) that offers only Tuesday and Thursday evening slots and one lunchtime, and records short Loom videos to explain deliverables. Why: prospects book without back-and-forth emails, and part of the delivery no longer needs a live meeting.",
@@ -1458,8 +1464,8 @@ const LAST_DEEP: Record<string, Deepening> = {
     further: B("Read the Service-Public Entreprendre pages on creating a business while employed and, if it concerns you, the URSSAF pages on the micro-entrepreneur scheme. Then measure your free time for one week and write your budget for the next three months, with a review date.",
       "Lisez les pages de Service-Public Entreprendre sur la création d'entreprise par un salarié et, si cela vous concerne, celles de l'URSSAF sur le régime du micro-entrepreneur. Mesurez ensuite votre temps libre sur une semaine et écrivez votre budget pour les trois prochains mois, avec une date de revue."),
     more: [
-      { q: B("Nora's employer works with some artisans who could become her clients. What is the prudent approach?",
-          "L'employeur de Nora travaille avec des artisans qui pourraient devenir ses clients. Quelle est l'approche prudente ?"),
+      { q: B("The real estate agency where Nora works deals with artisans who could become her clients. What is the prudent approach?",
+          "L'agence immobilière où travaille Nora traite avec des artisans qui pourraient devenir ses clients. Quelle est l'approche prudente ?"),
         options: [
           B("Contact them first, since she already knows them well", "Les contacter en premier, puisqu'elle les connaît déjà bien"),
           B("Stay away from them given her duty of loyalty, and check if in doubt", "S'en tenir à l'écart vu son obligation de loyauté, et vérifier en cas de doute"),
