@@ -60,7 +60,7 @@ const REQS: Level[] = [
       q: B('The Panier Local team must pick one topic for its architecture meeting. Which one belongs there?',
         "L'équipe de Panier Local doit choisir un sujet pour sa réunion d'architecture. Lequel y a sa place ?"),
       options: [
-        B('The naming convention for CSS classes in the order form', 'La convention de nommage des classes CSS du formulaire de commande'),
+        B('The naming convention for the CSS classes of the order form page', 'La convention de nommage des classes CSS du formulaire de commande'),
         B('Whether producers and customers share one database or two', 'Une seule base partagée entre producteurs et clients, ou deux bases'),
         B('The wording of the confirmation email sent after an order', "Le texte de l'email de confirmation envoyé après une commande"),
       ],
@@ -237,7 +237,7 @@ const REQS_ENRICH: Record<string, Enrichment> = {
         options: [
           B("More colours, so that each layer can be told apart at a glance", "Plus de couleurs, pour distinguer chaque couche au premier coup d'oeil"),
           B("The reasons behind each choice and the requirements they serve", "Les raisons de chaque choix et les exigences qu'il sert"),
-          B("The exact version number of every library used in the code", "Le numéro de version exact de chaque bibliothèque du code"),
+          B("The exact version number of each library and tool used in the code", "Le numéro de version exact de chaque bibliothèque du code"),
         ],
         answer: 1,
         why: B("A diagram shows what was decided, not why. Without the reasons and the requirements behind them, nobody can judge later whether a decision still holds when the context changes.",
@@ -302,7 +302,7 @@ const REQS_ENRICH: Record<string, Enrichment> = {
       { q: B("The AI writes 'the site must be available 99.9 % of the time' in a scenario. What do you do?",
           "L'IA écrit « le site doit être disponible 99,9 % du temps » dans un scénario. Que faites-vous ?"),
         options: [
-          B("Ask where the figure comes from, and confirm it with the cooperative", "Vous demandez d'où vient le chiffre et le faites confirmer par la coopérative"),
+          B("Ask where it comes from and have the cooperative confirm it", "Vous demandez sa source et le faites confirmer par la coopérative"),
           B("Keep it, since it is a standard figure every serious site must meet", "Vous le gardez, c'est un chiffre standard que tout site sérieux doit tenir"),
           B("Delete the scenario, since availability is not a quality attribute", "Vous supprimez le scénario, la disponibilité n'étant pas une qualité"),
         ],
@@ -328,8 +328,8 @@ const REQS_ENRICH: Record<string, Enrichment> = {
         "Quels sont les risques d'une plateforme de commande en ligne ?"),
       after: B("Context: Panier Local, a fictional cooperative selling weekly baskets. Orders close on Thursday evening, delivery on Friday.\nConstraints (not negotiable): two developers, one part-time; launch before the spring season; payment provider already chosen by the cooperative; current hosting contract runs until next year; personal data of customers in France.\nRequirements: [the user stories and the three quality scenarios].\n1. List the assumptions these requirements rely on without saying so (about producers, customers, drivers, providers, data). Write each as a sentence that could turn out false.\n2. For each assumption, give the risk if it is false, a likelihood and an impact (low, medium, high), and the cheapest way to check it this week.\n3. Do not state any legal rule or provider limit as a fact: tell me which official source to check instead.",
         "Contexte : Panier Local, coopérative fictive qui vend des paniers hebdomadaires. Les commandes ferment le jeudi soir, livraison le vendredi.\nContraintes (non négociables) : deux développeurs, dont un à temps partiel ; lancement avant la saison de printemps ; prestataire de paiement déjà choisi par la coopérative ; contrat d'hébergement en cours jusqu'à l'an prochain ; données personnelles de clients en France.\nExigences : [les user stories et les trois scénarios de qualité].\n1. Liste les hypothèses sur lesquelles ces exigences reposent sans le dire (producteurs, clients, livreurs, prestataires, données). Écris chacune comme une phrase qui pourrait se révéler fausse.\n2. Pour chaque hypothèse, donne le risque si elle est fausse, une probabilité et un impact (faible, moyen, élevé), et le moyen le moins cher de la vérifier cette semaine.\n3. N'énonce aucune règle légale ni limite de prestataire comme un fait : indique-moi plutôt la source officielle à consulter."),
-      takeaway: B("With the constraints and requirements in hand, the AI finds assumptions specific to the cooperative, such as producers updating stock from a phone in the field. Each comes with a cheap check, and no legal claim is taken on faith.",
-        "Avec les contraintes et les exigences en main, l'IA trouve des hypothèses propres à la coopérative, comme des producteurs qui mettent à jour leur stock depuis un téléphone au champ. Chacune vient avec une vérification peu coûteuse, et aucune affirmation légale n'est prise pour argent comptant."),
+      takeaway: B("With the constraints and requirements in hand, the AI finds assumptions specific to the cooperative, such as producers updating stock from a phone in the field. Each has a cheap check, and no legal claim is taken on faith.",
+        "Contraintes et exigences en main, l'IA trouve des hypothèses propres à la coopérative, comme des producteurs qui saisissent leur stock au champ sur un téléphone. Chacune a sa vérification, et rien de légal n'est cru sur parole."),
     },
     exercise: {
       goal: B("A register in three columns for your project, constraints, assumptions and risks, where each assumption has a planned check and each risk a likelihood, an impact and a response.",
@@ -361,7 +361,7 @@ const REQS_ENRICH: Record<string, Enrichment> = {
         options: [
           B("It does not matter: stock entry is a training issue, not a design one", "Ce n'est pas important : la saisie du stock relève de la formation"),
           B("Because it decides the colour scheme of the producers' screens", "Parce qu'elle décide des couleurs des écrans des producteurs"),
-          B("If false, the site sells baskets that do not exist, and the design must handle it", "Si elle est fausse, le site vend des paniers inexistants, et il faut le prévoir"),
+          B("If false, the site sells baskets that do not exist", "Si elle est fausse, le site vend des paniers qui n'existent pas"),
         ],
         answer: 2,
         why: B("Stale stock leads to overselling. If the assumption fails, the design needs answers such as reservations confirmed by producers or stock entry from a phone. Checking it early is far cheaper.",
@@ -417,7 +417,7 @@ const REQS_ENRICH: Record<string, Enrichment> = {
           "Pourquoi lancer la seconde relecture dans une nouvelle conversation plutôt que dans la même ?"),
         options: [
           B("So that the earlier answers do not steer the new review", "Pour que les réponses précédentes n'orientent pas la nouvelle relecture"),
-          B("Because a conversation can only contain a single review", "Parce qu'une conversation ne peut contenir qu'une seule relecture"),
+          B("Because one conversation can only ever contain a single review", "Parce qu'une conversation ne peut contenir qu'une seule relecture"),
           B("To pay less, since new conversations are always cheaper", "Pour payer moins, les nouvelles conversations coûtant toujours moins"),
         ],
         answer: 0,
