@@ -287,7 +287,18 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   // scrolle pas quand on répond : corrige » et « Enlève les sons quand on
   // scrolle les cours ». La récompense suit la réponse, plus le défilement.
   ok('une bonne réponse ou une mission finie rapporte les points', /if \(right\) reward\(`q\$\{n\}`/.test(LS2) && /reward\('mission'/.test(LS2) && /awardPart\(`\$\{pack\.id\}\/\$\{level\.id\}\/\$\{part\}`\)/.test(LS2))
-  ok('le défilement ne récompense plus et ne fait plus de bruit', !/cleared\.has\(st\.id\)/.test(LS2) && !/sfx/.test(LG2.slice(LG2.indexOf('export function useQuestSteps'), LG2.indexOf('export function QuestHud'))))
+  ok('le défilement ne récompense plus et ne fait plus de bruit', !/cleared\.has\(st\.id\)/.test(LS2) && !/useQuestSteps|IntersectionObserver/.test(LG2.slice(0, LG2.indexOf('export function QuestHud'))))
+  // RÉPARÉE · demandé : « l'UI d'étape ne doit pas valider un carré si on a pas
+  // achevé l'exercice tant que l'on a pas validé le carré doit être gris quand il
+  // est validé il doit être vert. La jauge doit avancée quand on achève un
+  // exercice ». Un carré par exercice (mission, exercice, chaque question), vert
+  // seulement une fois achevé, et la jauge suit le nombre de carrés verts.
+  ok('un carré par exercice, validé seulement une fois achevé', /\{ id: 'mission'/.test(LS2) && /id: `q\$\{k \+ 1\}`/.test(LS2) && /setMissionDone\(true\)/.test(LS2) && /setExerciseDone\(true\)/.test(LS2) && /filter\(\(\[, right\]\) => right\)/.test(LS2))
+  {
+    const css = readFileSync('src/index.css', 'utf8')
+    ok('le carré est gris tant qu\'il n\'est pas achevé, vert une fois validé', /\.lq-hud-steps button \{[^}]*background: #b9b3c6/.test(css) && /\.lq-hud-steps button\.on \{ background: #16a34a; \}/.test(css))
+  }
+  ok('la jauge avance avec les exercices achevés', /export function questProgress/.test(LG2) && /steps\.filter\(\(st\) => cleared\.has\(st\.id\)\)/.test(LG2))
   ok('le maître félicite et offre les points', /<MasterCheer queue=\{cheers\}/.test(LS2) && /className="lq-cheer-coin"/.test(LG2))
   ok('la pièce éclate en particules, sauf au mouvement réduit', /if \(r && !calm\(\)\) burst\(/.test(LG2))
   ok('les points comptent dans l\'XP', /\+ f\.points/.test(readFileSync('src/game/progress.ts', 'utf8')))
