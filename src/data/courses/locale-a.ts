@@ -1411,7 +1411,7 @@ const TEXT_DEEP: Record<string, Deepening> = {
       { term: B('Autocompletion', 'Autocomplétion'),
         def: B("Suggestions for the rest of a line or block as you type. It must respond almost instantly, so it suits a small model.",
           "Des suggestions pour la suite d'une ligne ou d'un bloc pendant la frappe. Elle doit répondre presque instantanément : un petit modèle lui convient.") },
-      { term: B('Fill-in-the-middle (FIM)', 'Fill-in-the-middle (FIM)'),
+      { term: B('Fill-in-the-middle (FIM)', 'Fill-in-the-middle (complétion au milieu)'),
         def: B("A way of training a model to complete code using both what comes before and what comes after the cursor. Models trained this way suit autocompletion.",
           "Une façon d'entraîner un modèle à compléter du code en s'appuyant sur ce qui précède et sur ce qui suit le curseur. Les modèles ainsi entraînés conviennent à l'autocomplétion.") },
       { term: B('Continue', 'Continue'),
