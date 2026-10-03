@@ -11,17 +11,17 @@ export const V_LOGO_CHARTE: Record<string, Video[]> = {
     { id: 'Z5kIjxViKjQ', title: 'What Is Market Mapping? (Brand Positioning Map Tool)', channel: '', lang: 'en' },
   ],
   'lg-m1/lg-mood': [
-    { id: '5UsTsE3uVeg', title: 'Mini-série Backstage #1 : Créer le moodboard d\'un projet d\'identité visuelle', channel: '', lang: 'fr' },
+    { id: '5UsTsE3uVeg', title: 'Mini-série Backstage #1 - Créer le moodboard d\'un projet d\'identité visuelle', channel: '', lang: 'fr' },
   ],
   'lg-m1/lg-families': [
-    { id: 'XkHqVIPm5-Q', title: 'Les 7 types de logos : Comment créer un logo pour son projet #LOGOTYPE', channel: '', lang: 'fr' },
+    { id: 'XkHqVIPm5-Q', title: 'Les 7 types de logos - Comment créer un logo pour son projet #LOGOTYPE', channel: '', lang: 'fr' },
   ],
   'lg-m2/lg-explore': [
     { id: 'OTzaxDdGaUM', title: 'Tuto Midjourney : Comment créer un logo vectoriel avec l\'IA + prompt', channel: '', lang: 'fr' },
   ],
   'lg-m2/lg-vector': [
     { id: '6A_-O2Hp9z4', title: 'Comment dessiner à la plume avec Illustrator [tuto Illustrator]', channel: '', lang: 'fr' },
-    { id: 'izwNULDcjy4', title: 'Comment créer un LOGO gratuitement dans Figma : Tuto & Bonus IA', channel: '', lang: 'fr' },
+    { id: 'izwNULDcjy4', title: 'Comment créer un LOGO gratuitement dans Figma - Tuto & Bonus IA', channel: '', lang: 'fr' },
   ],
   'lg-m2/lg-tests': [
     { id: 'Z913JJcgGeY', title: 'Is Your Logo Unreadable? Fix Scaling & Legibility Issues (EASILY)', channel: '', lang: 'en' },
