@@ -274,7 +274,7 @@ function StartForm({ source }: { source: 'landing' }) {
 
 /** LE TEMPLE GRATUIT EN VITRINE · le toit, deux étages et l'entrée, avec son
  *  maître. Les mêmes dessins que l'écran du temple (voir temple/art). */
-function HeroTemple() {
+export function HeroTemple() {
   const p = FREE_PACK
   const roof = gridToUrl(`roof:${p.id}`, () => drawRoof(p.tint))
   const floor = gridToUrl(`floor:${p.kit}:${p.tint}:0:`, () => drawFloor(p.kit, p.tint, 0))

@@ -1,5 +1,6 @@
 import { StrictMode, Suspense, lazy, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BetaGate } from './components/BetaGate'
 import { Landing } from './Landing'
 import { AuthProvider } from './auth/AuthProvider'
 import { handleConnectReturn, onConnectResult, takeConnectResult } from './lib/connectReturn'
@@ -364,7 +365,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Boundary what="DojoBuro">
       <AuthProvider>
-        <Root />
+        {/* LA PORTE DE LA BÊTA · un code à 4 chiffres avant l'app (voir components/BetaGate) */}
+        <BetaGate>
+          <Root />
+        </BetaGate>
       </AuthProvider>
     </Boundary>
   </StrictMode>,
