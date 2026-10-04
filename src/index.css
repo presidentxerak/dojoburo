@@ -13192,3 +13192,133 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .ad-out { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; line-height: 1.5; resize: vertical; }
 .ad-how { margin: 0; font-size: 13px; color: var(--g-sub); }
 .ad-preview { padding: 16px; border-radius: 12px; background: #fff; overflow-x: auto; }
+
+/* LA PORTE DE LA BÊTA · demandé : « une page avec un code d'accès à 4 chiffres
+   [...] le logo animé le nom de la marque en-dessous et la mention Beta [...]
+   dans le fond de la page en full-screen on reprend le hero et sa baseline ». */
+.bg-gate {
+  position: fixed; inset: 0; z-index: 20000; display: grid; place-items: center; overflow: hidden;
+  padding: 20px; box-sizing: border-box; font-family: var(--font-game); color: #fff;
+  background: radial-gradient(1100px 700px at 70% 20%, rgba(124, 58, 237, .35), transparent 70%), #0a0514;
+  transition: opacity .42s ease, transform .42s ease;
+}
+.bg-gate.is-leaving { opacity: 0; transform: scale(1.04); }
+.bg-hero {
+  position: absolute; inset: 0; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 40px;
+  padding: clamp(20px, 6vw, 80px); box-sizing: border-box; pointer-events: none;
+  filter: blur(2px); opacity: .55;
+}
+.bg-hero-h { margin: 0 0 14px; font-family: var(--font-game) !important; font-weight: 800 !important; font-size: clamp(32px, 4vw + 14px, 64px) !important; line-height: 1.04; color: #fff; }
+.bg-hero-sub { margin: 0; max-width: 54ch; font-size: clamp(15px, .5vw + 13px, 19px); line-height: 1.55; color: #cbbcf0; }
+.bg-hero-art .promo-temple { width: min(100%, 460px); }
+@media (max-width: 860px) {
+  .bg-hero { grid-template-columns: 1fr; align-content: space-between; gap: 0; padding: 28px 20px; }
+  .bg-hero-art { order: 2; align-self: end; opacity: .9; }
+}
+.bg-card {
+  position: relative; z-index: 1; width: min(100%, 400px); box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 32px 26px 26px; text-align: center;
+  border-radius: 28px; background: rgba(20, 11, 40, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+/* LE LOGO ANIMÉ · il flotte, il clignote des yeux, une lueur respire derrière */
+.bg-logo { position: relative; color: #fff; animation: bg-float 3.4s ease-in-out infinite; }
+.bg-logo::before { content: ''; position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(circle, rgba(167, 139, 250, .55), transparent 68%); animation: bg-glow 3.4s ease-in-out infinite; z-index: -1; }
+.bg-logo .lg-icon path:nth-child(2), .bg-logo .lg-icon path:nth-child(3) { transform-box: fill-box; transform-origin: center; animation: bg-blink 4.2s infinite; }
+.bg-logo .lg-icon path:nth-child(4) { transform-box: fill-box; transform-origin: center top; animation: bg-smile 3.4s ease-in-out infinite; }
+@keyframes bg-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes bg-glow { 0%, 100% { opacity: .55; transform: scale(.92); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes bg-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes bg-smile { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.12); } }
+.bg-brand { margin: 4px 0 0; font-size: 34px !important; font-weight: 800 !important; line-height: 1; letter-spacing: .01em; }
+.bg-brand .wordmark { color: #fff; }
+.bg-pill { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.bg-lead { margin: 6px 0 4px; font-size: 15px; line-height: 1.5; color: #cbbcf0; }
+.bg-form { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.bg-boxes { position: relative; display: flex; gap: 10px; cursor: text; }
+.bg-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; font-size: 16px; caret-color: transparent; }
+.bg-box {
+  width: 54px; height: 64px; display: grid; place-items: center; border-radius: 16px;
+  font-size: 28px; font-weight: 800; color: #fff; background: rgba(255, 255, 255, .07);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .12); transition: box-shadow .15s ease, background-color .15s ease, transform .15s ease;
+}
+.bg-box.is-next { box-shadow: inset 0 0 0 2px #a78bfa, 0 0 0 4px rgba(167, 139, 250, .2); }
+.bg-box.is-full { background: rgba(124, 58, 237, .35); transform: translateY(-2px); }
+.bg-form.is-wrong .bg-boxes { animation: bg-shake .4s ease; }
+.bg-form.is-wrong .bg-box { box-shadow: inset 0 0 0 2px #f87171; }
+@keyframes bg-shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.bg-wrong { min-height: 20px; margin: 0; font-size: 13.5px; color: #fca5a5; }
+.bg-go { width: 100%; border: 0; cursor: pointer; padding: 13px 18px; border-radius: 14px; font: 800 16px var(--font-game); color: #fff; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.bg-go:disabled { opacity: .5; cursor: default; }
+.bg-go:active:not(:disabled) { box-shadow: var(--sk-press); }
+.bg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .bg-logo, .bg-logo::before, .bg-logo .lg-icon path, .bg-form.is-wrong .bg-boxes { animation: none !important; }
+}
+
+/* DOJOBOT A UN VISAGE · demandé : « Améliore vraiment le design du chat bot :
+   créé l'avatar du Dojo bot ajoute un peu de fun dans l'UI ». Le petit robot
+   flotte dans son bouton, salue en ouvrant le chat, signe chacune de ses
+   réponses, et réfléchit pendant qu'il cherche. */
+.sb-launch-wrap { position: fixed; right: 20px; bottom: 20px; z-index: 70; display: flex; align-items: flex-end; gap: 10px; }
+@media (max-width: 720px) { .sb-launch-wrap { right: 12px; bottom: max(16px, calc(var(--mbar-h, 0px) + 10px)); } }
+.gm .sb-launch-wrap { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.sb-launch.sb-launch-bot {
+  position: relative; inset: auto; width: 64px !important; height: 64px !important; border: 0 !important; overflow: visible;
+  border-radius: 50% 50% 50% 16px !important;
+  background: radial-gradient(circle at 35% 30%, #a78bfa, #7c3aed 62%, #5b21b6) !important;
+  box-shadow: 0 10px 26px rgba(124, 58, 237, .45), inset 0 2px 0 rgba(255, 255, 255, .25) !important;
+  transition: transform .18s var(--g-ease, ease), box-shadow .18s ease;
+}
+.sb-launch.sb-launch-bot:hover { transform: translateY(-3px) rotate(-4deg); box-shadow: 0 14px 30px rgba(124, 58, 237, .55), inset 0 2px 0 rgba(255, 255, 255, .25) !important; }
+@media (max-width: 720px) {
+  .gm .sb-launch-wrap { right: 10px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .sb-launch.sb-launch-bot { width: 56px !important; height: 56px !important; }
+}
+.sb-launch.sb-launch-bot:active { transform: scale(.94); }
+.sb-launch-av { display: grid; place-items: end center; height: 100%; animation: sb-bob 2.8s ease-in-out infinite; image-rendering: pixelated; }
+.sb-launch-dot { position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #f5c542; box-shadow: 0 0 0 3px #0a0514; animation: sb-ping 1.8s ease-out infinite; }
+.sb-tip {
+  max-width: 220px; border: 0; cursor: pointer; padding: 10px 14px; margin-bottom: 14px;
+  border-radius: 16px 16px 4px 16px; font: 700 13.5px/1.35 var(--font-game); text-align: left;
+  color: #1b1530; background: #fff; box-shadow: 0 10px 26px rgba(20, 10, 40, .25);
+  animation: sb-tip-in .35s var(--g-ease, ease) both;
+}
+@keyframes sb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes sb-ping { 0% { box-shadow: 0 0 0 3px #0a0514, 0 0 0 3px rgba(245, 197, 66, .7); } 100% { box-shadow: 0 0 0 3px #0a0514, 0 0 0 14px rgba(245, 197, 66, 0); } }
+@keyframes sb-tip-in { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+
+/* l'en-tête · l'avatar salue à l'ouverture */
+.sb-avatar.sb-avatar-bot {
+  width: 54px; height: 54px; flex: none; display: grid; place-items: end center; overflow: hidden; border-radius: 18px;
+  background: radial-gradient(circle at 35% 30%, #a78bfa, #7c3aed 62%, #5b21b6); box-shadow: 0 6px 16px rgba(124, 58, 237, .35);
+  image-rendering: pixelated; animation: sb-wave .9s ease-in-out 1;
+}
+.sb-avatar.sb-avatar-bot:hover { animation: sb-wave .9s ease-in-out 1; }
+@keyframes sb-wave { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-10deg); } 40% { transform: rotate(9deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(4deg); } }
+
+/* chaque réponse est signée de son petit visage, et arrive en douceur */
+.sb-row { animation: sb-row-in .28s var(--g-ease, ease) both; }
+.sb-row.bot { position: relative; padding-left: 44px; }
+.sb-mini {
+  position: absolute; left: 0; top: 2px; width: 34px; height: 34px; display: grid; place-items: end center; overflow: hidden;
+  border-radius: 12px; background: radial-gradient(circle at 35% 30%, #a78bfa, #7c3aed 70%); image-rendering: pixelated;
+}
+.sb-mini.is-thinking { animation: sb-think 1s ease-in-out infinite; }
+@keyframes sb-row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes sb-think { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) translateY(-2px); } }
+
+/* QUOI DE NEUF · la carte de la dernière mise à jour, en tête de conversation */
+.sb-new {
+  display: flex; flex-direction: column; gap: 4px; align-self: stretch; margin: 0 0 6px; padding: 14px 16px; text-align: left;
+  border: 0; cursor: pointer; border-radius: 18px; font-family: var(--font-game); color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #db2777); box-shadow: 0 10px 24px rgba(124, 58, 237, .3);
+  transition: transform .15s ease;
+}
+.sb-new:hover:not(:disabled) { transform: translateY(-2px); }
+.sb-new-k { align-self: flex-start; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; background: rgba(255, 255, 255, .22); }
+.sb-new b { font-size: 16px; font-weight: 800; }
+.sb-new span:last-child { font-size: 14px; line-height: 1.45; opacity: .92; }
+@media (prefers-reduced-motion: reduce) {
+  .sb-launch-av, .sb-launch-dot, .sb-tip, .sb-avatar.sb-avatar-bot, .sb-row, .sb-mini.is-thinking { animation: none !important; }
+}

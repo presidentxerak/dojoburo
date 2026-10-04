@@ -44,6 +44,7 @@ import { FRAMEWORK_COUNT } from '../data/frameworks'
 import { GRADES } from '../dojo/grades'
 import { PACKS, FREE_PACK, PATH_PACK, modulesOf, levelsOf, minutesOf, packPath } from '../data/packs'
 import { TRADES } from '../data/trades'
+import { whatsNewAnswer } from './dojobot'
 // LES PRIX · quatre réponses de cette base les recopiaient à la main, ce qui en
 // faisait une cinquième grille de prix capable de contredire les quatre autres.
 // Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
@@ -120,6 +121,26 @@ export interface KBTopic {
 }
 
 export const KB: KBTopic[] = [
+  {
+    // QUOI DE NEUF · demandé : « mets le à jour en fonction des nouvelles mises
+    // à jour de l'app et des formations automatiquement ». Rien n'est écrit ici :
+    // la réponse se compose du journal (data/updates), des dernières formations
+    // (data/packs) et de la dernière édition des nouveautés (data/news).
+    id: 'whatsnew',
+    chip: "What's new",
+    answer: whatsNewAnswer('en'),
+    links: [
+      { label: 'See the AI news', href: '/nouveautes' },
+      { label: 'See the courses', href: '/formations' },
+    ],
+    follow: ['training', 'start', 'pricing'],
+    keywords: ["what's new", 'whats new', 'new this week', 'latest update', 'updates', 'update', 'nouveau', 'nouveautés', 'nouveautes', 'quoi de neuf', 'mise à jour', 'mises à jour', 'dernières formations', 'nouvelles formations', 'new courses', 'cette semaine', 'this week', 'actualité', 'actualités', 'news'],
+    fr: {
+      chip: 'Quoi de neuf',
+      answer: whatsNewAnswer('fr'),
+      links: ['Voir les nouveautés IA', 'Voir les formations'],
+    },
+  },
   {
     // LES TEMPLES · premier bouton de la barre du bas. L'identifiant reste
     // 'studios' parce que SupportBot le nomme dans ses pastilles d'accueil.
