@@ -24,6 +24,7 @@
 // cours commence au-dessus de la ligne de flottaison.
 import { burst } from '../lib/juice'
 import { useEffect, useRef, useState } from 'react'
+import { useVideoCredits, type Credit } from '../lib/videoCredits'
 import { QuestHud, MasterDialog, Mission, Victory, MasterCheer, QT, type Cheer, type QuestStep } from './LessonGame'
 import { awardPart, unlockFeat, type Feat } from './achievements'
 import { BauhausIcon } from '../components/BauhausIcon'
@@ -562,34 +563,6 @@ function Exercise({ e, onComplete }: { e: Enrichment; onComplete?: () => void })
 /* vidéos youtube qui traitent chacun des sujets évoqués ». Rien ne part */
 /* vers YouTube avant le clic, et le lecteur est celui sans cookie.      */
 /* ------------------------------------------------------------------ */
-
-/** LES CRÉDITS · demandé : « crédite bien les auteurs et chaines youtube dans
- *  tous les cours en-dessous des vidéos ». Le nom de la chaîne est lu chez
- *  YouTube par notre serveur (api/video-credits), jamais écrit à la main, et
- *  gardé ici pour la session. Le navigateur ne contacte pas YouTube avant le
- *  clic ; les liens vers la chaîne et la vidéo ne chargent rien d'eux-mêmes. */
-type Credit = { author: string; url: string } | null
-const creditCache = new Map<string, Credit>()
-function useVideoCredits(ids: string[]) {
-  const key = ids.join(',')
-  const [credits, setCredits] = useState<Record<string, Credit>>(() =>
-    Object.fromEntries(ids.filter((id) => creditCache.has(id)).map((id) => [id, creditCache.get(id)!])))
-  useEffect(() => {
-    const missing = ids.filter((id) => !creditCache.has(id))
-    if (!missing.length) return
-    let live = true
-    fetch(`/api/video-credits?ids=${missing.map(encodeURIComponent).join(',')}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { credits?: Record<string, Credit> } | null) => {
-        const got = d?.credits ?? {}
-        missing.forEach((id) => { if (got[id] !== undefined) creditCache.set(id, got[id]) })
-        if (live) setCredits(Object.fromEntries(ids.filter((id) => creditCache.has(id)).map((id) => [id, creditCache.get(id)!])))
-      })
-      .catch(() => { /* hors ligne ou sans serveur · le lien vers la vidéo crédite quand même */ })
-    return () => { live = false }
-  }, [key])
-  return credits
-}
 
 function LessonVideos({ list }: { list: Video[] }) {
   const t = useT()

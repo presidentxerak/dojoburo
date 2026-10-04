@@ -199,12 +199,6 @@ export const MASTERS: Record<string, Master> = {
     welcome: B('Words do not sell, they make people want to buy. Let us find the ones your reader is waiting for.', 'Les mots ne vendent pas, ils donnent envie d\'acheter. Trouvons ceux que votre lecteur attend.'),
     spec: human({ skin: '#ffe0c8', hair: 'long', hairColor: '#be185d', accessory: 'flower', outfit: 'dress', outfitColor: '#db2777', accent: '#500724', eyes: 'happy' }),
   },
-  'veille-outils': {
-    name: 'Sumi',
-    role: B('Master of tech watch', 'Maître de la veille'),
-    welcome: B('A new tool comes out every day; a good one, rarely. Let us learn to tell them apart in an hour.', 'Un nouvel outil sort chaque jour ; un bon, rarement. Apprenons à les distinguer en une heure.'),
-    spec: { ...base, species: 'animal', variant: 'cat', outfit: 'tee', outfitColor: '#0d9488', accent: '#134e4a', accessory: 'glasses', eyes: 'dot' },
-  },
   'metier-consultant': {
     name: 'Rio',
     role: B('Master of consultants', 'Maître des consultants'),

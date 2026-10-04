@@ -302,14 +302,6 @@ const COURSE_META: Record<CourseId, Omit<Pack, 'id' | 'door' | 'modules' | 'cour
     tint: '#db2777',
     kit: 'sales',
   },
-  'veille-outils': {
-    title: B('AI tools of the moment: keep up without drowning', 'Les outils IA du moment : suivre sans se noyer'),
-    blurb: B('Like a good newspaper reader: a method to follow ChatGPT, Claude, Gemini, Grok, Mistral and the new tools, test them quickly and keep only what is worth the detour.',
-      'Comme un bon lecteur de presse : une méthode pour suivre ChatGPT, Claude, Gemini, Grok, Mistral et les nouveaux outils, les tester vite et ne garder que ce qui vaut le détour.'),
-    glyph: 'target',
-    tint: '#0d9488',
-    kit: 'saas',
-  },
 }
 const COURSE_PACKS: Pack[] = COURSE_IDS
   .filter((id) => COURSE_CITIES[id].length > 0)

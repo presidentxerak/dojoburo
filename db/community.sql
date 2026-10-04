@@ -219,3 +219,15 @@ create table if not exists community_testimonials (
 );
 create unique index if not exists community_testimonials_one_idx on community_testimonials (did, coalesce(pack, ''));
 create index if not exists community_testimonials_status_idx on community_testimonials (status, created_at desc);
+
+-- LOT 5 · LES PROFILS FICTIFS · demandé : « Créé 330 profils en plus des
+-- maîtres dans la communauté qui posent des questions sur les cours (les
+-- maîtres leur répondent) et qui donnent des conseils et des tips pour les
+-- nouveaux arrivants ». Ils portent le kind 'persona' : des profils de
+-- démonstration, sans badge (« c'est une démo n'affiche pas profil fictif »),
+-- dits comme tels sur leur page et dans le mot d'accueil. Ils sont exclus des classements (kind = 'member').
+-- Les profils et leurs publications sont écrits par l'API au premier
+-- chargement du fil, une fois cette migration appliquée (api/community.ts).
+alter table community_members drop constraint if exists community_members_kind_check;
+alter table community_members add constraint community_members_kind_check
+  check (kind in ('member', 'team', 'master', 'persona'));

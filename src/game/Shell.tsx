@@ -81,6 +81,9 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
   // LES FORMATIONS · demandé : « Créé une page Formations avec les cards de
   // formations et leur maîtres avec leur pricing ». La toque d'école.
   { to: '/formations', key: 'nav.training', glyph: 'training' },
+  // LES NOUVEAUTÉS IA · demandé : « à la page des nouveautés IA mets le bouton
+  // entre formations et communauté ». Le journal plié.
+  { to: '/nouveautes', key: 'nav.news', glyph: 'news' },
   { to: '/clan', key: 'nav.clan', glyph: 'clan' },
   { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]

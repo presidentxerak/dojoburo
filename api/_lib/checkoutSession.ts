@@ -42,7 +42,6 @@ export const BUY_COURSES: ReadonlySet<string> = new Set([
   'ia-locale',
   'business-ia',
   'copywriting',
-  'veille-outils',
 ])
 
 /** LE NOM DE CHAQUE TEMPLE, tel que l'acheteur le lit sur la page de paiement
@@ -68,7 +67,6 @@ export const TEMPLE_NAMES: Readonly<Record<string, string>> = {
   'ia-locale': "L'IA en local, open source et hors ligne",
   'business-ia': "Business et monétisation avec l'IA",
   'copywriting': "Copywriting et vente avec l'IA",
-  'veille-outils': 'Les outils IA du moment : suivre sans se noyer',
   growth: "L'IA pour les growth marketers",
   comms: "L'IA pour la communication",
   founder: "L'IA pour les fondateurs",

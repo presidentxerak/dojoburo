@@ -222,6 +222,14 @@ const SHAPES: Record<IconName, JSX.Element> = {
     <circle cx="16.5" cy="9.5" r="2.6" fill="currentColor" stroke="none" />
     <path d="M15.2 14.6 A5 5 0 0 1 21.5 19.5" />
   </>,
+  // LE JOURNAL · une page, un bandeau de titre plein et trois lignes de texte,
+  // le pli de la dernière colonne. Les nouveautés IA, chaque lundi.
+  news: <>
+    <path d="M4 5.5 H17.5 V18.5 A2 2 0 0 0 19.5 20.5 H6 A2 2 0 0 1 4 18.5 Z" />
+    <path d="M17.5 9 H20.5 V18.5 A1 1 0 0 1 19.5 20.5" />
+    <rect x="7" y="8.5" width="7.5" height="3" fill="currentColor" stroke="none" />
+    <path d="M7 14.5 H14.5 M7 17.5 H12" />
+  </>,
   // LE CADENAS · un rectangle, l'arc de l'anse, le point de la serrure. Il
   // remplace le carré nu qui disait « fermé » sur les cartes : un carré seul
   // se lisait comme une forme décorative, pas comme une serrure.

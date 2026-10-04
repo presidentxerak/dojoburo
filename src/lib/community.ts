@@ -17,7 +17,7 @@ export const COMMUNITY_LIMITS = {
 } as const
 
 /** kind · une personne, l'équipe DojoBuro, ou un maître IA (toujours affiché comme tel) */
-export type AuthorKind = 'member' | 'team' | 'master'
+export type AuthorKind = 'member' | 'team' | 'master' | 'persona'
 export interface Author { name: string; key: string; handle?: string | null; level?: number | null; kind?: AuthorKind; founder?: boolean }
 
 export interface CMember {

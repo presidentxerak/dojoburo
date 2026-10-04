@@ -25,6 +25,7 @@ import { verifiedEmailOf, canVerifyEmail } from './_lib/privyUser.js'
 import { ADMIN_EMAILS } from './_lib/admins.js'
 import { TEAM_DID, TEAM_NAME, SEED_POSTS, MASTER_NAMES, masterDid, masterName, masterSystem, callsMaster } from './_lib/communitySeed.js'
 import { cascadeComplete } from './_lib/llm.js'
+import { PERSONA_COUNT, PERSONA_MASTERS, PERSONA_MEMBERS, PERSONA_POSTS, PERSONA_COMMENTS } from './_lib/personaSeed.js'
 import { brevoConfigured, sendEmail, layout, esc, siteUrl } from './_lib/brevo.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
@@ -622,9 +623,69 @@ function ensureSeed(): Promise<void> {
           [p.id, TEAM_DID, p.category, p.title, p.body, p.pinned],
         )
       }
+      // LE MOT D'ACCUEIL DIT LA VÉRITÉ SUR LES PROFILS FICTIFS · il est écrit une
+      // fois en base ; son texte est remis à jour s'il date d'avant les profils.
+      const welcome = SEED_POSTS[0]
+      await pool.query(
+        "update community_posts set body = $1 where id = $2 and author_did = $3 and body <> $1",
+        [welcome.body, welcome.id, TEAM_DID],
+      )
+      await ensurePersonas(pool)
     })().catch(() => { seeded = null })
   }
   return seeded
+}
+
+/* ---- les profils fictifs -------------------------------------------------------- */
+//
+// Demandé : « Créé 330 profils en plus des maîtres dans la communauté qui posent
+// des questions sur les cours (les maîtres leur répondent) et qui donnent des
+// conseils et des tips pour les nouveaux arrivants ». Générés depuis les cours
+// (scripts/gen-personas.mjs), sans badge (« c'est une démo n'affiche pas profil
+// fictif ») mais présentés comme profils de démonstration sur leur page,
+// (kind 'persona') et exclus des classements. Écrits une fois, en trois
+// requêtes, avec des identifiants fixes (« on conflict do nothing ») : une
+// publication supprimée par un administrateur ne revient pas.
+//
+// SANS LA MIGRATION (db/community.sql, lot 5), la base refuse le kind
+// 'persona' : rien n'est écrit, le reste de la communauté fonctionne.
+async function ensurePersonas(pool: ReturnType<typeof getPool>): Promise<void> {
+  try {
+    const have = await pool.query("select count(*)::int as n from community_members where kind = 'persona'")
+    if ((have.rows[0]?.n ?? 0) >= PERSONA_COUNT) return
+    await pool.query(
+      `insert into community_members (did, name, kind)
+         select x.did, x.name, 'master' from jsonb_to_recordset($1::jsonb) as x(did text, name text)
+       on conflict (did) do nothing`,
+      [JSON.stringify(PERSONA_MASTERS)],
+    )
+    await pool.query(
+      `insert into community_members (did, name, bio, avatar, kind, created_at, last_seen_at)
+         select x.did, x.name, x.bio, x.avatar, 'persona', now() - interval '62 days', now() - interval '62 days'
+           from jsonb_to_recordset($1::jsonb) as x(did text, name text, bio text, avatar jsonb)
+       on conflict (did) do nothing`,
+      [JSON.stringify(PERSONA_MEMBERS)],
+    )
+    await pool.query(
+      `insert into community_posts (id, author_did, category, title, body, comments, created_at, last_activity_at)
+         select x.id::uuid, x.did, x.category, x.title, x.body, x.comments,
+                date_trunc('milliseconds', now() - make_interval(hours => x."hoursAgo")),
+                now() - make_interval(hours => greatest(x."hoursAgo" - 2, 0))
+           from jsonb_to_recordset($1::jsonb) as x(id text, did text, category text, title text, body text, comments int, "hoursAgo" int)
+       on conflict (id) do nothing`,
+      [JSON.stringify(PERSONA_POSTS)],
+    )
+    await pool.query(
+      `insert into community_comments (id, post_id, author_did, body, created_at)
+         select x.id::uuid, x."postId"::uuid, x.did, x.body, now() - make_interval(hours => x."hoursAgo")
+           from jsonb_to_recordset($1::jsonb) as x(id text, "postId" text, did text, body text, "hoursAgo" int)
+          where exists (select 1 from community_posts p where p.id = x."postId"::uuid)
+       on conflict (id) do nothing`,
+      [JSON.stringify(PERSONA_COMMENTS)],
+    )
+  } catch {
+    // migration non appliquée, ou base indisponible · on réessaiera au prochain démarrage
+  }
 }
 
 /* ---- les témoignages ---------------------------------------------------------- */

@@ -497,6 +497,7 @@ export const DICT = {
   'nav.game': { en: 'Dojoburo', fr: 'Dojoburo' },
   'nav.training': { en: 'Courses', fr: 'Formations' },
   'nav.clan': { en: 'Community', fr: 'Communauté' },
+  'nav.news': { en: 'AI news', fr: 'Nouveautés' },
   'nav.profile': { en: 'Profile', fr: 'Profil' },
   'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },
   'pr.featsH2': { en: "Achievements", fr: "Les succès" },

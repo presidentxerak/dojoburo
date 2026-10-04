@@ -4,6 +4,7 @@ Demandes :
 - « on va faire 3 prix 0€ gratuit, Un temple (une formation) à 49€ et le Pass dojo à 99€ life time (toutes les formations actuelles et futures) » ;
 - « change les noms de produit de Stripe "Un temple Dojoburo" par "Un cours Dojoburo" et Pass Dojo par "Pass Dojoburo" refais le tableau entièrement avec toutes les infos pour Stripe avec tous les cours, meta données, description, prix et catégorie ».
 - « enrichi nos formations en en créant des nouvelles très détaillées » : treize formations thématiques ajoutées au tableau, avec leur catégorie `formation-thematique`.
+- « La formation "Les outils du moment : suivre sans se noyer" n'est pas une formation mais une news mise à jour toutes les semaines le lundi : enlève la des formations » : elle est retirée du tableau, il en reste douze.
 
 Les prix affichés dans l'app viennent de `src/data/plans.ts` (`TEMPLE_EUR`, `PASS_EUR`). Les prix facturés viennent de Stripe. Les deux doivent dire la même chose : 49 € et 99 €.
 
@@ -14,7 +15,7 @@ Tableau de bord Stripe, Catalogue de produits, Ajouter un produit. Le Gratuit n'
 | Champ Stripe | Un cours Dojoburo | Pass Dojoburo |
 |---|---|---|
 | Nom du produit | Un cours Dojoburo | Pass Dojoburo |
-| Description | Une formation Dojoburo au choix : la formation complète, une formation métier, une formation thématique (livre, storyboard, BD et manga, flow UX, architecture, comptabilité, images, logo et charte, design system, IA locale, business, copywriting, veille) ou une formation de développement d'app. Tous les étages du cours sont ouverts, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. | Toutes les formations Dojoburo, actuelles et futures, à vie : la formation complète, toutes les formations métier et tous les cours, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. |
+| Description | Une formation Dojoburo au choix : la formation complète, une formation métier, une formation thématique (livre, storyboard, BD et manga, flow UX, architecture, comptabilité, images, logo et charte, design system, IA locale, business, copywriting) ou une formation de développement d'app. Tous les étages du cours sont ouverts, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. | Toutes les formations Dojoburo, actuelles et futures, à vie : la formation complète, toutes les formations métier et tous les cours, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. |
 | Prix | 49,00 EUR | 99,00 EUR |
 | Type de tarif | ponctuel (one-off), pas récurrent | ponctuel (one-off), pas récurrent |
 | Taxes, comportement | TTC (prix taxes incluses) | TTC (prix taxes incluses) |
@@ -55,7 +56,6 @@ Un seul produit, « Un cours Dojoburo », sert tous les cours. À chaque paiemen
 | L'IA en local, open source et hors ligne | Comme avoir sa propre cuisine plutôt que manger dehors : des modèles de texte, d'image et de vidéo qui tournent sur votre machine, hors ligne, sans abonnement, vos données restant chez vous. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `ia-locale` | Un cours Dojoburo · L'IA en local, open source et hors ligne |
 | Business et monétisation avec l'IA | Comme ouvrir une boutique dans un nouveau quartier : comprendre le marché, trouver un vrai problème, monter un prototype en une soirée, vendre, et tenir dans la durée. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `business-ia` | Un cours Dojoburo · Business et monétisation avec l'IA |
 | Copywriting et vente avec l'IA | Comme un vendeur qui écrit : comprendre comment pense votre lecteur, positionner l'offre, capter l'attention, créer le désir et la confiance, avec l'IA en partenaire d'entraînement. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `copywriting` | Un cours Dojoburo · Copywriting et vente avec l'IA |
-| Les outils IA du moment : suivre sans se noyer | Comme un bon lecteur de presse : une méthode pour suivre ChatGPT, Claude, Gemini, Grok, Mistral et les nouveaux outils, les tester vite et ne garder que ce qui vaut le détour. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `veille-outils` | Un cours Dojoburo · Les outils IA du moment : suivre sans se noyer |
 | L'IA pour les growth marketers | Vous faites venir des clients, et vous rendez compte de ce que cela coûte. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `growth` | Un cours Dojoburo · L'IA pour les growth marketers |
 | L'IA pour la communication | Vous rédigez ce que dit l'entreprise, et vous en portez la responsabilité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `comms` | Un cours Dojoburo · L'IA pour la communication |
 | L'IA pour les fondateurs | Vous décidez, vous vendez et vous recrutez, souvent le même jour. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `founder` | Un cours Dojoburo · L'IA pour les fondateurs |
@@ -70,9 +70,9 @@ Un seul produit, « Un cours Dojoburo », sert tous les cours. À chaque paiemen
 | L'IA pour les recruteurs | Vous recrutez pour votre entreprise ou vos clients, et vous répondez de la façon dont chaque candidat est traité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `recruiter` | Un cours Dojoburo · L'IA pour les recruteurs |
 | L'IA pour les juristes | Vous lisez, rédigez et conseillez, et vous répondez de chaque mot et de chaque source. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `lawyer` | Un cours Dojoburo · L'IA pour les juristes |
 | L'IA pour les consultants | Vous cadrez le problème d'un client, établissez les faits et recommandez, et votre nom figure sous chaque chiffre. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `consultant` | Un cours Dojoburo · L'IA pour les consultants |
-| **Pass Dojoburo** | Les 30 cours payants ci-dessus, et les cours à venir, à vie. | 417 | 62,6 h | 99 € | `pass` | `pass` | aucun | Pass Dojoburo · toutes les formations, à vie |
+| **Pass Dojoburo** | Les 29 cours payants ci-dessus, et les cours à venir, à vie. | 401 | 59,8 h | 99 € | `pass` | `pass` | aucun | Pass Dojoburo · toutes les formations, à vie |
 
-Les 30 cours payants coûtent 1 470 € achetés un par un. Le Pass Dojoburo est rentable dès le troisième cours.
+Les 29 cours payants coûtent 1 421 € achetés un par un. Le Pass Dojoburo est rentable dès le troisième cours.
 
 Champs posés sur chaque paiement :
 

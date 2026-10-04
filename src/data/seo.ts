@@ -81,7 +81,6 @@ export const PACK_QUERY: Record<string, Bi> = {
   'ia-locale': B('Local AI, open source and offline', 'L\'IA en local, open source et hors ligne'),
   'business-ia': B('Business and monetisation with AI', 'Business et monétisation avec l\'IA'),
   'copywriting': B('Copywriting and sales with AI', 'Copywriting et vente avec l\'IA'),
-  'veille-outils': B('AI tools of the moment: keep up without drowning', 'Les outils IA du moment : suivre sans se noyer'),
 }
 
 /** Le modèle de titre d'une formation métier · {t} est son titre, qui dit
