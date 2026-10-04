@@ -641,8 +641,8 @@ function ensureSeed(): Promise<void> {
 // Demandé : « Créé 330 profils en plus des maîtres dans la communauté qui posent
 // des questions sur les cours (les maîtres leur répondent) et qui donnent des
 // conseils et des tips pour les nouveaux arrivants ». Générés depuis les cours
-// (scripts/gen-personas.mjs), sans badge (« c'est une démo n'affiche pas profil
-// fictif ») mais présentés comme profils de démonstration sur leur page,
+// (scripts/gen-personas.mjs), sans badge ni mention (« c'est une démo n'affiche
+// pas profil fictif », « n'écris aucun message qui précise cela »),
 // (kind 'persona') et exclus des classements. Écrits une fois, en trois
 // requêtes, avec des identifiants fixes (« on conflict do nothing ») : une
 // publication supprimée par un administrateur ne revient pas.
@@ -661,7 +661,7 @@ async function ensurePersonas(pool: ReturnType<typeof getPool>): Promise<void> {
     )
     await pool.query(
       `insert into community_members (did, name, bio, avatar, kind, created_at, last_seen_at)
-         select x.did, x.name, x.bio, x.avatar, 'persona', now() - interval '62 days', now() - interval '62 days'
+         select x.did, x.name, x.bio, x.avatar, 'persona', now() - interval '110 days', now() - interval '110 days'
            from jsonb_to_recordset($1::jsonb) as x(did text, name text, bio text, avatar jsonb)
        on conflict (did) do nothing`,
       [JSON.stringify(PERSONA_MEMBERS)],
