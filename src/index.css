@@ -13125,3 +13125,40 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .ln-video figcaption a:hover { color: var(--ac, #7c3aed); }
 .ln-video-credit { font-weight: 500; }
 .ln-video-credit b { font-size: inherit; font-weight: 600; }
+
+/* LES NOUVEAUTÉS IA · demandé : « créé la page des news IA [...] fais juste
+   une card du résumé de la news qui mène au vrai article avec les crédits et
+   le nom de la source ». Des cartes en grille fluide, la source toujours lisible. */
+.nw-week { font-size: clamp(18px, 1vw + 14px, 22px); margin: 8px 0 6px; }
+.nw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 16px; margin-top: 14px; }
+.nw-card {
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 16px 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot));
+  box-shadow: var(--g-edge), var(--g-lift);
+}
+.nw-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--g-sub); }
+.nw-kind { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-weight: 700; color: #fff; background: #7c3aed; }
+.nw-card.is-video .nw-kind { background: #b91c1c; }
+.nw-title { margin: 0; font-size: 16.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.nw-sum { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--g-sub); flex: 1; }
+.nw-credit { margin: 0; font-size: 13px; color: var(--g-sub); overflow-wrap: anywhere; }
+.nw-credit b, .nw-credit a { color: inherit; font-weight: 700; }
+.nw-credit a { text-decoration: underline; text-underline-offset: 2px; }
+.nw-go {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 12px;
+  font-weight: 700; font-size: 14px; color: #fff; text-decoration: none;
+  background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn);
+}
+.nw-go:hover { background-color: #6d28d9; }
+.nw-go:active { box-shadow: var(--sk-press); }
+.nw-past { margin: 10px 0; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--g-card) 70%, transparent); }
+.nw-past > summary { cursor: pointer; font-weight: 700; }
+.nw-learn { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.nw-learn p { margin: 0; }
+/* CINQ BOUTONS DANS LA BARRE DU BAS · le libellé le plus long (« Nouveautés »)
+   tient sur un téléphone étroit. */
+@media (max-width: 430px) {
+  .gm-tabs { gap: 6px; padding-left: 6px; padding-right: 6px; }
+  .gm-tab { font-size: 10.5px; padding-left: 2px; padding-right: 2px; }
+}

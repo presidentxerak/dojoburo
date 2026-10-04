@@ -79,7 +79,10 @@ const TAB_TO = [...SHELL.matchAll(/\{ to: '([^']+)', key: '(nav\.[a-z]+)'/g)].ma
 // RÉPARÉE À NOUVEAU · « Créé une page Formations avec les cards de formations
 // et leur maîtres avec leur pricing ». Quatre boutons, la page Formations en
 // deuxième.
-ok('quatre boutons : Dojoburo, Formations, Communauté, Profil', TAB_TO.join(' | ') === '/ nav.game | /formations nav.training | /clan nav.clan | /profil nav.profile', TAB_TO.join(' | '))
+// RÉPARÉE ENCORE · « à la page des nouveautés IA mets le bouton entre
+// formations et communauté ». Cinq boutons, Nouveautés entre Formations et
+// Communauté.
+ok('cinq boutons : Dojoburo, Formations, Nouveautés, Communauté, Profil', TAB_TO.join(' | ') === '/ nav.game | /formations nav.training | /nouveautes nav.news | /clan nav.clan | /profil nav.profile', TAB_TO.join(' | '))
 
 /* --- 4 · le profil a ses onglets, et plus la carte ----------------------- */
 

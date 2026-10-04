@@ -345,7 +345,10 @@ ok('aucun palier ne la rabat à deux colonnes',
 // et leur maîtres avec leur pricing ». Quatre boutons : Dojoburo (la carte),
 // Formations (la liste et les prix), Communauté, Profil.
 const TAB_KEYS = [...SHELL.matchAll(/key:\s*'(nav\.[a-z]+)'/g)].map((m) => m[1])
-ok('la barre : Dojoburo, Formations, Communauté, Profil', TAB_KEYS.join(',') === 'nav.game,nav.training,nav.clan,nav.profile', TAB_KEYS.join(','))
+// RÉPARÉE ENCORE · « à la page des nouveautés IA mets le bouton entre
+// formations et communauté ». Cinq boutons, Nouveautés entre Formations et
+// Communauté.
+ok('la barre : Dojoburo, Formations, Nouveautés, Communauté, Profil', TAB_KEYS.join(',') === 'nav.game,nav.training,nav.news,nav.clan,nav.profile', TAB_KEYS.join(','))
 ok('Dojoburo porte la marque et mène aux temples', /\{ to: '\/', key: 'nav\.game', glyph: null \}/.test(SHELL))
 ok('Dojoburo s\'allume dans un temple et ses leçons', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
 ok('l\'onglet Formations mène à la page des formations', /\{ to: '\/formations', key: 'nav\.training', glyph: 'training' \}/.test(SHELL) && /path === '\/formations'\) return <FormationsPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))

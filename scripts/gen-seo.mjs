@@ -165,6 +165,8 @@ const urls = [
   { loc: '/decouvrir', pri: '0.9', freq: 'weekly' },
   { loc: '/tarifs', pri: '0.9', freq: 'monthly' },
   { loc: '/clan', pri: '0.7', freq: 'daily' },
+  // LES NOUVEAUTÉS IA · une édition chaque lundi
+  { loc: '/nouveautes', pri: '0.8', freq: 'weekly' },
   // LES PAGES LÉGALES · leurs adresses françaises (/terms et /privacy y mènent)
   { loc: '/mentions-legales', pri: '0.2', freq: 'yearly' },
   { loc: '/confidentialite', pri: '0.2', freq: 'yearly' },

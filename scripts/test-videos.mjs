@@ -57,7 +57,8 @@ ok('le domaine du lecteur est autorisé par la CSP', /frame-src[^;"]*https:\/\/w
   ok('sans nom de chaîne, aucun crédit inventé', VC.readCredit({}) === null && VC.readCredit({ author_name: '  ' }) === null)
   ok('les identifiants demandés sont vérifiés et bornés', VC.parseIds('PJ2hKYTMyJA,bad,PJ2hKYTMyJA,' + 'a'.repeat(11)).join(',') === `PJ2hKYTMyJA,${'a'.repeat(11)}` && VC.parseIds(Array.from({ length: 20 }, (_, k) => String(k).padStart(11, 'x')).join(',')).length === VC.MAX_IDS)
   ok('chaque vidéo crédite sa chaîne et renvoie vers l\'original', /className="ln-video-credit"/.test(LS) && /t\('ln\.videoBy'\)/.test(LS) && /href=\{credit\.url\}/.test(LS) && /href=\{`https:\/\/www\.youtube\.com\/watch\?v=\$\{v\.id\}`\}/.test(LS))
-  ok('le navigateur demande les crédits à notre serveur, pas à YouTube', /fetch\(`\/api\/video-credits\?ids=/.test(LS) && !/fetch\([^)]*youtube/.test(LS))
+  const VCL = readFileSync('src/lib/videoCredits.ts', 'utf8')
+  ok('le navigateur demande les crédits à notre serveur, pas à YouTube', /fetch\(`\/api\/video-credits\?ids=/.test(VCL) && !/fetch\([^)]*youtube/.test(VCL + LS) && /useVideoCredits\(/.test(LS))
   const VJ = readFileSync('vercel.json', 'utf8')
   ok('les crédits se gardent en cache, les autres routes non', /"source": "\/api\/\(\(\?!video-credits\)\.\*\)"/.test(VJ) && /s-maxage=2592000/.test(readFileSync('api/video-credits.ts', 'utf8')))
 }

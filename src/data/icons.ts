@@ -57,6 +57,7 @@ export const ICON_NAMES = [
   'lock',       // le cadenas · ce qui est fermé
   'clan',       // deux personnes · le clan
   'training',   // la toque · l'onglet Training
+  'news',       // le journal plié · les nouveautés IA
 ] as const
 
 export type IconName = (typeof ICON_NAMES)[number]
