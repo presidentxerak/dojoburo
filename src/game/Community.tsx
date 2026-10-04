@@ -1092,7 +1092,7 @@ function MemberView({ handle, me }: { handle: string; me: Me }) {
       <div className="cy-card cy-profile">
         <Avatar author={{ name: m.name, key: m.handle, level: m.level }} big />
         <div className="cy-profile-t">
-          <h2 className="pf-h2">{m.name} {m.online && <i className="cy-online"><span>{s(CT.online)}</span></i>}</h2>
+          <h2 className="pf-h2">{m.name} <KindBadge kind={m.kind} founder={m.founder} /> {m.online && <i className="cy-online"><span>{s(CT.online)}</span></i>}</h2>
           {m.bio && <p className="cy-profile-bio">{m.bio}</p>}
           <p className="cy-sub">{s(CT.joined)} <DateOnly iso={m.joinedAt} lang={lang} /></p>
           <ul className="cy-profile-nums">
@@ -1102,7 +1102,7 @@ function MemberView({ handle, me }: { handle: string; me: Me }) {
             <li><b>{m.comments}</b><span>{s(CT.profileComments)}</span></li>
           </ul>
           {m.me && !editing && <button className="cc-btn cc-slate" onClick={() => setEditing(true)}>{s(CT.editProfile)}</button>}
-          {!m.me && me.signedIn && me.name && <Lnk className="gm-cta" href={`/clan/messages/${m.handle}`}>{s(CT.writeTo)}</Lnk>}
+          {!m.me && m.kind !== 'persona' && me.signedIn && me.name && <Lnk className="gm-cta" href={`/clan/messages/${m.handle}`}>{s(CT.writeTo)}</Lnk>}
         </div>
       </div>
       {m.me && editing && <ProfileForm initial={{ name: m.name, bio: m.bio, emailNotify: me.data?.emailNotify ?? true }} onDone={() => { setEditing(false); load(); me.refresh() }} />}
@@ -1354,6 +1354,8 @@ export function KindBadge({ kind, founder }: { kind?: string; founder?: boolean 
   const { s } = useSay()
   if (kind === 'team') return <span className="cy-kind team">{s(CT.badgeTeam)}</span>
   if (kind === 'master') return <span className="cy-kind master">{s(CT.badgeMaster)}</span>
+  // UN PROFIL FICTIF, DIT COMME TEL · créé par l'équipe pour lancer les échanges
+  if (kind === 'persona') return <span className="cy-kind persona" title={s(CT.badgePersonaHint)}>{s(CT.badgePersona)}</span>
   if (founder) return <span className="cy-kind founder">{s(CT.badgeFounder)}</span>
   return null
 }

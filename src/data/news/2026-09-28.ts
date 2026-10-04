@@ -72,7 +72,7 @@ export const N_2026_09_28: NewsWeek = {
       title: 'Customize Claude Code with mods in TypeScript',
       summary: B(
         'Anthropic has introduced mods for Claude Code: small TypeScript functions that can rewrite a prompt, block or retry a tool call, redact secrets or add new interface elements. They ship inside plugins and install with the /plugin command.',
-        "Anthropic lance les mods pour Claude Code : de petites fonctions en TypeScript qui peuvent réécrire un prompt, bloquer ou relancer un appel d'outil, masquer des secrets ou ajouter des éléments d'interface. Ils sont livrés dans des plugins et s'installent avec la commande /plugin.",
+        "Anthropic lance les mods pour Claude Code : de petites fonctions en TypeScript qui peuvent réécrire un prompt, bloquer ou relancer un tool call, masquer des secrets ou ajouter des éléments d'interface. Ils sont livrés dans des plugins et s'installent avec la commande /plugin.",
       ),
       source: 'Claude (Anthropic)',
       author: '',

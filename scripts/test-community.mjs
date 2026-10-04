@@ -239,5 +239,40 @@ ok('la présence ne compte que les dernières minutes', C.PRESENCE_WINDOW_S > 0 
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))
 
+/* --- les profils fictifs ---------------------------------------------------- */
+// Demandé : « Créé 330 profils en plus des maîtres dans la communauté qui posent
+// des questions sur les cours (les maîtres leur répondent) et qui donnent des
+// conseils et des tips pour les nouveaux arrivants ». Signalés comme fictifs,
+// fondés sur les cours, sans aucun témoignage.
+{
+  const rp = await build({ entryPoints: ['api/_lib/personaSeed.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+  writeFileSync(join(OUT, 'p.mjs'), rp.outputFiles[0].text)
+  const PS = await import(pathToFileURL(join(OUT, 'p.mjs')).href)
+  const rs = await build({ entryPoints: ['api/_lib/communitySeed.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+  writeFileSync(join(OUT, 's.mjs'), rs.outputFiles[0].text)
+  const SD = await import(pathToFileURL(join(OUT, 's.mjs')).href)
+  const M = PS.PERSONA_MEMBERS, P = PS.PERSONA_POSTS, Cm = PS.PERSONA_COMMENTS
+  ok('330 profils fictifs, en plus des maîtres', PS.PERSONA_COUNT === 330 && M.length === 330 && M.every((m) => /^persona:\d{3}$/.test(m.did)))
+  ok('des noms uniques, dans la borne de la base', new Set(M.map((m) => m.name)).size === M.length && M.every((m) => m.name.length >= 2 && m.name.length <= 32))
+  ok('chaque profil se présente comme fictif', M.every((m) => /^Profil fictif/.test(m.bio) && m.bio.length <= 280))
+  const questions = P.filter((p) => p.category === 'questions')
+  ok('ils posent des questions sur les cours, et un maître répond à chacune', questions.length >= 200 && questions.every((q) => Cm.some((c) => c.postId === q.id && /^master:/.test(c.did))))
+  ok('chaque réponse vient d\'un vrai maître', Cm.every((c) => SD.MASTER_NAMES[c.did.replace('master:', '')]) && PS.PERSONA_MASTERS.every((m) => m.name.endsWith('· IA')))
+  ok('ils donnent des conseils aux nouveaux', P.filter((p) => p.category !== 'questions').length >= 100)
+  ok('les publications tiennent dans les bornes de la base', P.every((p) => p.title.length >= 3 && p.title.length <= 120 && p.body.length >= 10 && p.body.length <= 5000) && Cm.every((c) => c.body.length >= 1 && c.body.length <= 2000))
+  ok('un auteur par publication, des identifiants fixes et uniques', new Set(P.map((p) => p.id)).size === P.length && P.every((p) => M.some((m) => m.did === p.did)))
+  const ALL = [...P.map((p) => p.title + p.body), ...Cm.map((c) => c.body)].join('\n')
+  // un pourcentage peut venir d'un cours cité (« inspectez à 100 % ») : les
+  // chiffres sont cherchés dans les conseils écrits à la main, sans citation
+  const OWN = P.filter((p) => !/«/.test(p.body)).map((p) => p.title + p.body).join('\n')
+  ok('aucun témoignage ni résultat chiffré', !/j'ai (gagné|économisé|doublé|triplé)|grâce à dojoburo|mon chiffre d'affaires/i.test(ALL) && !/\d+ ?%|\d+ ?€/.test(OWN))
+  ok('aucun emoji ni tiret long', !/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}–—]/u.test(ALL + M.map((m) => m.name + m.bio).join('')))
+  const API = readFileSync('api/community.ts', 'utf8')
+  ok('l\'API les écrit une fois, exclus des classements', /async function ensurePersonas/.test(API) && /'persona', now\(\) - interval/.test(API) && /on conflict \(id\) do nothing/.test(API))
+  ok('la base accepte le kind persona (migration écrite)', /check \(kind in \('member', 'team', 'master', 'persona'\)\)/.test(readFileSync('db/community.sql', 'utf8')))
+  ok('le badge « Profil fictif » s\'affiche partout où l\'auteur apparaît', /kind === 'persona'/.test(readFileSync('src/game/Community.tsx', 'utf8')) && /Profil fictif/.test(readFileSync('src/game/communityText.ts', 'utf8')))
+  ok('le mot d\'accueil le dit', /Profil fictif/.test(SD.SEED_POSTS[0].body) && /vraies personnes/.test(SD.SEED_POSTS[0].body))
+}
+
 console.log('\ntest-community')
 process.exitCode = fails ? 1 : 0

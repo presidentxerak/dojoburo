@@ -61,6 +61,8 @@ export const CT = {
   tabWins: B('Wins', 'Réussites'),
   badgeTeam: B('Team', 'Équipe'),
   badgeMaster: B('AI master', 'Maître IA'),
+  badgePersona: B('Fictional profile', 'Profil fictif'),
+  badgePersonaHint: B('A character created by the DojoBuro team to start the conversations. The other accounts are real people.', 'Un personnage créé par l\'équipe DojoBuro pour lancer les échanges. Les autres comptes sont de vraies personnes.'),
   badgeFounder: B('Founder', 'Fondateur'),
   dailyH: B("Today's challenge", 'Le défi du jour'),
   masterWord: B('Master', 'Maître'),
