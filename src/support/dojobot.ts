@@ -22,6 +22,8 @@ export const DOJOBOT: ChibiSpec = {
 }
 
 type Lang = 'en' | 'fr'
+/** la ponctuation de chaque langue · une espace avant les deux-points en français seulement */
+const colon = (lang: Lang) => (lang === 'fr' ? ' :' : ':')
 
 /** la dernière mise à jour · ce que la pastille du bouton signale */
 export const LATEST_UPDATE = APP_UPDATES[0] ?? null
@@ -40,7 +42,7 @@ const L = {
 /** une ligne pour la première phrase de Dojobot */
 export function whatsNewLine(lang: Lang): string {
   if (!LATEST_UPDATE) return ''
-  return `${say(L.hi, lang)} : ${say(LATEST_UPDATE.title, lang)}.`
+  return `${say(L.hi, lang)}${colon(lang)} ${say(LATEST_UPDATE.title, lang)}.`
 }
 
 /** la réponse complète de la rubrique « Quoi de neuf » */
@@ -48,13 +50,13 @@ export function whatsNewAnswer(lang: Lang): string {
   const s = (b: Bi) => say(b, lang)
   const parts: string[] = []
   if (APP_UPDATES.length) {
-    parts.push(`${s(L.app)} :\n${APP_UPDATES.slice(0, 3).map((u) => `· ${s(u.title)}. ${s(u.body)}`).join('\n')}`)
+    parts.push(`${s(L.app)}${colon(lang)}\n${APP_UPDATES.slice(0, 3).map((u) => `· ${s(u.title)}. ${s(u.body)}`).join('\n')}`)
   }
   if (NEWEST_COURSES.length) {
-    parts.push(`${s(L.courses)} :\n${NEWEST_COURSES.map((p) => `· ${s(p.title)}`).join('\n')}`)
+    parts.push(`${s(L.courses)}${colon(lang)}\n${NEWEST_COURSES.map((p) => `· ${s(p.title)}`).join('\n')}`)
   }
   if (LATEST_WEEK?.items.length) {
-    parts.push(`${s(L.news)} :\n${LATEST_WEEK.items.slice(0, 3).map((n) => `· ${n.title} (${n.source || 'YouTube'})`).join('\n')}\n${s(L.more)}`)
+    parts.push(`${s(L.news)}${colon(lang)}\n${LATEST_WEEK.items.slice(0, 3).map((n) => `· ${n.title} (${n.source || 'YouTube'})`).join('\n')}\n${s(L.more)}`)
   }
   return parts.join('\n\n')
 }

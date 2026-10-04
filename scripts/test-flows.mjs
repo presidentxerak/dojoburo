@@ -415,7 +415,9 @@ ok('chaque question suggérée par le robot trouve sa réponse', sugg.length >= 
 const chips = (BOT.match(/const START_CHIPS = \[([^\]]*)\]/)?.[1] ?? '').match(/'([a-z]+)'/g)?.map((x) => x.slice(1, -1)) ?? []
 const deadChips = chips.filter((id) => !KBM.TOPIC_BY_ID[id])
 ok('chaque pastille d\'accueil mène à un sujet', chips.length > 0 && deadChips.length === 0, deadChips.join(', ') || chips.join(', '))
-ok('le robot parle du jeu dès l\'accueil', chips[1] === 'studios' && /Dojoburo/.test(KBM.TOPIC_BY_ID.studios.answer))
+// RÉPARÉE · « mets le à jour en fonction des nouvelles mises à jour de l'app et
+// des formations automatiquement » : « Quoi de neuf » passe en tête, le jeu suit.
+ok('le robot parle du jeu dès l\'accueil', chips[0] === 'whatsnew' && chips.slice(0, 3).includes('studios') && /Dojoburo/.test(KBM.TOPIC_BY_ID.studios.answer))
 ok('« prix » tapé seul trouve les tarifs', KBM.matchTopic('prix')?.id === 'pricing')
 
 /* --- 8 · les listes que les pages parcourent ne sont pas vides ------------ */
