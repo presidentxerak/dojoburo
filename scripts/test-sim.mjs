@@ -232,6 +232,10 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   const LS = readFileSync('src/game/Lesson.tsx', 'utf8')
   const LG = readFileSync('src/game/LessonGame.tsx', 'utf8')
   ok('la leçon a son journal de quête', /<QuestHud /.test(LS) && /data-step="mission"/.test(LS) && /data-step="quiz"/.test(LS))
+  // « Les temples ne sont pas centrés de la même manière d'un cours à l'autre
+  // ils doivent avoir tous la même largeur et la même position » : la colonne
+  // de la page suit l'écran, un titre long ne l'élargit plus.
+  ok('tous les temples ont la même largeur, quel que soit le titre', /\.tp \{[^}]*grid-template-columns: minmax\(0, 1fr\)/.test(readFileSync('src/index.css', 'utf8')) && /\.tp-top \{ min-width: 0;/.test(readFileSync('src/index.css', 'utf8')))
   ok('le maître ouvre la leçon en dialogue', /<MasterDialog /.test(LS) && /onKeyDown=\{\(e\) => \{ if \(e\.key === 'Enter'/.test(LG))
   ok('les étapes deviennent des objectifs à cocher', /<Mission act=\{level\.act\} steps=\{level\.steps\}/.test(LS))
   ok('le quiz se joue au clavier et compte la série', /\^\[1-4\]\$/.test(LS) && /QT\.streak/.test(LS))

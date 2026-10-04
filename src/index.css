@@ -12299,6 +12299,11 @@ svg.chibi.flip { transform: scaleX(-1); }
 /* LE TEMPLE · plein écran, au-dessus de tout */
 .tp {
   position: fixed; inset: 0; z-index: 140; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  /* UNE SEULE LARGEUR POUR TOUS LES TEMPLES · demandé : « Les temples ne sont pas
+     centrés de la même manière d'un cours à l'autre ils doivent avoir tous la
+     même largeur et la même position ». Un titre long élargissait la colonne,
+     et le temple avec : la colonne suit l'écran, le titre s'abrège. */
+  grid-template-columns: minmax(0, 1fr);
   color: #fff; font-family: var(--font-game);
   background: linear-gradient(180deg, #4aa8ea 0%, #8fd0f6 55%, #cdeefc 100%);
 }
@@ -12319,7 +12324,7 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tp-ground img { flex: none; width: calc(min(100vw - 24px, 720px) * 3); height: auto; image-rendering: pixelated; display: block; }
 @media (prefers-reduced-motion: reduce) { .tp-cloud { animation: none; } }
 .tp-missing { place-items: center; align-content: center; gap: 16px; }
-.tp-top { display: flex; align-items: center; gap: 12px; padding: 10px 14px; padding-right: 76px; background: rgba(10, 5, 20, .72); z-index: 3; }
+.tp-top { min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 14px; padding-right: 76px; background: rgba(10, 5, 20, .72); z-index: 3; }
 .tp-back { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); color: #fff; font-size: 20px; text-decoration: none; }
 .tp-title { display: flex; flex-direction: column; min-width: 0; }
 .tp-title b { font: 400 clamp(13px, 2.4vw, 18px)/1.2 var(--font-px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
