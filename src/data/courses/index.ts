@@ -31,8 +31,6 @@ import { BUSINESS_A } from './business-a'
 import { BUSINESS_B } from './business-b'
 import { COPY_A } from './copy-a'
 import { COPY_B } from './copy-b'
-import { VEILLE_A } from './veille-a'
-import { VEILLE_B } from './veille-b'
 
 /** l'identifiant d'un cours · c'est aussi celui de son temple (/dojo/<id>)
  *  et celui de son achat */
@@ -58,7 +56,6 @@ export const COURSE_IDS = [
   'ia-locale',
   'business-ia',
   'copywriting',
-  'veille-outils',
 ] as const
 export type CourseId = (typeof COURSE_IDS)[number]
 
@@ -80,7 +77,6 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'ia-locale': true,
   'business-ia': true,
   'copywriting': true,
-  'veille-outils': true,
 }
 
 const WRITTEN: Record<CourseId, CoursePart[]> = {
@@ -98,7 +94,6 @@ const WRITTEN: Record<CourseId, CoursePart[]> = {
   'ia-locale': [LOCALE_A, LOCALE_B],
   'business-ia': [BUSINESS_A, BUSINESS_B],
   'copywriting': [COPY_A, COPY_B],
-  'veille-outils': [VEILLE_A, VEILLE_B],
 }
 /** LE MODE BROUILLON DES GARDES · `DOJO_COURSE_DRAFTS=1 node scripts/test-…`
  *  fait lire aux gardes de contenu les cours encore en rédaction. Il n'existe
