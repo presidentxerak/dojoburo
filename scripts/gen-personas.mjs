@@ -3,9 +3,10 @@
 // (les maîtres leur répondent) et qui donnent des conseils et des tips pour
 // les nouveaux arrivants ».
 //
-// DITS COMME TELS, SANS BADGE · « c'est une démo n'affiche pas profil fictif » :
-// aucun badge (kind 'persona'), mais chaque présentation et le mot d'accueil
-// disent qu'il s'agit de profils de démonstration. Aucun témoignage, aucun
+// SANS BADGE NI MENTION · demandé : « c'est une démo n'affiche pas profil
+// fictif », puis « n'écris aucun message qui précise cela ». Le kind 'persona'
+// les tient hors des classements et des messages privés. Aucun texte n'affirme
+// pour autant que tous les comptes seraient de vraies personnes. Aucun témoignage, aucun
 // chiffre de résultat : des questions de cours et des conseils de méthode.
 //
 // FONDÉS SUR LES COURS · chaque question porte sur un vrai cours, et la réponse
@@ -29,8 +30,12 @@ const P = await load('src/data/packs.ts', 'packs.mjs')
 const C = await load('src/pixel/chibi.ts', 'chibi.mjs')
 const S = await load('api/_lib/communitySeed.ts', 'seed.mjs')
 
-export const PERSONA_COUNT = 330
+// 330 profils d'abord, puis 221 de plus · demandé : « Ajoute 221 autres profils ».
+// Les 330 premiers gardent leur rôle (220 questions, 110 conseils) ; parmi les
+// 221 suivants, 150 posent des questions et 71 donnent des conseils.
+export const PERSONA_COUNT = 551
 const ASKERS = 220
+const isAsker = (k) => (k < 330 ? k < ASKERS : k < 480)
 
 // un tirage reproductible · le même fichier à chaque génération
 let seed = 20261004
@@ -59,9 +64,8 @@ const lower = (s) => s.charAt(0).toLowerCase() + s.slice(1)
 const packs = P.PACKS
 const lessons = packs.map((p) => P.levelsOf(p).map(({ module, level }, i) => ({ p, module, level, i })))
 const queue = []
-for (let k = 0; queue.length < ASKERS + 200; k++) {
+for (let k = 0; k < 80; k++) {
   for (const l of lessons) if (l[k]) queue.push(l[k])
-  if (k > 60) break
 }
 
 // LES QUESTIONS · trois façons de demander, et la réponse du maître tirée du cours
@@ -143,6 +147,16 @@ const COURSE_TIP = [
   }),
 ]
 
+// LES PRÉSENTATIONS · courtes et neutres, sans mention ajoutée (demandé : « n'écris
+// aucun message qui précise cela [...] ceci n'est pas nécessaire »)
+const BIOS = [
+  (c) => `Suit la formation « ${c} ».`,
+  (c) => `En formation : « ${c} », un cours à la fois.`,
+  (c) => `J'apprends l'IA avec la formation « ${c} ».`,
+  (c) => `Formation en cours : « ${c} ». Toujours partant pour échanger des prompts.`,
+  (c) => `Je découvre l'IA avec « ${c} ».`,
+]
+
 const members = []
 const posts = []
 const comments = []
@@ -150,14 +164,14 @@ const masters = new Map()
 const id = (prefix, n) => `${prefix}-0000-4000-8000-${String(n).padStart(12, '0')}`
 
 for (let k = 0; k < PERSONA_COUNT; k++) {
-  const asker = k < ASKERS
+  const asker = isAsker(k)
   const l = queue[k % queue.length]
   const name = nameOf()
   const did = `persona:${String(k + 1).padStart(3, '0')}`
   const course = fr(l.p.title)
   members.push({
     did, name,
-    bio: clip(`Profil de démonstration créé par l'équipe DojoBuro pour lancer les échanges. Suit la formation « ${course} ».`, 280),
+    bio: clip(BIOS[k % BIOS.length](course), 280),
     avatar: C.randomChibi(1000 + k),
   })
   // LES HEURES · les publications s'étalent sur environ deux mois, la plus récente d'abord
@@ -170,7 +184,7 @@ for (let k = 0; k < PERSONA_COUNT; k++) {
     masters.set(md, S.masterName(l.p.id))
     comments.push({ id: id('7e0a0003', k + 1), postId, did: md, body: clip(q.answer, 1990), hoursAgo: Math.max(0, hoursAgo - 1 - (k % 4)) })
   } else {
-    const t = k - ASKERS
+    const t = k < 330 ? k - ASKERS : 110 + (k - 480)
     const postId = id('7e0a0002', k + 1)
     if (t < TIPS.length) {
       const [title, body] = TIPS[t]
@@ -183,8 +197,7 @@ for (let k = 0; k < PERSONA_COUNT; k++) {
 }
 
 const out = `// GÉNÉRÉ PAR scripts/gen-personas.mjs · ne pas modifier à la main.
-// Les ${PERSONA_COUNT} profils de démonstration de la communauté (sans badge,
-// présentés comme tels sur leur page),
+// Les ${PERSONA_COUNT} profils de démonstration de la communauté,
 // leurs questions de cours, les réponses des maîtres et leurs conseils.
 export interface PersonaMember { did: string; name: string; bio: string; avatar: unknown }
 export interface PersonaPost { id: string; did: string; category: string; title: string; body: string; hoursAgo: number; comments: number }
@@ -197,4 +210,4 @@ export const PERSONA_POSTS: PersonaPost[] = ${JSON.stringify(posts)}
 export const PERSONA_COMMENTS: PersonaComment[] = ${JSON.stringify(comments)}
 `
 writeFileSync('api/_lib/personaSeed.ts', out)
-console.log(`gen-personas · ${members.length} profils, ${posts.length} publications (${ASKERS} questions, ${posts.length - ASKERS} conseils), ${comments.length} réponses de maîtres, ${masters.size} maîtres`)
+console.log(`gen-personas · ${members.length} profils, ${posts.length} publications (${posts.filter((p) => p.category === 'questions').length} questions, ${posts.filter((p) => p.category !== 'questions').length} conseils), ${comments.length} réponses de maîtres, ${masters.size} maîtres`)

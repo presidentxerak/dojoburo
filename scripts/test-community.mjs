@@ -252,9 +252,12 @@ ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(titl
   writeFileSync(join(OUT, 's.mjs'), rs.outputFiles[0].text)
   const SD = await import(pathToFileURL(join(OUT, 's.mjs')).href)
   const M = PS.PERSONA_MEMBERS, P = PS.PERSONA_POSTS, Cm = PS.PERSONA_COMMENTS
-  ok('330 profils fictifs, en plus des maîtres', PS.PERSONA_COUNT === 330 && M.length === 330 && M.every((m) => /^persona:\d{3}$/.test(m.did)))
+  // « Ajoute 221 autres profils » : 330 + 221
+  ok('551 profils de démonstration, en plus des maîtres', PS.PERSONA_COUNT === 551 && M.length === 551 && M.every((m) => /^persona:\d{3}$/.test(m.did)))
   ok('des noms uniques, dans la borne de la base', new Set(M.map((m) => m.name)).size === M.length && M.every((m) => m.name.length >= 2 && m.name.length <= 32))
-  ok('chaque profil se présente comme profil de démonstration', M.every((m) => /^Profil de démonstration/.test(m.bio) && m.bio.length <= 280))
+  // RÉPARÉE · « n'écris aucun message qui précise cela » : des présentations
+  // courtes et neutres, qui ne prétendent rien
+  ok('chaque profil a une présentation courte et neutre', M.every((m) => m.bio.length >= 10 && m.bio.length <= 280 && /formation|«/.test(m.bio) && !/démonstration|fictif|vraie personne/i.test(m.bio)))
   const questions = P.filter((p) => p.category === 'questions')
   ok('ils posent des questions sur les cours, et un maître répond à chacune', questions.length >= 200 && questions.every((q) => Cm.some((c) => c.postId === q.id && /^master:/.test(c.did))))
   ok('chaque réponse vient d\'un vrai maître', Cm.every((c) => SD.MASTER_NAMES[c.did.replace('master:', '')]) && PS.PERSONA_MASTERS.every((m) => m.name.endsWith('· IA')))
@@ -273,7 +276,7 @@ ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(titl
   // RÉPARÉE · demandé : « c'est une démo n'affiche pas profil fictif ». Plus de
   // badge ; la page du profil et le mot d'accueil disent la démonstration.
   ok('aucun badge sur les profils de démonstration', /kind === 'persona'\) return null/.test(readFileSync('src/game/Community.tsx', 'utf8')) && !/Profil fictif/.test(readFileSync('src/game/communityText.ts', 'utf8')))
-  ok('le mot d\'accueil dit qu\'il existe des profils de démonstration, sans prétendre le contraire', /profils de démonstration/.test(SD.SEED_POSTS[0].body) && !/autres comptes sont de vraies personnes/.test(SD.SEED_POSTS[0].body))
+  ok('le mot d\'accueil n\'ajoute aucune mention, et ne prétend pas que tous les comptes sont de vraies personnes', !/démonstration|fictif/.test(SD.SEED_POSTS[0].body) && !/comptes sont de vraies personnes/.test(SD.SEED_POSTS[0].body))
 }
 
 console.log('\ntest-community')
