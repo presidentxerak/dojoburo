@@ -48,6 +48,28 @@ ok('la page a sa route et son bouton entre Formations et Communauté', /path ===
 ok('la page est dans le plan du site', /loc: '\/nouveautes'/.test(readFileSync('scripts/gen-seo.mjs', 'utf8')))
 ok('la procédure du lundi est écrite', /lundi/i.test(readFileSync('docs/NEWS.md', 'utf8')))
 
+// LA NEWSLETTER DE LA SEMAINE · demandé : « Dans l'espace admin de
+// l'administrateur on va créer une newsletter hebdomadaire qui parle d'une
+// formation et de 5 news tirées de l'app que l'on peut exporter ensuite au
+// format pour copier coller son contenu via Substack ou par mail ».
+{
+  const W = await load('src/admin/weeklyLetter.ts', 'letter.mjs')
+  const P = await load('src/data/packs.ts', 'packs.mjs')
+  const pack = W.courseOfWeek(P.PACKS, weeks[0].week)
+  const news = weeks[0].items.slice(0, 5)
+  const intro = W.defaultIntro(pack, weeks[0].week, 'fr')
+  const L = W.buildLetter({ pack, news, week: weeks[0].week, intro, lang: 'fr', site: 'https://www.dojoburo.com' })
+  ok('la newsletter parle d\'une formation, avec son lien', L.markdown.includes(pack.title.fr) && L.html.includes(`https://www.dojoburo.com/dojo/${pack.id}`))
+  ok('elle reprend 5 nouvelles de l\'app, chacune avec sa source et son lien', news.every((n) => L.markdown.includes(n.url) && L.html.includes(n.url) && L.text.includes(n.url)) && (L.markdown.match(/^### /gm) || []).length === 5)
+  ok('elle s\'exporte pour Substack (Markdown), l\'e-mail (HTML) et en texte brut', /^# /.test(L.markdown) && /^<div style=/.test(L.html) && L.text.length > 200 && L.subject.length > 10)
+  const evil = W.buildLetter({ pack, news, week: weeks[0].week, intro: '<script>alert(1)</script>', lang: 'fr', site: 'https://www.dojoburo.com' })
+  ok('le HTML échappe tout texte', !evil.html.includes('<script>') && evil.html.includes('&lt;script&gt;'))
+  ok('la formation proposée change d\'une semaine à l\'autre', W.courseOfWeek(P.PACKS, '2026-09-28').id !== W.courseOfWeek(P.PACKS, '2026-10-05').id)
+  const AD = readFileSync('src/game/AdminNewsletter.tsx', 'utf8')
+  ok('l\'outil est réservé à l\'administrateur, dit par le serveur', /r\.ok && r\.data\.admin/.test(AD) && /admin === 'yes' \? <Composer \/>/.test(AD))
+  ok('l\'outil a sa route', /path === '\/admin\/newsletter'/.test(readFileSync('src/main.tsx', 'utf8')))
+}
+
 const latest = weeks[0]?.week
 const age = latest ? Math.round((Date.now() - new Date(`${latest}T12:00:00Z`).getTime()) / 86400000) : -1
 console.log(`      dernière édition · semaine du ${latest} (il y a ${age} jours) · ${weeks.length} édition(s), ${all.length} nouvelles`)

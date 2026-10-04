@@ -3,6 +3,7 @@ import { B } from '../data/bilingual'
 import type { CommunityCategory } from '../lib/community'
 
 export const CT = {
+  adminSpace: B('Admin space · newsletter', 'Espace admin · newsletter'),
   title: B('The DojoBuro community', 'La communauté DojoBuro'),
   lead: B('Share your prompts, your wins and your questions with people who learn AI like you. Reading is open to all; a free account is enough to post.',
     "Partagez vos prompts, vos réussites et vos questions avec ceux qui apprennent l'IA comme vous. La lecture est ouverte à tous ; un compte gratuit suffit pour publier."),

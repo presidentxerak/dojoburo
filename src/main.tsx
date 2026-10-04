@@ -52,6 +52,7 @@ import { ProfilPage } from './game/Profil'
 import { TarifsPage, MerciPage } from './game/Tarifs'
 import { FormationsPage } from './game/Formations'
 import { NewsPage } from './game/News'
+import { AdminNewsletterPage } from './game/AdminNewsletter'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 // LA POLICE EST SERVIE PAR NOUS, PAS PAR GOOGLE.
@@ -210,6 +211,8 @@ function Root() {
   if (path === '/formations') return <FormationsPage />
   // LES NOUVEAUTÉS IA · une édition chaque lundi (voir game/News)
   if (path === '/nouveautes' || path === '/news') return <NewsPage />
+  // L'ESPACE ADMIN · la newsletter de la semaine (voir game/AdminNewsletter)
+  if (path === '/admin' || path === '/admin/newsletter') return <AdminNewsletterPage />
   if (path === '/merci') return <MerciPage />
   const pk = path.match(/^\/dojo\/([a-z0-9-]+)$/i)
   if (pk) return <TemplePage packId={pk[1].toLowerCase()} />

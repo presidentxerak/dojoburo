@@ -119,6 +119,8 @@ export function CommunityPage() {
             ))}
           </nav>
           {me.signedIn && me.name && <Inbox path={path} />}
+          {/* L'ESPACE ADMIN · visible du seul administrateur (le serveur le dit) */}
+          {me.admin && <Lnk className="cy-tab" href="/admin/newsletter">{s(CT.adminSpace)}</Lnk>}
         </div>
       </section>
 
