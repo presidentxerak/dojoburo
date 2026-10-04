@@ -1354,8 +1354,10 @@ export function KindBadge({ kind, founder }: { kind?: string; founder?: boolean 
   const { s } = useSay()
   if (kind === 'team') return <span className="cy-kind team">{s(CT.badgeTeam)}</span>
   if (kind === 'master') return <span className="cy-kind master">{s(CT.badgeMaster)}</span>
-  // UN PROFIL FICTIF, DIT COMME TEL · créé par l'équipe pour lancer les échanges
-  if (kind === 'persona') return <span className="cy-kind persona" title={s(CT.badgePersonaHint)}>{s(CT.badgePersona)}</span>
+  // LES PROFILS DE DÉMONSTRATION · demandé : « c'est une démo n'affiche pas
+  // profil fictif ». Aucun badge ; leur présentation et le mot d'accueil de la
+  // communauté le disent, pour qu'un élève puisse toujours le savoir.
+  if (kind === 'persona') return null
   if (founder) return <span className="cy-kind founder">{s(CT.badgeFounder)}</span>
   return null
 }

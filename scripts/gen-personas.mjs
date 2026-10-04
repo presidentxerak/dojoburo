@@ -3,9 +3,9 @@
 // (les maîtres leur répondent) et qui donnent des conseils et des tips pour
 // les nouveaux arrivants ».
 //
-// HONNÊTES · chaque profil porte le badge « Profil fictif » (kind 'persona') et
-// le dit dans sa présentation : la communauté promet que les autres comptes
-// sont de vraies personnes, et cette promesse tient. Aucun témoignage, aucun
+// DITS COMME TELS, SANS BADGE · « c'est une démo n'affiche pas profil fictif » :
+// aucun badge (kind 'persona'), mais chaque présentation et le mot d'accueil
+// disent qu'il s'agit de profils de démonstration. Aucun témoignage, aucun
 // chiffre de résultat : des questions de cours et des conseils de méthode.
 //
 // FONDÉS SUR LES COURS · chaque question porte sur un vrai cours, et la réponse
@@ -157,7 +157,7 @@ for (let k = 0; k < PERSONA_COUNT; k++) {
   const course = fr(l.p.title)
   members.push({
     did, name,
-    bio: clip(`Profil fictif créé par l'équipe DojoBuro pour lancer les échanges. Suit la formation « ${course} ».`, 280),
+    bio: clip(`Profil de démonstration créé par l'équipe DojoBuro pour lancer les échanges. Suit la formation « ${course} ».`, 280),
     avatar: C.randomChibi(1000 + k),
   })
   // LES HEURES · les publications s'étalent sur environ deux mois, la plus récente d'abord
@@ -183,7 +183,8 @@ for (let k = 0; k < PERSONA_COUNT; k++) {
 }
 
 const out = `// GÉNÉRÉ PAR scripts/gen-personas.mjs · ne pas modifier à la main.
-// Les ${PERSONA_COUNT} profils fictifs de la communauté (badge « Profil fictif »),
+// Les ${PERSONA_COUNT} profils de démonstration de la communauté (sans badge,
+// présentés comme tels sur leur page),
 // leurs questions de cours, les réponses des maîtres et leurs conseils.
 export interface PersonaMember { did: string; name: string; bio: string; avatar: unknown }
 export interface PersonaPost { id: string; did: string; category: string; title: string; body: string; hoursAgo: number; comments: number }

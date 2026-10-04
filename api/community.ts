@@ -627,7 +627,7 @@ function ensureSeed(): Promise<void> {
       // fois en base ; son texte est remis à jour s'il date d'avant les profils.
       const welcome = SEED_POSTS[0]
       await pool.query(
-        "update community_posts set body = $1 where id = $2 and author_did = $3 and body <> $1 and position('Profil fictif' in body) = 0",
+        "update community_posts set body = $1 where id = $2 and author_did = $3 and body <> $1",
         [welcome.body, welcome.id, TEAM_DID],
       )
       await ensurePersonas(pool)
@@ -641,7 +641,8 @@ function ensureSeed(): Promise<void> {
 // Demandé : « Créé 330 profils en plus des maîtres dans la communauté qui posent
 // des questions sur les cours (les maîtres leur répondent) et qui donnent des
 // conseils et des tips pour les nouveaux arrivants ». Générés depuis les cours
-// (scripts/gen-personas.mjs), signalés partout par le badge « Profil fictif »
+// (scripts/gen-personas.mjs), sans badge (« c'est une démo n'affiche pas profil
+// fictif ») mais présentés comme profils de démonstration sur leur page,
 // (kind 'persona') et exclus des classements. Écrits une fois, en trois
 // requêtes, avec des identifiants fixes (« on conflict do nothing ») : une
 // publication supprimée par un administrateur ne revient pas.

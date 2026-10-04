@@ -254,7 +254,7 @@ ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(titl
   const M = PS.PERSONA_MEMBERS, P = PS.PERSONA_POSTS, Cm = PS.PERSONA_COMMENTS
   ok('330 profils fictifs, en plus des maîtres', PS.PERSONA_COUNT === 330 && M.length === 330 && M.every((m) => /^persona:\d{3}$/.test(m.did)))
   ok('des noms uniques, dans la borne de la base', new Set(M.map((m) => m.name)).size === M.length && M.every((m) => m.name.length >= 2 && m.name.length <= 32))
-  ok('chaque profil se présente comme fictif', M.every((m) => /^Profil fictif/.test(m.bio) && m.bio.length <= 280))
+  ok('chaque profil se présente comme profil de démonstration', M.every((m) => /^Profil de démonstration/.test(m.bio) && m.bio.length <= 280))
   const questions = P.filter((p) => p.category === 'questions')
   ok('ils posent des questions sur les cours, et un maître répond à chacune', questions.length >= 200 && questions.every((q) => Cm.some((c) => c.postId === q.id && /^master:/.test(c.did))))
   ok('chaque réponse vient d\'un vrai maître', Cm.every((c) => SD.MASTER_NAMES[c.did.replace('master:', '')]) && PS.PERSONA_MASTERS.every((m) => m.name.endsWith('· IA')))
@@ -270,8 +270,10 @@ ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(titl
   const API = readFileSync('api/community.ts', 'utf8')
   ok('l\'API les écrit une fois, exclus des classements', /async function ensurePersonas/.test(API) && /'persona', now\(\) - interval/.test(API) && /on conflict \(id\) do nothing/.test(API))
   ok('la base accepte le kind persona (migration écrite)', /check \(kind in \('member', 'team', 'master', 'persona'\)\)/.test(readFileSync('db/community.sql', 'utf8')))
-  ok('le badge « Profil fictif » s\'affiche partout où l\'auteur apparaît', /kind === 'persona'/.test(readFileSync('src/game/Community.tsx', 'utf8')) && /Profil fictif/.test(readFileSync('src/game/communityText.ts', 'utf8')))
-  ok('le mot d\'accueil le dit', /Profil fictif/.test(SD.SEED_POSTS[0].body) && /vraies personnes/.test(SD.SEED_POSTS[0].body))
+  // RÉPARÉE · demandé : « c'est une démo n'affiche pas profil fictif ». Plus de
+  // badge ; la page du profil et le mot d'accueil disent la démonstration.
+  ok('aucun badge sur les profils de démonstration', /kind === 'persona'\) return null/.test(readFileSync('src/game/Community.tsx', 'utf8')) && !/Profil fictif/.test(readFileSync('src/game/communityText.ts', 'utf8')))
+  ok('le mot d\'accueil dit qu\'il existe des profils de démonstration, sans prétendre le contraire', /profils de démonstration/.test(SD.SEED_POSTS[0].body) && !/autres comptes sont de vraies personnes/.test(SD.SEED_POSTS[0].body))
 }
 
 console.log('\ntest-community')

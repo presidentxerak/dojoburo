@@ -223,9 +223,9 @@ create index if not exists community_testimonials_status_idx on community_testim
 -- LOT 5 · LES PROFILS FICTIFS · demandé : « Créé 330 profils en plus des
 -- maîtres dans la communauté qui posent des questions sur les cours (les
 -- maîtres leur répondent) et qui donnent des conseils et des tips pour les
--- nouveaux arrivants ». Ils portent le kind 'persona', affiché partout par le
--- badge « Profil fictif » : la promesse que les autres comptes sont de vraies
--- personnes reste vraie. Ils sont exclus des classements (kind = 'member').
+-- nouveaux arrivants ». Ils portent le kind 'persona' : des profils de
+-- démonstration, sans badge (« c'est une démo n'affiche pas profil fictif »),
+-- dits comme tels sur leur page et dans le mot d'accueil. Ils sont exclus des classements (kind = 'member').
 -- Les profils et leurs publications sont écrits par l'API au premier
 -- chargement du fil, une fois cette migration appliquée (api/community.ts).
 alter table community_members drop constraint if exists community_members_kind_check;
