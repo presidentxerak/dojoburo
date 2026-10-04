@@ -70,6 +70,36 @@ ok('la procédure du lundi est écrite', /lundi/i.test(readFileSync('docs/NEWS.m
   ok('l\'outil a sa route', /path === '\/admin\/newsletter'/.test(readFileSync('src/main.tsx', 'utf8')))
 }
 
+// DOJOBOT SUIT L'APP · demandé : « mets le à jour en fonction des nouvelles mises
+// à jour de l'app et des formations automatiquement ». Sa rubrique « Quoi de
+// neuf » se compose du journal, des formations et des nouveautés, sans texte
+// écrit à la main.
+{
+  const U = await load('src/data/updates.ts', 'updates.mjs')
+  const up = U.APP_UPDATES
+  ok('le journal des mises à jour est tenu, la plus récente en tête', up.length > 0 && up.every((u, k) => DAY.test(u.date) && (k === 0 || up[k - 1].date >= u.date)) && new Set(up.map((u) => u.id)).size === up.length)
+  ok('chaque mise à jour est écrite dans les deux langues, sans emoji ni tiret long', up.every((u) => u.title.en && u.title.fr && u.body.en && u.body.fr && !EMOJI.test(u.title.fr + u.body.fr + u.title.en + u.body.en) && !DASH.test(u.title.fr + u.body.fr + u.title.en + u.body.en)))
+  const D = await load('src/support/dojobot.ts', 'dojobot.mjs')
+  const ans = D.whatsNewAnswer('fr')
+  ok('« Quoi de neuf » reprend la dernière mise à jour, les formations et les nouveautés', ans.includes(up[0].title.fr) && ans.includes(weeks[0].items[0].title))
+  const KBs = readFileSync('src/support/knowledge.ts', 'utf8')
+  ok('la rubrique est dans la base du robot, composée depuis les données', /id: 'whatsnew'/.test(KBs) && /answer: whatsNewAnswer\('en'\)/.test(KBs) && /answer: whatsNewAnswer\('fr'\)/.test(KBs))
+  const SB = readFileSync('src/components/SupportBot.tsx', 'utf8')
+  ok('Dojobot a son avatar, dans le bouton, l\'en-tête et chaque réponse', (SB.match(/<LiveChibi spec=\{DOJOBOT\}/g) || []).length >= 4)
+  ok('sa première phrase et sa carte suivent la dernière mise à jour', /whatsNewLine\(/.test(SB) && /LATEST_UPDATE\.title/.test(SB))
+}
+
+// LA PORTE DE LA BÊTA · demandé : « bloquer l'accès à l'app avec une page avec un
+// code d'accès à 4 chiffres 1976 et le logo animé le nom de la marque en-dessous
+// et la mention Beta [...] dans le fond de la page en full-screen on reprend le
+// hero et sa baseline ».
+{
+  const G = readFileSync('src/components/BetaGate.tsx', 'utf8')
+  ok('l\'app est fermée par la porte, le code est 1976', /<BetaGate>\s*<Root \/>\s*<\/BetaGate>/.test(readFileSync('src/main.tsx', 'utf8')) && /BETA_CODE = '1976'/.test(G))
+  ok('la porte porte le logo animé, le nom de la marque et la mention Bêta', /className="bg-logo"><Logo/.test(G) && /<Wordmark \/>/.test(G) && /className="bg-pill"/.test(G) && /@keyframes bg-float/.test(readFileSync('src/index.css', 'utf8')))
+  ok('le fond reprend le hero et sa baseline', /<HeroTemple \/>/.test(G) && /LP\.h1/.test(G) && /LP\.sub/.test(G))
+}
+
 const latest = weeks[0]?.week
 const age = latest ? Math.round((Date.now() - new Date(`${latest}T12:00:00Z`).getTime()) / 86400000) : -1
 console.log(`      dernière édition · semaine du ${latest} (il y a ${age} jours) · ${weeks.length} édition(s), ${all.length} nouvelles`)

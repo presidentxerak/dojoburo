@@ -14,7 +14,8 @@ import { useLang, useT, pick, baseLang } from '../i18n'
 import { askCascade } from '../support/askCascade'
 import { TutorialOverlay } from './guide/TutorialOverlay'
 import { WALKS, walkIn, type WalkId } from './guide/tutorialBeats'
-import { Logo } from './Logo'
+import { LiveChibi } from '../pixel/LiveChibi'
+import { DOJOBOT, LATEST_UPDATE, whatsNewLine } from '../support/dojobot'
 import { BauhausIcon } from './BauhausIcon'
 
 interface Msg {
@@ -33,12 +34,13 @@ const MAX_LEN = 1500
 
 /** The topics offered up front, in the order someone meets them · the game
  *  first (it is the first button of the bar), then the training, then paying. */
-const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'trades', 'lessons', 'grades', 'pricing', 'buy', 'signin', 'settings']
+const START_CHIPS = ['whatsnew', 'start', 'studios', 'teams', 'budget', 'training', 'trades', 'lessons', 'grades', 'pricing', 'buy', 'signin', 'settings']
 
 /** Questions people actually ask, in their own words · one tap fills them in.
  *  Each one is written to land on its topic in the local answers, so a tap
  *  answers at once, without a model. */
 const SUGGESTIONS = [
+  { en: "What's new this week?", fr: 'Quoi de neuf cette semaine ?' },
   { en: 'How do I play Dojoburo?', fr: 'Comment joue-t-on à Dojoburo ?' },
   { en: 'What are tokens for in the game?', fr: 'À quoi servent les tokens dans le jeu ?' },
   { en: 'Where do I start the training?', fr: 'Par où commencer la formation ?' },
@@ -78,7 +80,28 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
   const greeted = useRef(false)
   const lang = useLang()
   const t = useT()
-  const hello = pick(GREETING, lang)
+  // LA PREMIÈRE PHRASE SUIT L'APP · la dernière mise à jour s'y ajoute d'elle-même
+  const hello = [pick(GREETING, lang), whatsNewLine(lang === 'fr' ? 'fr' : 'en')].filter(Boolean).join('\n\n')
+  // LA PASTILLE · une mise à jour que ce navigateur n'a pas encore vue
+  const [unseen, setUnseen] = useState(() => {
+    try { return !!LATEST_UPDATE && localStorage.getItem('dojobot-seen') !== LATEST_UPDATE.id } catch { return false }
+  })
+  // LA BULLE D'ACCUEIL · une fois par visite, quelques secondes, puis elle s'en va
+  const [tip, setTip] = useState(false)
+  useEffect(() => {
+    if (embedded) return
+    let seen = false
+    try { seen = sessionStorage.getItem('dojobot-tip') === '1' } catch { /* stockage refusé */ }
+    if (seen) return
+    const a = setTimeout(() => setTip(true), 2500)
+    const b = setTimeout(() => setTip(false), 9500)
+    try { sessionStorage.setItem('dojobot-tip', '1') } catch { /* stockage refusé */ }
+    return () => { clearTimeout(a); clearTimeout(b) }
+  }, [embedded])
+  const openBot = () => {
+    setTip(false); setOpen(true); setUnseen(false)
+    try { if (LATEST_UPDATE) localStorage.setItem('dojobot-seen', LATEST_UPDATE.id) } catch { /* stockage refusé */ }
+  }
 
   useEffect(() => {
     if (open && !greeted.current) {
@@ -183,18 +206,27 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
         // le monde reconnaît : une bulle arrondie, sa queue en bas à droite, et
         // trois points de conversation. Le nom reste annoncé au lecteur
         // d'écran par l'étiquette du bouton.
-        <button className="sb-launch" onClick={() => setOpen(true)} aria-label={`Dojobot · ${t('sb.ask')}`}>
-          <svg className="sb-bubble-ico" viewBox="0 0 60 58" aria-hidden="true">
-            <path className="sb-bubble-body" d="M22 4H38A18 18 0 0 1 56 22V26A18 18 0 0 1 46 42.2L51 54L35 44H22A18 18 0 0 1 4 26V22A18 18 0 0 1 22 4Z" />
-            <circle cx="20" cy="24" r="3.6" /><circle cx="30" cy="24" r="3.6" /><circle cx="40" cy="24" r="3.6" />
-          </svg>
-        </button>
+        // LE BOUTON A UN VISAGE · demandé : « créé l'avatar du Dojo bot ajoute un
+        // peu de fun dans l'UI ». Dojobot lui-même, qui flotte dans sa bulle ; une
+        // pastille signale une mise à jour pas encore vue, et une bulle se
+        // présente une fois par visite.
+        <div className="sb-launch-wrap">
+          {tip && (
+            <button className="sb-tip" onClick={openBot}>
+              {lang === 'fr' ? 'Une question ? Je suis Dojobot.' : "A question? I'm Dojobot."}
+            </button>
+          )}
+          <button className="sb-launch sb-launch-bot" onClick={openBot} aria-label={`Dojobot · ${t('sb.ask')}`}>
+            <span className="sb-launch-av" aria-hidden="true"><LiveChibi spec={DOJOBOT} scale={2} seed="dojobot" /></span>
+            {unseen && <i className="sb-launch-dot" aria-hidden="true" />}
+          </button>
+        </div>
       )}
 
       {open && (
         <section className={`sb-panel${embedded ? ' sb-embed' : ' sb-full'}`} role="dialog" aria-label="Dojobot">
           <header className="sb-head">
-            <Logo size={32} className="sb-avatar" />
+            <span className="sb-avatar sb-avatar-bot" aria-hidden="true"><LiveChibi spec={DOJOBOT} scale={2} seed="dojobot-head" /></span>
             <div className="sb-title">
               <strong>Dojobot</strong>
               <span className="sb-status"><i /> {t('sb.online')}</span>
@@ -227,8 +259,17 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
 
             <div className="sb-convo">
               <div className="sb-body" ref={scrollRef}>
+                {/* QUOI DE NEUF · la dernière mise à jour, lue dans data/updates */}
+                {msgs.length <= 1 && LATEST_UPDATE && (
+                  <button className="sb-new" onClick={() => onChip('whatsnew')} disabled={busy}>
+                    <span className="sb-new-k">{lang === 'fr' ? 'Quoi de neuf' : "What's new"}</span>
+                    <b>{pick(LATEST_UPDATE.title, lang)}</b>
+                    <span>{pick(LATEST_UPDATE.body, lang)}</span>
+                  </button>
+                )}
                 {msgs.map((m) => (
                   <div key={m.id} className={`sb-row ${m.who}`}>
+                    {m.who === 'bot' && <span className="sb-mini" aria-hidden="true"><LiveChibi spec={DOJOBOT} scale={1} seed={`m${m.id}`} /></span>}
                     <div className="sb-bubble">
                       {m.text}
                       {m.links && m.links.length > 0 && (
@@ -258,6 +299,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                 ))}
                 {busy && (
                   <div className="sb-row bot">
+                    <span className="sb-mini is-thinking" aria-hidden="true"><LiveChibi spec={DOJOBOT} scale={1} seed="typing" /></span>
                     <div className="sb-bubble sb-typing"><span /><span /><span /></div>
                   </div>
                 )}
