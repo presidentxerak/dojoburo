@@ -23,7 +23,7 @@ export const APP_UPDATES: AppUpdate[] = [
     id: 'school',
     date: '2026-10-10',
     title: B('School, from 6e to Terminale', 'L\'école, de la 6e à la Terminale'),
-    body: B('A new School tab in Formations: every subject of the French curriculum, lessons with exercises, games and quizzes, parent validation with a code, brevet and bac mock exams, and a unit on learning with AI. Free during the beta.', 'Un nouvel onglet École dans Formations : toutes les matières du programme, des leçons avec exercices, jeux et quiz, la validation par un parent avec un code, des épreuves blanches du brevet et du bac, et une unité pour apprendre avec l\'IA. Gratuit pendant la bêta.'),
+    body: B('A new School tab in Formations, in French: the curriculum plan of every class, complete lessons (course, exercises, game, quiz) for 3e, Terminale and Première French and maths, parent validation with a code, brevet and bac mock exams, and a unit on learning with AI. Free during the beta.', 'Un nouvel onglet École dans Formations : le plan du programme de chaque classe, des leçons complètes (cours, exercices, jeu, quiz) pour la 3e, la Terminale, le français et les maths de Première, la validation par un parent avec un code, des épreuves blanches du brevet et du bac, et une unité pour apprendre avec l\'IA. Gratuit pendant la bêta.'),
     href: '/ecole',
   },
   {
