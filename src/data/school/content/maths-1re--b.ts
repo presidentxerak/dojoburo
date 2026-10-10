@@ -94,7 +94,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. On considère la fonction f définie sur ]1 ; +∞[ par f(x) = (x² + 3)/(x - 1). 1) Montrer que pour tout x > 1, f'(x) = (x² - 2x - 3)/(x - 1)². 2) Étudier le signe de f'(x) sur ]1 ; +∞[. 3) Dresser le tableau de variations de f. 4) En déduire que pour tout x > 1, x² + 3 ≥ 6(x - 1).",
+              statement: "Type épreuve anticipée. On considère la fonction f définie sur ]1 ; +∞[ par f(x) = (x² + 3)/(x - 1). 1) Montrer que pour tout x > 1, f'(x) = (x² - 2x - 3)/(x - 1)². 2) Étudier le signe de f'(x) sur ]1 ; +∞[. 3) Dresser le tableau de variations de f. 4) En déduire que pour tout x > 1, x² + 3 ≥ 6(x - 1).",
               hint: "Utilisez (u/v)' = (u'v - uv')/v², factorisez le trinôme du numérateur, et pour la dernière question cherchez le minimum de f.",
               solution: [
                 "1) Avec u(x) = x² + 3 et v(x) = x - 1 : f'(x) = (2x(x - 1) - (x² + 3) × 1)/(x - 1)² = (2x² - 2x - x² - 3)/(x - 1)² = (x² - 2x - 3)/(x - 1)².",
@@ -209,7 +209,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Une entreprise fabrique chaque jour x centaines d'objets, avec x dans [0 ; 10]. Son bénéfice, en milliers d'euros, est modélisé par B(x) = -x³ + 15x² - 48x - 20. 1) Calculer B'(x) et vérifier que B'(x) = -3(x - 2)(x - 8). 2) Dresser le tableau de variations de B sur [0 ; 10]. 3) Combien d'objets faut-il fabriquer pour un bénéfice maximal ? Quel est ce bénéfice ?",
+              statement: "Type épreuve anticipée. Une entreprise fabrique chaque jour x centaines d'objets, avec x dans [0 ; 10]. Son bénéfice, en milliers d'euros, est modélisé par B(x) = -x³ + 15x² - 48x - 20. 1) Calculer B'(x) et vérifier que B'(x) = -3(x - 2)(x - 8). 2) Dresser le tableau de variations de B sur [0 ; 10]. 3) Combien d'objets faut-il fabriquer pour un bénéfice maximal ? Quel est ce bénéfice ?",
               hint: "Développez -3(x - 2)(x - 8) pour la vérification, puis étudiez le signe d'un trinôme de coefficient -3 < 0. Comparez enfin le maximum local à la valeur en 0.",
               solution: [
                 "1) B'(x) = -3x² + 30x - 48. Et -3(x - 2)(x - 8) = -3(x² - 10x + 16) = -3x² + 30x - 48 : l'égalité est vérifiée.",
@@ -331,7 +331,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Soit f la fonction définie sur ]-1 ; +∞[ par f(x) = (x² + 3x + 6)/(x + 1). 1) Montrer que f'(x) = (x² + 2x - 3)/(x + 1)². 2) Dresser le tableau de variations de f. 3) En déduire que pour tout x > -1, x² + 3x + 6 ≥ 5(x + 1). 4) Déterminer l'équation de la tangente T à la courbe de f en 0, puis étudier la position de la courbe par rapport à T.",
+              statement: "Type épreuve anticipée. Soit f la fonction définie sur ]-1 ; +∞[ par f(x) = (x² + 3x + 6)/(x + 1). 1) Montrer que f'(x) = (x² + 2x - 3)/(x + 1)². 2) Dresser le tableau de variations de f. 3) En déduire que pour tout x > -1, x² + 3x + 6 ≥ 5(x + 1). 4) Déterminer l'équation de la tangente T à la courbe de f en 0, puis étudier la position de la courbe par rapport à T.",
               hint: "Factorisez x² + 2x - 3 (une racine évidente est 1). Pour la dernière question, calculez f(x) - (équation de T) et mettez au même dénominateur.",
               solution: [
                 "1) f'(x) = ((2x + 3)(x + 1) - (x² + 3x + 6))/(x + 1)² = (2x² + 5x + 3 - x² - 3x - 6)/(x + 1)² = (x² + 2x - 3)/(x + 1)².",
@@ -453,7 +453,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Dans un club sportif, 30 % des adhérents sont mineurs (événement M). Parmi les mineurs, 60 % font de la compétition (événement C). Au total, 50 % des adhérents font de la compétition. On choisit un adhérent au hasard. 1) Traduire les données de l'énoncé à l'aide de probabilités. 2) Calculer P(M∩C). 3) Calculer la probabilité qu'un compétiteur choisi au hasard soit mineur. 4) Calculer P(M̄∩C), puis la probabilité qu'un adhérent majeur fasse de la compétition (arrondir à 10⁻³). 5) Le club compte 1 000 adhérents : dresser le tableau croisé des effectifs.",
+              statement: "Type épreuve anticipée. Dans un club sportif, 30 % des adhérents sont mineurs (événement M). Parmi les mineurs, 60 % font de la compétition (événement C). Au total, 50 % des adhérents font de la compétition. On choisit un adhérent au hasard. 1) Traduire les données de l'énoncé à l'aide de probabilités. 2) Calculer P(M∩C). 3) Calculer la probabilité qu'un compétiteur choisi au hasard soit mineur. 4) Calculer P(M̄∩C), puis la probabilité qu'un adhérent majeur fasse de la compétition (arrondir à 10⁻³). 5) Le club compte 1 000 adhérents : dresser le tableau croisé des effectifs.",
               hint: "« Parmi les mineurs » se traduit par une probabilité sachant M. Pour la question 4, C est la réunion des événements incompatibles M∩C et M̄∩C.",
               solution: [
                 "1) P(M) = 0,3, P_M(C) = 0,6 et P(C) = 0,5.",
@@ -566,7 +566,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Dans une ville, 40 % des habitants utilisent les transports en commun (événement T). Parmi eux, 70 % se déclarent satisfaits de l'offre de mobilité (événement S). Une enquête montre que 58 % de l'ensemble des habitants sont satisfaits. On interroge un habitant au hasard. 1) Représenter la situation par un arbre pondéré, en notant x = P_T̄(S). 2) Calculer P(T∩S). 3) À l'aide de la formule des probabilités totales, montrer que x = 0,5. 4) L'habitant interrogé est satisfait : quelle est la probabilité qu'il utilise les transports en commun ? Arrondir à 10⁻³. 5) Calculer la probabilité qu'un habitant soit insatisfait sachant qu'il utilise les transports en commun.",
+              statement: "Type épreuve anticipée. Dans une ville, 40 % des habitants utilisent les transports en commun (événement T). Parmi eux, 70 % se déclarent satisfaits de l'offre de mobilité (événement S). Une enquête montre que 58 % de l'ensemble des habitants sont satisfaits. On interroge un habitant au hasard. 1) Représenter la situation par un arbre pondéré, en notant x = P_T̄(S). 2) Calculer P(T∩S). 3) À l'aide de la formule des probabilités totales, montrer que x = 0,5. 4) L'habitant interrogé est satisfait : quelle est la probabilité qu'il utilise les transports en commun ? Arrondir à 10⁻³. 5) Calculer la probabilité qu'un habitant soit insatisfait sachant qu'il utilise les transports en commun.",
               hint: "Écrivez P(S) = P(T∩S) + P(T̄∩S) avec P(T̄∩S) = 0,6x, puis résolvez l'équation du premier degré obtenue.",
               solution: [
                 "1) Premier niveau : P(T) = 0,4 et P(T̄) = 0,6. Second niveau : P_T(S) = 0,7 et P_T(S̄) = 0,3 ; P_T̄(S) = x et P_T̄(S̄) = 1 - x.",
@@ -681,7 +681,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Un jeu consiste à lancer deux fois de suite un dé équilibré à six faces ; les deux lancers sont indépendants. À chaque lancer, on note S l'événement « obtenir 6 ». Le joueur gagne s'il obtient au moins un 6. 1) Représenter la situation par un arbre pondéré à deux niveaux. 2) Calculer la probabilité de n'obtenir aucun 6. 3) En déduire la probabilité de gagner. 4) Calculer la probabilité d'obtenir exactement un 6. 5) Le joueur a gagné : quelle est la probabilité qu'il ait obtenu deux 6 ?",
+              statement: "Type épreuve anticipée. Un jeu consiste à lancer deux fois de suite un dé équilibré à six faces ; les deux lancers sont indépendants. À chaque lancer, on note S l'événement « obtenir 6 ». Le joueur gagne s'il obtient au moins un 6. 1) Représenter la situation par un arbre pondéré à deux niveaux. 2) Calculer la probabilité de n'obtenir aucun 6. 3) En déduire la probabilité de gagner. 4) Calculer la probabilité d'obtenir exactement un 6. 5) Le joueur a gagné : quelle est la probabilité qu'il ait obtenu deux 6 ?",
               hint: "« Au moins un 6 » est le contraire de « aucun 6 ». Pour la dernière question, l'événement « obtenir deux 6 » est inclus dans l'événement « gagner ».",
               solution: [
                 "1) À chaque lancer, P(S) = 1/6 et P(S̄) = 5/6. Les branches du second niveau sont les mêmes après S et après S̄, car les lancers sont indépendants.",
@@ -810,7 +810,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. On cherche les fonctions f dérivables sur R telles que f' = 2f et f(0) = 3. Soit f une telle fonction, et g la fonction définie sur R par g(x) = f(x) × exp(-2x). 1) Calculer la dérivée de la fonction x ↦ exp(-2x). 2) Montrer que g'(x) = 0 pour tout réel x. 3) En déduire que pour tout réel x, f(x) = 3 exp(2x). 4) Vérifier réciproquement que la fonction x ↦ 3 exp(2x) convient.",
+              statement: "Type épreuve anticipée. On cherche les fonctions f dérivables sur R telles que f' = 2f et f(0) = 3. Soit f une telle fonction, et g la fonction définie sur R par g(x) = f(x) × exp(-2x). 1) Calculer la dérivée de la fonction x ↦ exp(-2x). 2) Montrer que g'(x) = 0 pour tout réel x. 3) En déduire que pour tout réel x, f(x) = 3 exp(2x). 4) Vérifier réciproquement que la fonction x ↦ 3 exp(2x) convient.",
               hint: "Dérivez g comme un produit, remplacez f'(x) par 2f(x), puis utilisez exp(2x) × exp(-2x) = 1, qui vient de exp(X) × exp(-X) = 1 avec X = 2x.",
               solution: [
                 "1) C'est exp(ax + b) avec a = -2 et b = 0 : sa dérivée est x ↦ -2 exp(-2x).",
@@ -932,7 +932,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. 1) Soit (uₙ) la suite définie pour tout entier naturel n par uₙ = exp(1 - 2n). Montrer que (uₙ) est géométrique ; préciser sa raison, son premier terme et son sens de variation. 2) a) Vérifier que pour tout réel X, X² - (e + 1)X + e = (X - 1)(X - e). b) En déduire les solutions dans R de l'équation e²ˣ - (e + 1)eˣ + e = 0.",
+              statement: "Type épreuve anticipée. 1) Soit (uₙ) la suite définie pour tout entier naturel n par uₙ = exp(1 - 2n). Montrer que (uₙ) est géométrique ; préciser sa raison, son premier terme et son sens de variation. 2) a) Vérifier que pour tout réel X, X² - (e + 1)X + e = (X - 1)(X - e). b) En déduire les solutions dans R de l'équation e²ˣ - (e + 1)eˣ + e = 0.",
               hint: "Pour 1), calculez uₙ₊₁/uₙ et écrivez-le comme une seule exponentielle. Pour 2b), posez X = eˣ et remarquez que e²ˣ = (eˣ)².",
               solution: [
                 "1) Pour tout n, uₙ > 0 et uₙ₊₁/uₙ = exp(1 - 2(n + 1)) / exp(1 - 2n) = exp(1 - 2n - 2 - 1 + 2n) = exp(-2) = e⁻².",
@@ -1051,7 +1051,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Après la prise d'un médicament, on modélise sa concentration dans le sang, en mg/L, par C(t) = 4t exp(-0,5t), où t est le temps en heures, avec t ∈ [0 ; 10]. 1) Montrer que C'(t) = (4 - 2t) exp(-0,5t). 2) Dresser le tableau de variations de C sur [0 ; 10]. 3) À quel instant la concentration est-elle maximale ? Donner cette concentration maximale, en valeur exacte puis arrondie à 0,01. 4) On admet que le médicament n'est plus actif lorsque sa concentration est inférieure à 0,5 mg/L. Est-ce le cas au bout de 10 heures ?",
+              statement: "Type épreuve anticipée. Après la prise d'un médicament, on modélise sa concentration dans le sang, en mg/L, par C(t) = 4t exp(-0,5t), où t est le temps en heures, avec t ∈ [0 ; 10]. 1) Montrer que C'(t) = (4 - 2t) exp(-0,5t). 2) Dresser le tableau de variations de C sur [0 ; 10]. 3) À quel instant la concentration est-elle maximale ? Donner cette concentration maximale, en valeur exacte puis arrondie à 0,01. 4) On admet que le médicament n'est plus actif lorsque sa concentration est inférieure à 0,5 mg/L. Est-ce le cas au bout de 10 heures ?",
               hint: "Dérivez un produit : (4t)' = 4 et la dérivée de exp(-0,5t) est -0,5 exp(-0,5t). Factorisez ensuite par exp(-0,5t), strictement positif.",
               solution: [
                 "1) C'(t) = 4 exp(-0,5t) + 4t × (-0,5) exp(-0,5t) = (4 - 2t) exp(-0,5t).",
@@ -1172,7 +1172,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Une roue de rayon 0,3 m tourne autour de son axe ; on suit un point A de sa jante. 1) Quelle distance parcourt A lorsque la roue tourne de π/3 rad ? Donner la valeur exacte, puis une valeur approchée au centimètre. 2) De quel angle, en radians puis en degrés (arrondi au degré), la roue doit-elle tourner pour que A parcoure 1 m ? 3) La roue roule sans glisser sur 10 m. Combien de tours complets effectue-t-elle ?",
+              statement: "Type épreuve anticipée. Une roue de rayon 0,3 m tourne autour de son axe ; on suit un point A de sa jante. 1) Quelle distance parcourt A lorsque la roue tourne de π/3 rad ? Donner la valeur exacte, puis une valeur approchée au centimètre. 2) De quel angle, en radians puis en degrés (arrondi au degré), la roue doit-elle tourner pour que A parcoure 1 m ? 3) La roue roule sans glisser sur 10 m. Combien de tours complets effectue-t-elle ?",
               hint: "Utilisez L = Rθ avec θ en radians. Un tour complet correspond à 2π rad, soit une distance de 2π × 0,3 = 0,6π m.",
               solution: [
                 "1) L = 0,3 × π/3 = 0,1π m ≈ 0,31 m, soit environ 31 cm.",
@@ -1291,7 +1291,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. 1) Résoudre dans ]-π ; π] l'équation sin x = √3/2. 2) Résoudre dans ]-π ; π] l'équation cos x = -√2/2. 3) On donne un réel a ∈ [-π/2 ; 0] tel que cos a = 1/3. Calculer sin a, puis sin(π + a) et cos(π/2 - a). 4) Résoudre dans ]-π ; π] l'inéquation cos x ≥ 1/2.",
+              statement: "Type épreuve anticipée. 1) Résoudre dans ]-π ; π] l'équation sin x = √3/2. 2) Résoudre dans ]-π ; π] l'équation cos x = -√2/2. 3) On donne un réel a ∈ [-π/2 ; 0] tel que cos a = 1/3. Calculer sin a, puis sin(π + a) et cos(π/2 - a). 4) Résoudre dans ]-π ; π] l'inéquation cos x ≥ 1/2.",
               hint: "Faites une figure : cherchez les points du cercle d'ordonnée √3/2, puis ceux d'abscisse -√2/2. Pour 3), utilisez cos²a + sin²a = 1 et le signe de sin a lorsque a ∈ [-π/2 ; 0].",
               solution: [
                 "1) sin(π/3) = √3/2 et sin(π - π/3) = sin(2π/3) = √3/2. Les deux points d'ordonnée √3/2 sont les images de π/3 et de 2π/3 : S = {π/3 ; 2π/3}.",
@@ -1411,7 +1411,7 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Type bac. Dans un port, on modélise la hauteur d'eau, en mètres, par h(t) = 4 + 2 cos(πt/6), où t est le temps en heures écoulé depuis minuit, avec t ∈ [0 ; 24]. 1) Calculer h(0), h(3) et h(6). 2) Montrer que pour tout réel t, h(t + 12) = h(t), et interpréter. 3) Justifier que 2 ≤ h(t) ≤ 6 et donner les instants des marées hautes et des marées basses sur [0 ; 24]. 4) Un bateau ne peut entrer au port que si la hauteur d'eau est d'au moins 5 m. Déterminer les instants de [0 ; 24] où h(t) = 5, puis les périodes où le bateau peut entrer.",
+              statement: "Type épreuve anticipée. Dans un port, on modélise la hauteur d'eau, en mètres, par h(t) = 4 + 2 cos(πt/6), où t est le temps en heures écoulé depuis minuit, avec t ∈ [0 ; 24]. 1) Calculer h(0), h(3) et h(6). 2) Montrer que pour tout réel t, h(t + 12) = h(t), et interpréter. 3) Justifier que 2 ≤ h(t) ≤ 6 et donner les instants des marées hautes et des marées basses sur [0 ; 24]. 4) Un bateau ne peut entrer au port que si la hauteur d'eau est d'au moins 5 m. Déterminer les instants de [0 ; 24] où h(t) = 5, puis les périodes où le bateau peut entrer.",
               hint: "Pour 3), cos(πt/6) = 1 lorsque πt/6 est un multiple de 2π. Pour 4), résolvez cos X = 1/2 en lisant le cercle, avec X = πt/6, sans oublier les multiples de 2π.",
               solution: [
                 "1) h(0) = 4 + 2 cos 0 = 6 ; h(3) = 4 + 2 cos(π/2) = 4 ; h(6) = 4 + 2 cos π = 2.",
