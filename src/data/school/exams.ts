@@ -63,12 +63,17 @@ export const EXAMS: Exam[] = [
     summary: [
       'Passée en fin de Première, elle compte pour le baccalauréat : un écrit et un oral.',
       'L\'oral porte sur les textes étudiés dans l\'année, présentés dans un descriptif.',
+      'Pour les élèves de Première de l\'année 2026-2027, les modalités sont fixées par la note de service du 11 septembre 2026 (Bulletin officiel spécial n°4 du 17 septembre 2026) : un écrit de 4 heures, et un oral de 20 minutes après 30 minutes de préparation.',
     ],
     epreuves: [
-      { id: 'ecrit', name: 'Écrit', duration: 240, format: 'Au choix, un commentaire de texte ou une dissertation sur l\'une des œuvres au programme et son parcours associé.', units: ['francais-1re'], mock: { questions: 12, exercises: 2 } },
+      { id: 'ecrit', name: 'Écrit', duration: 240, format: 'Au choix, le commentaire d\'un texte qui n\'est pas au programme, ou une dissertation sur l\'une des œuvres au programme et son parcours associé.', units: ['francais-1re'], mock: { questions: 12, exercises: 2 } },
       { id: 'oral', name: 'Oral', duration: 20, format: 'L\'explication linéaire d\'un texte du descriptif et une question de grammaire, puis un entretien sur l\'œuvre choisie par le candidat.', units: ['francais-1re'] },
     ],
-    sources: [OFFICIAL, { label: 'Educfr, le bac de français', url: 'https://educfr.com/guide-du-bac/articles/bac-francais-2027-fonctionnement-epreuves-coefficients/' }],
+    sources: [
+      OFFICIAL,
+      { label: 'Educfr, le bac de français', url: 'https://educfr.com/guide-du-bac/articles/bac-francais-2027-fonctionnement-epreuves-coefficients/' },
+      { label: 'Bulletin officiel spécial n°4 du 17 septembre 2026, épreuve anticipée de français', url: 'https://www.education.gouv.fr/bo/2026/Special4/MENE2622658N' },
+    ],
   },
   {
     id: 'maths-anticipee',
@@ -77,6 +82,7 @@ export const EXAMS: Exam[] = [
     summary: [
       'Créée en 2025, passée pour la première fois en juin 2026, elle compte pour le baccalauréat 2027 avec un coefficient 2.',
       'Il en existe trois versions : voie générale avec la spécialité mathématiques, voie générale sans cette spécialité, voie technologique.',
+      'Pour les élèves de Première de l\'année 2026-2027, les modalités sont fixées par la note de service du 11 septembre 2026 (Bulletin officiel spécial n°4 du 17 septembre 2026).',
     ],
     epreuves: [
       { id: 'ecrit', name: 'Écrit', duration: 120, coefficient: 2, format: 'Sans calculatrice. Une première partie d\'automatismes en questions à choix multiples (6 points), puis des exercices indépendants (14 points).', units: ['maths-1re'], mock: { questions: 12, exercises: 2 } },
@@ -85,6 +91,7 @@ export const EXAMS: Exam[] = [
       OFFICIAL,
       { label: 'CIDJ, l\'épreuve anticipée de maths', url: 'https://www.cidj.com/s-orienter/apres-la-3eme/bac-2026-la-nouvelle-epreuve-de-maths-en-premiere' },
       { label: 'Diplomeo, le déroulé de l\'épreuve', url: 'https://diplomeo.com/actualite-epreuve_anticipee_mathematiques_bac' },
+      { label: 'Bulletin officiel spécial n°4 du 17 septembre 2026, épreuve anticipée de mathématiques', url: 'https://www.education.gouv.fr/bo/2026/Special4/MENE2622640N' },
     ],
   },
   {
@@ -94,6 +101,7 @@ export const EXAMS: Exam[] = [
     summary: [
       'Le bac est noté sur 100 coefficients : 40 de contrôle continu et 60 d\'épreuves finales, dont les épreuves anticipées de Première.',
       'En Terminale : les deux spécialités, la philosophie et le Grand oral. À partir de la session 2027, le Grand oral passe au coefficient 8.',
+      'Les modalités des épreuves de la session 2027 (Grand oral, SES et autres spécialités) ont été précisées par des notes de service publiées au Bulletin officiel spécial n°4 du 17 septembre 2026.',
     ],
     epreuves: [
       { id: 'philosophie', name: 'Philosophie', duration: 240, coefficient: 8, format: 'Au choix, une dissertation parmi deux sujets ou l\'explication d\'un texte.', units: ['philosophie-tle'], mock: { questions: 12, exercises: 2 } },
@@ -103,12 +111,13 @@ export const EXAMS: Exam[] = [
       { id: 'ses', name: 'Spécialité SES', duration: 240, coefficient: 16, format: 'Au choix, une dissertation ou une épreuve composée.', units: ['ses-tle'], mock: { questions: 12, exercises: 2 } },
       { id: 'hggsp', name: 'Spécialité HGGSP', duration: 240, coefficient: 16, format: 'Une dissertation et une étude critique de documents.', units: ['hggsp-tle'], mock: { questions: 12, exercises: 2 } },
       { id: 'nsi', name: 'Spécialité NSI', duration: 210, coefficient: 16, format: 'Une épreuve écrite d\'exercices et une épreuve pratique sur ordinateur.', units: ['nsi-tle'], mock: { questions: 12, exercises: 3 } },
-      { id: 'grand-oral', name: 'Grand oral', duration: 20, coefficient: 8, format: 'La présentation d\'une question préparée, un échange avec le jury, puis un temps sur le projet d\'orientation.', units: ['grand-oral-tle'] },
+      { id: 'grand-oral', name: 'Grand oral', duration: 20, coefficient: 8, format: 'Après 20 minutes de préparation : 10 minutes de présentation de la question choisie par le jury parmi les deux préparées par le candidat, puis 10 minutes d\'échange avec le jury.', units: ['grand-oral-tle'] },
     ],
     sources: [
       OFFICIAL,
       { label: 'L\'Étudiant, coefficients du bac', url: 'https://www.letudiant.fr/bac/coefficients-bac-par-matiere-et-serie.html' },
       { label: 'L\'Express Éducation, tout savoir sur le bac', url: 'https://lexpress-education.com/articles/tout-savoir-sur-le-baccalaureat/' },
+      { label: 'Bulletin officiel spécial n°4 du 17 septembre 2026, Grand oral', url: 'https://www.education.gouv.fr/bo/2026/Special4/MENE2622694N' },
     ],
   },
 ]
