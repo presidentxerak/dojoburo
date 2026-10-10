@@ -53,6 +53,8 @@ import { ProfilPage } from './game/Profil'
 import { TarifsPage, MerciPage } from './game/Tarifs'
 import { FormationsPage } from './game/Formations'
 import { NewsPage } from './game/News'
+import { schoolRoute } from './school/routes'
+import { ParentsPage } from './school/Parents'
 import { AdminNewsletterPage } from './game/AdminNewsletter'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
@@ -70,6 +72,8 @@ import '@fontsource-variable/outfit/index.css'
 // Zelda (voir src/temple). Servie par nous, comme Outfit.
 import '@fontsource/silkscreen/latin-400.css'
 import './index.css'
+// l'école (collège et lycée), voir src/school
+import './styles/school.css'
 // l'affichage clair du jeu, APRÈS la feuille principale : il la corrige
 import './styles/look-light.css'
 
@@ -210,6 +214,10 @@ function Root() {
   if (path === '/tarifs') return <TarifsPage />
   // LES FORMATIONS · la liste, avec maîtres et prix (voir game/Formations)
   if (path === '/formations') return <FormationsPage />
+  // L'ÉCOLE · la catégorie scolaire (collège et lycée), voir school/routes.
+  // Demandé : « une catégorie scolaire pour les collégiens et les lycéens ».
+  if (path === '/ecole/parents') return <ParentsPage />
+  if (path === '/ecole' || path.startsWith('/ecole/')) return schoolRoute(path)
   // LES NOUVEAUTÉS IA · une édition chaque lundi (voir game/News)
   if (path === '/nouveautes' || path === '/news') return <NewsPage />
   // L'ESPACE ADMIN · la newsletter de la semaine (voir game/AdminNewsletter)

@@ -142,6 +142,30 @@ export const KB: KBTopic[] = [
     },
   },
   {
+    // L'ÉCOLE · demandé : « une catégorie scolaire pour les collégiens et les
+    // lycéens [...] avec un système de validation par les parents à chaque
+    // étape ». Voir src/school.
+    id: 'school',
+    chip: 'School (collège, lycée)',
+    answer:
+      'Formations, then the School tab, opens the school category: every class from 6e to Terminale, every subject of the French curriculum, free during the beta. Each lesson follows the official programme and has a course, a key-points sheet, a worked example, three exercises with full corrections, a game and a five-question quiz. ' +
+      'When the quiz is passed, the game completed and the exercises self-checked, a parent validates the lesson with a 4-digit code created in the Parents\' space; the same space shows the progress and the mock exam scores. The brevet, the épreuves anticipées of Première and the bac each have a page with the format of the papers, the chapters to revise and timed mock exams. A cross-grade unit, Learning with AI, teaches how to use AI at school without losing good study habits. The lessons themselves are written in French, like the curriculum.',
+    links: [
+      { label: 'Open the school', href: '/ecole' },
+      { label: 'Parents\' space', href: '/ecole/parents' },
+      { label: 'Learning with AI', href: '/ecole/u/ia-ecole' },
+    ],
+    follow: ['training', 'whatsnew'],
+    keywords: ['school', 'école', 'ecole', 'collège', 'college', 'lycée', 'lycee', 'brevet', 'bac', 'baccalauréat', 'baccalaureat', 'brevet blanc', 'bac blanc', 'programme scolaire', 'curriculum', 'homework', 'devoirs', 'parent', 'parents', 'code parent', 'parent code', '6e', '5e', '4e', '3e', 'seconde', 'première', 'terminale', 'collégien', 'lycéen', 'élève', 'pupil', 'mock exam', 'épreuve blanche', 'apprendre avec l\'ia', 'learning with ai'],
+    fr: {
+      chip: 'École (collège, lycée)',
+      answer:
+        'Formations, puis l\'onglet École, ouvre la catégorie scolaire : toutes les classes de la 6e à la Terminale, toutes les matières du programme, gratuitement pendant la bêta. Chaque leçon suit le programme officiel et comprend un cours, une fiche de l\'essentiel, un exemple corrigé, trois exercices entièrement corrigés, un jeu et un quiz de cinq questions. ' +
+        'Une fois le quiz réussi, le jeu gagné et les exercices autoévalués, un parent valide la leçon avec un code à 4 chiffres créé dans l\'Espace parents ; ce même espace montre la progression et les notes des épreuves blanches. Le brevet, les épreuves anticipées de Première et le bac ont chacun leur page : le format des épreuves, les chapitres à réviser et des épreuves blanches chronométrées. Une unité commune à toutes les classes, Apprendre avec l\'IA, montre comment utiliser l\'IA à l\'école sans perdre les bonnes méthodes de travail.',
+      links: ['Ouvrir l\'école', 'Espace parents', 'Apprendre avec l\'IA'],
+    },
+  },
+  {
     // LES TEMPLES · premier bouton de la barre du bas. L'identifiant reste
     // 'studios' parce que SupportBot le nomme dans ses pastilles d'accueil.
     id: 'studios',

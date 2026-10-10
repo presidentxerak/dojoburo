@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'school',
+    date: '2026-10-10',
+    title: B('School, from 6e to Terminale', 'L\'école, de la 6e à la Terminale'),
+    body: B('A new School tab in Formations: every subject of the French curriculum, lessons with exercises, games and quizzes, parent validation with a code, brevet and bac mock exams, and a unit on learning with AI. Free during the beta.', 'Un nouvel onglet École dans Formations : toutes les matières du programme, des leçons avec exercices, jeux et quiz, la validation par un parent avec un code, des épreuves blanches du brevet et du bac, et une unité pour apprendre avec l\'IA. Gratuit pendant la bêta.'),
+    href: '/ecole',
+  },
+  {
     id: 'dojobot-v2',
     date: '2026-10-05',
     title: B('Dojobot gets a face', 'Dojobot a maintenant un visage'),
