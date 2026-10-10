@@ -345,6 +345,10 @@ const strays = []
 for (const f of files) {
   const rel = f.replace(/\\/g, '/')
   if (SKIP.has(rel) || FICTION.has(rel) || rel in ALLOWED) continue
+  // Les leçons de l'école (demandé : « une catégorie scolaire pour les
+  // collégiens et les lycéens ») chiffrent des prix d'exercice (soldes,
+  // pourcentages) : de la matière pédagogique, pas notre grille.
+  if (rel.startsWith('src/data/school/content/')) continue
   // On ne lit que ce qui sera VU : les commentaires expliquent l'histoire des
   // prix et ont le droit de citer les anciens. Une garde qui accuse sa propre
   // documentation finit par être désarmée.

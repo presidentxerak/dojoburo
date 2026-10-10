@@ -64,7 +64,11 @@ const ok = (name, pass, detail = '') => {
 }
 
 const found = []
-const files = walk('src')
+// LES LEÇONS DE L'ÉCOLE en sont exclues (demandé : « une catégorie scolaire
+// pour les collégiens et les lycéens ») : elles suivent le programme français,
+// où un « jeton » est celui qu'on tire d'une urne en probabilités, pas le token
+// d'un modèle. La règle du jargon IA vaut pour les formations IA et l'interface.
+const files = walk('src').filter((f) => !f.replace(/\\/g, '/').startsWith('src/data/school/content/'))
 for (const f of files) {
   for (const o of offences(stripComments(readFileSync(f, 'utf8')))) found.push(`${f}: ${o}`)
 }
