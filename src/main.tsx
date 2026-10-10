@@ -72,7 +72,7 @@ import '@fontsource-variable/outfit/index.css'
 // Zelda (voir src/temple). Servie par nous, comme Outfit.
 import '@fontsource/silkscreen/latin-400.css'
 import './index.css'
-import './styles/school.css' // l'école, voir src/school
+import './styles/school.css'
 // l'affichage clair du jeu, APRÈS la feuille principale : il la corrige
 import './styles/look-light.css'
 
