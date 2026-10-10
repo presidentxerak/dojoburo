@@ -20,7 +20,8 @@ import { tmpdir } from 'node:os'
 let fails = 0
 const problems = []
 const ok = (name, cond, detail = '') => { console.log(`${cond ? 'ok  ' : 'FAIL'}  ${name}${detail ? ` · ${detail}` : ''}`); if (!cond) fails++ }
-const OUT = join(tmpdir(), 'dojo-test-school'); mkdirSync(OUT, { recursive: true })
+// un dossier par exécution : plusieurs gardes lancées en même temps ne s'écrasent pas
+const OUT = join(tmpdir(), `dojo-test-school-${process.pid}`); mkdirSync(OUT, { recursive: true })
 let n = 0
 async function load(entry) {
   const file = join(OUT, `m${n++}.mjs`)
