@@ -3,7 +3,6 @@
 // minute d'attente).
 import { useEffect, useRef, useState } from 'react'
 import { lockedFor } from './progress'
-import { useLang } from '../i18n'
 import { say } from '../data/bilingual'
 import { ST } from './text'
 
@@ -13,7 +12,7 @@ export function ParentCode({ label, onSubmit, autoFocus = false }: {
   onSubmit: (code: string) => Promise<boolean>
   autoFocus?: boolean
 }) {
-  const lang = useLang()
+  const lang = 'fr' as const
   const [code, setCode] = useState('')
   const [state, setState] = useState<'idle' | 'busy' | 'wrong' | 'locked'>('idle')
   const input = useRef<HTMLInputElement>(null)

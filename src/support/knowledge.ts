@@ -149,7 +149,7 @@ export const KB: KBTopic[] = [
     chip: 'School (collège, lycée)',
     answer:
       'Formations, then the School tab, opens the school category: every class from 6e to Terminale, every subject of the French curriculum, free during the beta. Each lesson follows the official programme and has a course, a key-points sheet, a worked example, three exercises with full corrections, a game and a five-question quiz. ' +
-      'When the quiz is passed, the game completed and the exercises self-checked, a parent validates the lesson with a 4-digit code created in the Parents\' space; the same space shows the progress and the mock exam scores. The brevet, the épreuves anticipées of Première and the bac each have a page with the format of the papers, the chapters to revise and timed mock exams. A cross-grade unit, Learning with AI, teaches how to use AI at school without losing good study habits. The lessons themselves are written in French, like the curriculum.',
+      'When the quiz is passed, the game completed and the exercises self-checked, a parent validates the lesson with a 4-digit code created in the Parents\' space; the same space shows the progress and the mock exam scores. The brevet, the épreuves anticipées of Première and the bac each have a page with the format of the papers, the chapters to revise and timed mock exams. A cross-grade unit, Learning with AI, teaches how to use AI at school without losing good study habits. The school follows the French curriculum and is in French only.',
     links: [
       { label: 'Open the school', href: '/ecole' },
       { label: 'Parents\' space', href: '/ecole/parents' },

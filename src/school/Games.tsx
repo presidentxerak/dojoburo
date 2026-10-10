@@ -6,11 +6,9 @@ import { useMemo, useState } from 'react'
 import { BauhausIcon } from '../components/BauhausIcon'
 import type { SchoolGame } from '../data/school/types'
 import { zen } from '../lib/zen'
-import { useLang } from '../i18n'
-import { say, type Bi } from '../data/bilingual'
 import { ST } from './text'
+import { useS } from './SchoolPages'
 
-const useS = () => { const lang = useLang(); return (b: Bi) => say(b, lang) }
 
 /** un mélange reproductible, pour que l'ordre ne change pas à chaque rendu */
 function shuffle<T>(arr: T[], seed: number): T[] {

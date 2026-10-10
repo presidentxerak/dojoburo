@@ -17,16 +17,18 @@ import { useSchool, lessonKey, lessonStatus, type SchoolState } from './progress
 import { teacherOf } from './teachers'
 import { ST } from './text'
 
-export const useS = () => { const lang = useLang(); return (b: Bi) => say(b, lang) }
+// L'ÉCOLE EST EN FRANÇAIS · demandé : « fais juste la version française ». Le
+// programme est celui de l'école française : les pages de l'école restent en
+// français quelle que soit la langue de l'app. Seul l'onglet qui y mène, sur la
+// page des formations IA, suit la langue choisie (voir TrainingTabs).
+export const useS = () => (b: Bi) => say(b, 'fr')
 /** une date lisible, dans la langue de l'interface */
-export const useDate = () => {
-  const lang = useLang()
-  return (iso: string) => new Date(iso).toLocaleDateString(lang === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-}
+export const useDate = () => (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
 /** LES DEUX FAMILLES DE FORMATIONS · un onglet en tête des formations et de l'école */
 export function TrainingTabs({ on }: { on: 'ai' | 'school' }) {
-  const s = useS()
+  const lang = useLang()
+  const s = (b: Bi) => say(b, on === 'ai' ? lang : 'fr')
   return (
     <nav className="sc-tabs" aria-label="Formations">
       <Lnk className={`sc-tab${on === 'ai' ? ' on' : ''}`} href="/formations">{s(ST.tabAi)}</Lnk>

@@ -1,6 +1,6 @@
-// LES TEXTES DE L'INTERFACE SCOLAIRE · dans les deux langues, comme le reste
-// de l'app. Le contenu des cours, lui, suit le programme français et reste en
-// français (voir data/school/types).
+// LES TEXTES DE L'INTERFACE SCOLAIRE · l'école s'affiche en français (demandé :
+// « fais juste la version française », voir useS dans SchoolPages). L'anglais
+// est gardé à côté, sans être affiché, sauf pour l'onglet des formations IA.
 import { B } from '../data/bilingual'
 
 export const ST = {

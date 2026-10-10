@@ -141,6 +141,8 @@ if (qCount >= 20) {
 /* --- 3 · le socle : pages, parents, examens ------------------------------------ */
 if (!only) {
   const MAIN = readFileSync('src/main.tsx', 'utf8')
+  // demandé : « fais juste la version française » · l'école s'affiche en français
+  ok('l\'école s\'affiche en français quelle que soit la langue de l\'app', /export const useS = \(\) => \(b: Bi\) => say\(b, 'fr'\)/.test(readFileSync('src/school/SchoolPages.tsx', 'utf8')))
   ok('la catégorie scolaire a ses routes', /path === '\/ecole'/.test(MAIN) && /\/ecole\/parents/.test(MAIN))
   const PR = readFileSync('src/school/progress.ts', 'utf8')
   ok('le code parent n\'est jamais gardé en clair', /crypto\.subtle\.digest\('SHA-256'/.test(PR) && !/localStorage\.setItem\([^)]*code/.test(PR))

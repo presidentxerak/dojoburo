@@ -31,7 +31,7 @@ Prévenir avant de lancer quoi que ce soit qui dure plus de 5 minutes.
 
 - L'app est en français et en anglais, écrits côte à côte dans le code (`B(en, fr)`, `src/i18n/dict.ts`). Les autres langues passent par la traduction automatique du navigateur (voir `docs/I18N.md`) : ne rien ajouter qui la bloque.
 - Tout nouveau cours ou texte d'interface est écrit dans les deux langues.
-- Exception : les leçons de l'école (`src/data/school`, collège et lycée) suivent le programme français et sont rédigées en français ; leur interface (`src/school/text.ts`) reste bilingue. Garde : `node scripts/test-school.mjs`.
+- Exception : l'école (`/ecole`, collège et lycée) est en français uniquement (demandé : « fais juste la version française ») : leçons, plans et interface. Garde : `node scripts/test-school.mjs`.
 
 ## Charte
 
