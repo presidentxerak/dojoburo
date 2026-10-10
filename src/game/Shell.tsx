@@ -92,7 +92,8 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
  *  allumé sur toutes les pages, ce qui ne dit plus où l'on est. */
 const isOn = (path: string, to: string) =>
   // « /dojo/ » AVEC sa barre · un temple et ses leçons allument Dojoburo.
-  to === '/' ? path === '/' || path.startsWith('/dojo/') : path.startsWith(to)
+  // L'école (/ecole) est l'autre famille de formations : elle allume Formations.
+  to === '/' ? path === '/' || path.startsWith('/dojo/') : path.startsWith(to) || (to === '/formations' && path.startsWith('/ecole'))
 
 /** LE COUP QUAND UN NOMBRE MONTE · vrai pendant le temps de l'animation, puis
  *  faux. C'est ce qui donne à un compteur le poids d'une récompense : un

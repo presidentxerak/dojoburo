@@ -25,6 +25,7 @@ import { drawTempleIcon } from '../temple/art/world'
 import { drawCardScene } from '../temple/art/cardScene'
 import { zen } from '../lib/zen'
 import { TT } from '../temple/templeText'
+import { TrainingTabs } from '../school/SchoolPages'
 
 export const FT = {
   title: B('The AI courses', 'Les formations IA'),
@@ -92,6 +93,7 @@ export function FormationsPage() {
 
   return (
     <Shell wide>
+      <TrainingTabs on="ai" />
       <section className="gm-sec">
         <h1 className="gm-h1">{s(FT.title)}</h1>
         <p className="gm-lead">{s(FT.lead)}</p>

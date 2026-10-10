@@ -167,6 +167,11 @@ const urls = [
   { loc: '/clan', pri: '0.7', freq: 'daily' },
   // LES NOUVEAUTÉS IA · une édition chaque lundi
   { loc: '/nouveautes', pri: '0.8', freq: 'weekly' },
+  // L'ÉCOLE · l'accueil, les classes, les examens et l'unité « Apprendre avec l'IA »
+  { loc: '/ecole', pri: '0.8', freq: 'weekly' },
+  ...['6e', '5e', '4e', '3e', '2nde', '1re', 'tle'].map((g) => ({ loc: `/ecole/${g}`, pri: '0.7', freq: 'monthly' })),
+  ...['brevet', 'bac-francais', 'maths-anticipee', 'bac'].map((x) => ({ loc: `/ecole/examens/${x}`, pri: '0.7', freq: 'monthly' })),
+  { loc: '/ecole/u/ia-ecole', pri: '0.7', freq: 'monthly' },
   // LES PAGES LÉGALES · leurs adresses françaises (/terms et /privacy y mènent)
   { loc: '/mentions-legales', pri: '0.2', freq: 'yearly' },
   { loc: '/confidentialite', pri: '0.2', freq: 'yearly' },
