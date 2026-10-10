@@ -76,7 +76,7 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
 
   return (
     <Shell>
-      <article className="ln sc-lesson-page" style={{ ['--ac' as string]: SUBJECTS[subject]?.tint }}>
+      <article lang="fr" className="ln sc-lesson-page" style={{ ['--ac' as string]: SUBJECTS[subject]?.tint }}>
         <Lnk className="gm-back" href={`/ecole/u/${unit}`}>← {subjectLabel(subject, grade)}{g ? ` · ${g.label}` : ''}</Lnk>
 
         <header className="sc-lhead">
