@@ -177,7 +177,7 @@ function LessonBody({ unit, L, chapterTitle, nextId, unitTotal }: { unit: string
 
         {nextId && <Lnk className="gm-cta sc-next" href={`/ecole/u/${unit}/${nextId}`}>{s(ST.nextLesson)} →</Lnk>}
       </article>
-      <MasterCheer queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
+      <MasterCheer lang="fr" queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
     </Shell>
   )
 }

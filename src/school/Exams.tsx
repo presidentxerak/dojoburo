@@ -356,7 +356,7 @@ function Mock({ x, e, pool }: { x: Exam; e: Epreuve; pool: Pool }) {
           </section>
         </>
       )}
-      <MasterCheer queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
+      <MasterCheer lang="fr" queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
     </Shell>
   )
 }

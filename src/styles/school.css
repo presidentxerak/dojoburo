@@ -329,3 +329,7 @@ a.sc-lesson:hover { background: var(--g-slot); }
 .sc-blanc-rows b { color: var(--g-text); }
 .sc-blanc-total { margin: 10px 0 0; color: var(--g-text); }
 .sc-blanc-total b { font-size: 20px; font-weight: 900; }
+
+/* le temple de la matière, en tête de sa page */
+.sc-unit-scene { flex: none; width: 200px; height: 112px; border-radius: 16px; }
+@media (max-width: 560px) { .sc-unit-scene { width: 100%; } }

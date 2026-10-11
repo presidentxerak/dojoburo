@@ -15,6 +15,9 @@ import {
 import { EXAMS } from '../data/school/exams'
 import { useSchool, lessonKey, lessonStatus, type SchoolState } from './progress'
 import { teacherOf } from './teachers'
+import { gridToUrl } from '../pixel/raster'
+import { drawTempleIcon } from '../temple/art/world'
+import { drawCardScene } from '../temple/art/cardScene'
 import { MAP_GRADES, YearBand, YearCards } from './Temples'
 import { ST } from './text'
 
@@ -148,6 +151,8 @@ export function UnitPage({ unit }: { unit: string }) {
   if (plan === undefined) return <Shell><section className="gm-sec"><p>{s(ST.loading)}</p></section></Shell>
   if (!plan) return <Shell><section className="gm-sec"><p>{s(ST.notFound)}</p></section></Shell>
   const lessons = plan.chapters.flatMap((c) => c.lessons.map((l) => ({ c, l })))
+  const ready = UNITS_WITH_CONTENT.has(unit)
+  const tint = SUBJECTS[subject]?.tint ?? '#7c3aed'
   const done = validatedIn(st, unit)
   const exam = EXAMS.find((x) => x.epreuves.some((e) => e.units.includes(unit)))
   const firstOpen = lessons.find(({ l }) => content?.has(l.id) && !st.lessons[lessonKey(unit, l.id)]?.validated)
@@ -156,7 +161,11 @@ export function UnitPage({ unit }: { unit: string }) {
       <section className="gm-sec sc-unit-head" style={{ ['--ac' as string]: SUBJECTS[subject]?.tint }}>
         <Lnk className="gm-back" href={grade ? `/ecole/${grade}` : '/ecole'}>← {g ? g.label : s(ST.title)}</Lnk>
         <div className="sc-unit-row">
-          <span className="sc-unit-av"><LiveChibi spec={t.spec} scale={3} seed={unit} /></span>
+          {/* LE TEMPLE DE LA MATIÈRE · le même décor que les cartes des formations IA */}
+          <span className="tw-card-scene sc-unit-scene" style={{ backgroundImage: `url(${gridToUrl(`cs:${unit}:${!ready}`, () => drawCardScene(tint, 3, !ready))})` }}>
+            <img className="tw-card-temple" src={gridToUrl(`ti:${unit}:${tint}:${!ready}`, () => drawTempleIcon(tint, 3, !ready))} alt="" width={80} height={88} />
+            <span className="tw-card-master"><LiveChibi spec={t.spec} scale={2} seed={unit} /></span>
+          </span>
           <div>
             <h1 className="gm-h1">{name}{g ? ` · ${g.label}` : ''}</h1>
             <p className="gm-lead">{plan.intro}</p>

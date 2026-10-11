@@ -14,6 +14,7 @@
 // Le mouvement réduit (réglage ou système) affiche tout d'un coup, sans effet.
 import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../i18n'
+import type { Lang } from '../i18n/lang'
 import { B, say, type Bi } from '../data/bilingual'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { LiveChibi } from '../pixel/LiveChibi'
@@ -241,10 +242,13 @@ export interface Cheer { id: string; points: number; part?: string; feat?: Feat 
  *  Une récompense à la fois : les suivantes attendent leur tour. Un clic, ou
  *  Échap, passe à la suivante. Le mouvement réduit garde le texte, sans
  *  particules ni mouvement. */
-export function MasterCheer({ queue, name, spec, onDone }: {
+export function MasterCheer({ queue, name, spec, onDone, lang: forced }: {
   queue: Cheer[]; name: string; spec: ChibiSpec; onDone: (id: string) => void
+  /** une langue imposée · l'école est en français quelle que soit celle de l'app */
+  lang?: Lang
 }) {
-  const lang = useLang()
+  const appLang = useLang()
+  const lang = forced ?? appLang
   const cur = queue[0]
   const coin = useRef<HTMLSpanElement>(null)
   useEffect(() => {
