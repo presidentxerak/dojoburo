@@ -93,7 +93,9 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
 const isOn = (path: string, to: string) =>
   // « /dojo/ » AVEC sa barre · un temple et ses leçons allument Dojoburo.
   // L'école (/ecole) est l'autre famille de formations : elle allume Formations.
-  to === '/' ? path === '/' || path.startsWith('/dojo/') : path.startsWith(to) || (to === '/formations' && path.startsWith('/ecole'))
+  // La carte des temples de l'école (/ecole/carte) allume Dojoburo, comme celle de l'IA.
+  to === '/' ? path === '/' || path.startsWith('/dojo/') || path === '/ecole/carte'
+    : path.startsWith(to) || (to === '/formations' && path.startsWith('/ecole') && path !== '/ecole/carte')
 
 /** LE COUP QUAND UN NOMBRE MONTE · vrai pendant le temps de l'animation, puis
  *  faux. C'est ce qui donne à un compteur le poids d'une récompense : un

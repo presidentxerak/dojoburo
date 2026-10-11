@@ -45,6 +45,12 @@ export const FEATS: Feat[] = [
   { id: 'mission', points: 25, title: B('Mission accomplished', 'Mission accomplie'), body: B('Every objective of a mission ticked.', "Tous les objectifs d'une mission cochés.") },
   { id: 'flawless', points: 40, title: B('Flawless', 'Sans faute'), body: B('Every quiz question of a lesson right.', "Toutes les questions du quiz d'une leçon justes.") },
   { id: 'three-dojos', points: 30, title: B('Three lessons', 'Trois cours'), body: B('Three lessons completed.', 'Trois cours terminés.') },
+  // L'ÉCOLE · demandé : « Vérifie si toutes les niveaux [...] ont bien le système
+  // de points et de récompense ». Les leçons scolaires rapportent leurs points
+  // partie par partie (school/SchoolLesson), et ces trois exploits en plus.
+  { id: 'ecole-lesson', points: 30, title: B('Validated by a parent', 'Validée par un parent'), body: B('Your first school lesson validated by a parent.', 'Votre première leçon de l\'école validée par un parent.') },
+  { id: 'ecole-temple', points: 100, title: B('Subject mastered', 'Matière maîtrisée'), body: B('Every lesson of a school subject validated.', 'Toutes les leçons d\'une matière de l\'école validées.') },
+  { id: 'ecole-blanc', points: 60, title: B('Full mock exam', 'Examen blanc complet'), body: B('Every paper of a mock exam taken.', 'Toutes les épreuves d\'un examen blanc passées.') },
 ]
 
 const FEAT_BY_ID = Object.fromEntries(FEATS.map((f) => [f.id, f])) as Record<string, Feat>

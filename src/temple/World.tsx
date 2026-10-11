@@ -25,6 +25,7 @@ import { Walkers } from './Walkers'
 import { SoundToggle } from './SoundToggle'
 import { zen, useZenAmbience } from '../lib/zen'
 import { TT } from './templeText'
+import { MapTabs } from './TempleWorld'
 
 /** La disposition de la carte · quatre temples par rangée sur grand écran,
  *  deux sur téléphone, en lacet pour que le chemin serpente. */
@@ -74,6 +75,7 @@ export function WorldPage() {
 
   return (
     <Shell wide>
+      <MapTabs on="ai" labels={{ ai: s(TT.mapAi), school: s(TT.mapSchool) }} />
       {/* L'EN-TÊTE · demandé : « en titre Apprenez l'IA avec Dojoburo, masque
           la card Choisissez votre personnage [...] A la place écris :
           Choisissez votre formation IA sur la carte ». Le personnage se crée

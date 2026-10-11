@@ -10,11 +10,12 @@ import { Shell } from '../game/Shell'
 import { LiveChibi } from '../pixel/LiveChibi'
 import {
   GRADES, GRADE_SUBJECTS, SUBJECTS, IA_UNIT, UNITS_WITH_CONTENT, unitId, gradeInfo, parseUnit, subjectLabel,
-  loadPlans, loadUnitPlan, loadUnitContent, useLoad, type Grade, type UnitPlan,
+  loadUnitPlan, loadUnitContent, useLoad, type Grade, type UnitPlan,
 } from '../data/school'
 import { EXAMS } from '../data/school/exams'
 import { useSchool, lessonKey, lessonStatus, type SchoolState } from './progress'
 import { teacherOf } from './teachers'
+import { MAP_GRADES, YearBand, YearCards } from './Temples'
 import { ST } from './text'
 
 // L'ÉCOLE EST EN FRANÇAIS · demandé : « fais juste la version française ». Le
@@ -47,7 +48,11 @@ export function SchoolHome() {
   const s = useS()
   const st = useSchool()
   useHeadTags({ title: `${s(ST.title)} · Dojoburo`, description: s(ST.lead), path: '/ecole' })
-  const stage = (k: 'college' | 'lycee') => GRADES.filter((g) => g.stage === k)
+  // LA PAGE PAR ANNÉE · demandé : « même chose pour la page de type de classe
+  // comme pour l'IA » · une section par année, de la 3e à la Terminale, avec
+  // ses matières en cartes de temple et son examen en dernier ; le collège
+  // (6e à 4e) suit, avec ses plans.
+  const college = GRADES.filter((g) => !MAP_GRADES.includes(g.id))
   return (
     <Shell wide>
       <TrainingTabs on="school" />
@@ -55,30 +60,7 @@ export function SchoolHome() {
         <span className="sc-badge">{s(ST.freeBeta)}</span>
         <h1 className="gm-h1">{s(ST.title)}</h1>
         <p className="gm-lead">{s(ST.lead)}</p>
-      </section>
-
-      <section className="gm-sec">
-        <h2 className="sc-h2">{s(ST.pickGrade)}</h2>
-        {(['college', 'lycee'] as const).map((k) => (
-          <div key={k} className="sc-stage">
-            <h3 className="sc-stage-h">{s(k === 'college' ? ST.college : ST.lycee)}</h3>
-            <div className="sc-grades">
-              {stage(k).map((g) => {
-                const units = GRADE_SUBJECTS[g.id].map((x) => unitId(x, g.id))
-                const ready = units.filter((u) => UNITS_WITH_CONTENT.has(u)).length
-                const done = units.reduce((n, u) => n + validatedIn(st, u), 0)
-                return (
-                  <Lnk key={g.id} className="sc-grade" href={`/ecole/${g.id}`}>
-                    <b>{g.label}</b>
-                    <span>{g.cycle}</span>
-                    <small>{units.length} {s(ST.subjects).toLowerCase()}{ready ? ` · ${ready} ${s(ST.written)}` : ''}{done ? ` · ${done} ${s(ST.validated)}` : ''}</small>
-                    {g.exam && <i className="sc-grade-exam">{g.exam === 'brevet' ? 'Brevet' : g.exam === 'bac' ? 'Bac' : 'Bac anticipé'}</i>}
-                  </Lnk>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+        <Lnk className="cc-btn cc-slate sc-maplink" href="/ecole/carte">{s(ST.mapLink)} →</Lnk>
       </section>
 
       <section className="gm-sec sc-duo">
@@ -95,17 +77,30 @@ export function SchoolHome() {
         </Lnk>
       </section>
 
-      <section className="gm-sec">
-        <h2 className="sc-h2">{s(ST.exams)}</h2>
-        <p className="gm-lead">{s(ST.examsLead)}</p>
-        <div className="sc-exams">
-          {EXAMS.map((x) => (
-            <Lnk key={x.id} className="cy-card sc-exam" href={`/ecole/examens/${x.id}`}>
-              <b>{x.name}</b>
-              <span>{gradeInfo(x.grade)?.label} · {x.epreuves.length} {x.epreuves.length > 1 ? 'épreuves' : 'épreuve'}</span>
-              <span className="sc-go">{s(ST.examLink)} <BauhausIcon name="play" size={10} /></span>
-            </Lnk>
-          ))}
+      {MAP_GRADES.map((g) => (
+        <section key={g} className="gm-sec sc-year">
+          <YearBand grade={g} href={`/ecole/${g}`} />
+          <YearCards grade={g} />
+        </section>
+      ))}
+
+      <section className="gm-sec sc-year">
+        <header className="sc-band is-all">
+          <span className="sc-band-n">{s(ST.college)}</span>
+          <span className="sc-band-t"><b>{college.map((g) => g.label).join(', ')}</b><small>{s(ST.soonLead)}</small></span>
+        </header>
+        <div className="sc-grades">
+          {college.map((g) => {
+            const units = GRADE_SUBJECTS[g.id].map((x) => unitId(x, g.id))
+            const done = units.reduce((n, u) => n + validatedIn(st, u), 0)
+            return (
+              <Lnk key={g.id} className="sc-grade" href={`/ecole/${g.id}`}>
+                <b>{g.label}</b>
+                <span>{g.cycle}</span>
+                <small>{units.length} {s(ST.subjects).toLowerCase()}{done ? ` · ${done} ${s(ST.validated)}` : ''}</small>
+              </Lnk>
+            )
+          })}
         </div>
       </section>
     </Shell>
@@ -118,11 +113,8 @@ export function SchoolHome() {
 
 export function GradePage({ grade }: { grade: Grade }) {
   const s = useS()
-  const st = useSchool()
   const g = gradeInfo(grade)!
-  const plans = useLoad(() => loadPlans(grade), [grade])
   useHeadTags({ title: `${g.label} · ${s(ST.title)} · Dojoburo`, description: s(ST.lead), path: `/ecole/${grade}` })
-  const exam = EXAMS.filter((x) => x.grade === grade)
   return (
     <Shell wide>
       <TrainingTabs on="school" />
@@ -130,35 +122,10 @@ export function GradePage({ grade }: { grade: Grade }) {
         <Lnk className="gm-back" href="/ecole">← {s(ST.title)}</Lnk>
         <h1 className="gm-h1">{g.label}</h1>
         <p className="gm-lead">{g.cycle}</p>
-        {exam.length > 0 && (
-          <div className="sc-exam-links">
-            {exam.map((x) => <Lnk key={x.id} className="gm-cta" href={`/ecole/examens/${x.id}`}>{x.name} →</Lnk>)}
-          </div>
-        )}
       </section>
-      <section className="gm-sec">
-        <div className="sc-subjects">
-          {GRADE_SUBJECTS[grade].map((sub) => {
-            const id = unitId(sub, grade)
-            const plan = plans?.find((p) => p.id === id)
-            const total = plan ? plan.chapters.reduce((n, c) => n + c.lessons.length, 0) : 0
-            const done = validatedIn(st, id)
-            const info = SUBJECTS[sub]
-            const t = teacherOf(sub)
-            const ready = UNITS_WITH_CONTENT.has(id)
-            return (
-              <Lnk key={sub} className={`sc-subject${ready ? '' : ' is-soon'}`} href={`/ecole/u/${id}`} style={{ ['--ac' as string]: info.tint }}>
-                <span className="sc-subject-av"><LiveChibi spec={t.spec} scale={2} seed={id} /></span>
-                <span className="sc-subject-t">
-                  <b>{subjectLabel(sub, grade)}</b>
-                  <small>{t.name}{total ? ` · ${total} ${s(ST.lessons)}` : ''}</small>
-                  {total > 0 && <span className="sc-bar"><i style={{ width: `${(done / total) * 100}%` }} /></span>}
-                  {!ready && <em className="sc-soon">{s(ST.soon)}</em>}
-                </span>
-              </Lnk>
-            )
-          })}
-        </div>
+      <section className="gm-sec sc-year">
+        <YearBand grade={grade} />
+        <YearCards grade={grade} />
       </section>
     </Shell>
   )

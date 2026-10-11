@@ -4,6 +4,7 @@
 //   /ecole/u/<unité>               une matière d'une classe, ou l'unité IA
 //   /ecole/u/<unité>/<leçon>       une leçon
 //   /ecole/parents                 l'Espace parents
+//   /ecole/carte                   la carte des temples (onglet Dojoburo)
 //   /ecole/examens/<examen>        un examen
 //   /ecole/examens/<examen>/<ép.>  une épreuve blanche
 import type { ReactNode } from 'react'
@@ -12,11 +13,13 @@ import { SchoolHome, GradePage, UnitPage } from './SchoolPages'
 import { SchoolLessonPage } from './SchoolLesson'
 import { ParentsPage } from './Parents'
 import { ExamPage, MockPage } from './Exams'
+import { SchoolMapPage } from './Temples'
 
 export function schoolRoute(path: string): ReactNode {
   const p = path.replace(/\/+$/, '')
   if (p === '/ecole') return <SchoolHome />
   if (p === '/ecole/parents') return <ParentsPage />
+  if (p === '/ecole/carte') return <SchoolMapPage />
   const g = p.match(/^\/ecole\/([a-z0-9]+)$/i)
   if (g && GRADES.some((x) => x.id === g[1])) return <GradePage grade={g[1] as Grade} />
   const u = p.match(/^\/ecole\/u\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/i)

@@ -292,3 +292,40 @@ a.sc-lesson:hover { background: var(--g-slot); }
 @media (prefers-reduced-motion: reduce) {
   .sc-chip.is-miss, .sc-code.is-wrong .sc-code-boxes, .sc-validated.is-new { animation: none !important; }
 }
+
+/* ---- les temples de l'école · demandé : « une carte de temple par catégorie
+   [...] avec sur la carte une démarcation entre les années ». Chaque année
+   ouvre sur une bande (son numéro en grand, son cycle, ses examens), puis sa
+   carte ou ses cartes de temple. ---------------------------------------------- */
+.tw-maptabs { margin-bottom: 14px; }
+.sc-maplink { margin-top: 12px; }
+.sc-year { margin-top: 10px; }
+.sc-band {
+  display: flex; gap: 14px; align-items: center; margin: 0 0 12px; padding: 12px 14px; border-radius: 18px;
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge), inset 0 -3px 0 #d4a017;
+}
+.sc-band.is-all { box-shadow: var(--g-edge), inset 0 -3px 0 #7c3aed; }
+.sc-band-n { flex: none; min-width: 64px; padding: 8px 12px; border-radius: 12px; text-align: center; font-weight: 900; font-size: 22px; line-height: 1; color: #fff; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.sc-band.is-all .sc-band-n { font-size: 14px; }
+.sc-band-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sc-band-t b { font-size: 16px; font-weight: 800; color: var(--g-text); }
+.sc-band-t small { font-size: 12.5px; line-height: 1.4; color: var(--g-sub); }
+@media (max-width: 480px) { .sc-band { gap: 10px; padding: 10px 12px; } .sc-band-n { min-width: 52px; font-size: 18px; } }
+
+/* le nom du temple et sa progression · sur la carte */
+.tw-note { display: block; margin-top: 1px; font-size: 9px; font-weight: 700; opacity: .85; }
+.tw-temple.is-exam .tw-label { background: #d4a017; color: #1b1030; }
+
+/* les cartes de temple de l'école · le décor des cartes IA, l'examen en or */
+.sc-card.is-soon .tw-card-scene { filter: saturate(.6); }
+.sc-card.is-exam { box-shadow: var(--g-edge), 0 0 0 2px rgba(212, 160, 23, .55); }
+.sc-card-medal { position: absolute; right: 10px; bottom: 8px; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #1b1030; background: #f5c542; box-shadow: 0 4px 10px -4px rgba(0, 0, 0, .5); }
+
+/* l'examen blanc complet */
+.sc-blanc-rows { list-style: none; margin: 8px 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sc-blanc-rows li { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; color: var(--g-sub); }
+.sc-blanc-rows li > span:nth-child(2) { flex: 1; min-width: 140px; color: var(--g-text); font-weight: 700; }
+.sc-blanc-rows li.is-done .sc-dot { background: #22c55e; box-shadow: none; }
+.sc-blanc-rows b { color: var(--g-text); }
+.sc-blanc-total { margin: 10px 0 0; color: var(--g-text); }
+.sc-blanc-total b { font-size: 20px; font-weight: 900; }

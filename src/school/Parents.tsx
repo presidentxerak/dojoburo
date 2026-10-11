@@ -132,9 +132,10 @@ function Dashboard({ st }: { st: SchoolState }) {
               </div>
               {open === e.key && (
                 <ParentCode autoFocus label={s(ST.validateWith)} onSubmit={async (c) => {
-                  const ok = await validateLesson(e.key, c)
-                  if (ok) { zen.sfx('chime'); setOpen(null) }
-                  return ok
+                  const plan = plans?.find((p) => p.id === e.unit)
+                  const won = await validateLesson(e.key, c, plan ? plan.chapters.reduce((n, ch) => n + ch.lessons.length, 0) : undefined)
+                  if (won) { zen.sfx('chime'); setOpen(null) }
+                  return !!won
                 }} />
               )}
             </li>
