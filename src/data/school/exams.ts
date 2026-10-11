@@ -26,6 +26,8 @@ export interface Epreuve {
   format: string
   /** les unités dont elle évalue le programme */
   units: string[]
+  /** limiter le tirage à certains chapitres des unités (leurs identifiants) */
+  chapters?: string[]
   /** l'épreuve blanche : nombre de questions et d'exercices tirés des unités */
   mock?: { questions: number; exercises: number }
 }
@@ -115,6 +117,27 @@ export const EXAMS: Exam[] = [
       OFFICIAL,
       { label: 'CIDJ, l\'épreuve anticipée de maths', url: 'https://www.cidj.com/s-orienter/apres-la-3eme/bac-2026-la-nouvelle-epreuve-de-maths-en-premiere' },
       { label: 'Diplomeo, le déroulé de l\'épreuve', url: 'https://diplomeo.com/actualite-epreuve_anticipee_mathematiques_bac' },
+      { label: 'Bulletin officiel spécial n°4 du 17 septembre 2026, épreuve anticipée de mathématiques', url: 'https://www.education.gouv.fr/bo/2026/Special4/MENE2622640N' },
+    ],
+  },
+  {
+    // les élèves sans spécialité mathématiques passent leur propre version de
+    // l'épreuve, sur la partie mathématique de l'enseignement scientifique
+    id: 'maths-anticipee-es',
+    name: 'Épreuve anticipée de mathématiques (sans spécialité)',
+    short: 'Maths anticipées (sans spécialité)',
+    blanc: 'Épreuve anticipée blanche (sans spécialité)',
+    official: true,
+    grade: '1re',
+    summary: [
+      'Les élèves de la voie générale qui ne suivent pas la spécialité mathématiques passent une version de l\'épreuve anticipée qui porte sur la partie mathématique de l\'enseignement scientifique.',
+      'Les modalités sont celles de la note de service du 11 septembre 2026 (Bulletin officiel spécial n°4 du 17 septembre 2026) : vérifiez le format exact de votre version sur le site du ministère.',
+    ],
+    epreuves: [
+      { id: 'ecrit', name: 'Écrit', duration: 120, coefficient: 2, format: 'Sans calculatrice. Des automatismes en questions à choix multiples, puis des exercices sur l\'information chiffrée, les phénomènes aléatoires et les phénomènes d\'évolution.', units: ['ens-sci-1re'], chapters: ['information-chiffree', 'phenomenes-aleatoires', 'phenomenes-evolution', 'epreuve-anticipee-es'], mock: { questions: 12, exercises: 2 } },
+    ],
+    sources: [
+      OFFICIAL,
       { label: 'Bulletin officiel spécial n°4 du 17 septembre 2026, épreuve anticipée de mathématiques', url: 'https://www.education.gouv.fr/bo/2026/Special4/MENE2622640N' },
     ],
   },
