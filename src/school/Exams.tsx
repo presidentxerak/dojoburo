@@ -9,7 +9,7 @@ import { Lnk } from '../lib/router'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useHeadTags } from '../lib/headTags'
 import { Shell } from '../game/Shell'
-import { UNITS_WITH_CONTENT, gradeInfo, parseUnit, subjectLabel, loadUnitContent, useLoad, type Exercise, type SchoolQuestion } from '../data/school'
+import { UNITS_WITH_CONTENT, gradeInfo, parseUnit, subjectLabel, loadUnitContent, loadUnitPlan, useLoad, type Exercise, type SchoolQuestion } from '../data/school'
 import { examOf, type Epreuve, type Exam } from '../data/school/exams'
 import { useSchool, getSchool, addMock, type SchoolState } from './progress'
 import { MasterCheer } from '../game/LessonGame'
@@ -166,11 +166,18 @@ function draw<T>(arr: T[], n: number, seed: number): T[] {
 
 interface Pool { questions: SchoolQuestion[]; exercises: (Exercise & { from: string })[] }
 
-async function loadPool(units: string[]): Promise<Pool> {
+async function loadPool(units: string[], chapters?: string[]): Promise<Pool> {
   const maps = await Promise.all(units.map(loadUnitContent))
+  // limiter aux chapitres demandés · leurs leçons, lues dans les plans
+  let keep: Set<string> | null = null
+  if (chapters?.length) {
+    const plans = await Promise.all(units.map(loadUnitPlan))
+    keep = new Set(plans.flatMap((p) => p?.chapters.filter((c) => chapters.includes(c.id)).flatMap((c) => c.lessons.map((l) => l.id)) ?? []))
+  }
   const questions: SchoolQuestion[] = []
   const exercises: Pool['exercises'] = []
   for (const m of maps) for (const L of m.values()) {
+    if (keep && !keep.has(L.id)) continue
     questions.push(...L.quiz)
     for (const ex of L.exercises) if (ex.level === 3) exercises.push({ ...ex, from: L.title })
   }
@@ -182,7 +189,7 @@ export function MockPage({ examId, epreuveId }: { examId: string; epreuveId: str
   const x = examOf(examId)
   const e = x?.epreuves.find((p) => p.id === epreuveId)
   useHeadTags({ title: `${s(ST.mockTime)} · ${e?.name ?? ''} · ${x?.name ?? ''} · Dojoburo`, description: s(ST.mockIntro), path: `/ecole/examens/${examId}/${epreuveId}` })
-  const pool = useLoad(() => (e ? loadPool(e.units) : Promise.resolve(null)), [examId, epreuveId])
+  const pool = useLoad(() => (e ? loadPool(e.units, e.chapters) : Promise.resolve(null)), [examId, epreuveId])
   if (!x || !e || !e.mock) return <Shell><section className="gm-sec"><p>{s(ST.notFound)}</p><Lnk className="gm-cta" href="/ecole">{s(ST.back)}</Lnk></section></Shell>
   if (pool === undefined) return <Shell><section className="gm-sec"><p>{s(ST.loading)}</p></section></Shell>
   return <Mock key={`${examId}/${epreuveId}`} x={x} e={e} pool={pool ?? { questions: [], exercises: [] }} />

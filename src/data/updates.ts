@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'school-2nde-1re',
+    date: '2026-10-11',
+    title: B('Seconde and Première, every subject', 'La Seconde et la Première, toutes les matières'),
+    body: B('Every subject of Seconde and Première now has its lessons, from 3e to Terminale the whole road is written, and the Première anticipated maths paper has its version without the maths speciality.', 'Toutes les matières de la Seconde et de la Première ont leurs leçons : de la 3e à la Terminale, tout le chemin est rédigé, et l\'épreuve anticipée de maths a sa version sans la spécialité.'),
+    href: '/ecole/carte',
+  },
+  {
     id: 'school-map',
     date: '2026-10-11',
     title: B('The school temples map', 'La carte des temples de l\'école'),
