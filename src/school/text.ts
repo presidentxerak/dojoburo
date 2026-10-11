@@ -21,6 +21,16 @@ export const ST = {
   parentsLead: B('Create the 4-digit parent code, follow the progress and validate each lesson.', 'Créez le code parent à 4 chiffres, suivez la progression et validez chaque leçon.'),
   parentsReady: B('Parent code set for', 'Code parent créé pour'),
   freeBeta: B('Free during the beta', 'Gratuit pendant la bêta'),
+  // la carte et les cartes de temples
+  mapTitle: B('School, from 3e to Terminale', 'Les cours, de la 3e à la Terminale'),
+  mapLead: B('One band per year: each subject is a temple, and the exam of the year waits at the end of the road.', 'Une bande par année : chaque matière est un temple, et l\'examen de l\'année attend au bout du chemin.'),
+  allSchool: B('See every class and subject', 'Voir toutes les classes et les matières'),
+  allGrades: B('All classes', 'Toutes les classes'),
+  mapLink: B('See the map of the temples', 'Voir la carte des temples'),
+  freeTag: B('Free', 'Gratuit'),
+  seePlan: B('See the plan', 'Voir le plan'),
+  examOfficial: B('National exam', 'Examen national'),
+  examYearEnd: B('End-of-year check', 'Contrôle de fin d\'année'),
   // la classe et l'unité
   subjects: B('Subjects', 'Matières'),
   lessons: B('lessons', 'leçons'),
@@ -156,5 +166,8 @@ export const ST = {
   again: B('Take another mock exam', 'Passer une autre épreuve blanche'),
   examOverview: B('All the exams', 'Tous les examens'),
   noMockOral: B('An oral is prepared aloud: work through the lessons, then present them to someone at home.', 'Un oral se prépare à voix haute : travaillez les leçons, puis présentez-les à quelqu\'un de votre entourage.'),
+  blancLead: B('Take each paper as a timed mock: the overall score appears once every paper has its mark (latest attempt, weighted by the coefficients).', 'Passez chaque épreuve en épreuve blanche chronométrée : la note d\'ensemble apparaît quand toutes les épreuves ont leur note (la dernière tentative, pondérée par les coefficients).'),
+  blancAvg: B('Overall score', 'Note d\'ensemble'),
+  blancDone: B('papers taken', 'épreuves passées'),
   mockSaved: B('Score recorded. A parent can validate it in the parents\' space.', 'Note enregistrée. Un parent peut la valider dans l\'Espace parents.'),
 }

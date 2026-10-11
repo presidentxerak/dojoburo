@@ -11,7 +11,10 @@ import { useHeadTags } from '../lib/headTags'
 import { Shell } from '../game/Shell'
 import { UNITS_WITH_CONTENT, gradeInfo, parseUnit, subjectLabel, loadUnitContent, useLoad, type Exercise, type SchoolQuestion } from '../data/school'
 import { examOf, type Epreuve, type Exam } from '../data/school/exams'
-import { useSchool, addMock } from './progress'
+import { useSchool, getSchool, addMock, type SchoolState } from './progress'
+import { MasterCheer } from '../game/LessonGame'
+import { rewardPart, rewardFeat, type Cheer } from './rewards'
+import { teacherOf } from './teachers'
 import { ST } from './text'
 import { TrainingTabs, useS, useDate } from './SchoolPages'
 import { zen } from '../lib/zen'
@@ -40,6 +43,8 @@ export function ExamPage({ id }: { id: string }) {
         <h1 className="gm-h1">{x.name}</h1>
         <ul className="sc-summary">{x.summary.map((p, i) => <li key={i}>{p}</li>)}</ul>
       </section>
+
+      <BlancPanel x={x} st={st} />
 
       <section className="gm-sec">
         <h2 className="sc-h2">{s(ST.epreuves)}</h2>
@@ -90,6 +95,56 @@ export function ExamPage({ id }: { id: string }) {
         </ul>
       </section>
     </Shell>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* L'EXAMEN BLANC COMPLET                                              */
+/* ------------------------------------------------------------------ */
+
+/** la dernière note de chaque épreuve blanche, et la moyenne quand toutes
+ *  les épreuves ont la leur · pondérée par les coefficients connus */
+export function blancOf(x: Exam, st: SchoolState) {
+  const eps = x.epreuves.filter((e) => e.mock)
+  const rows = eps.map((e) => ({ e, score: st.mocks.find((m) => m.exam === x.id && m.epreuve === e.id)?.score }))
+  const done = rows.filter((r) => r.score !== undefined)
+  const complete = rows.length > 0 && done.length === rows.length
+  const w = (e: Epreuve) => e.coefficient ?? 1
+  const avg = complete ? Math.round((rows.reduce((n, r) => n + r.score! * w(r.e), 0) / rows.reduce((n, r) => n + w(r.e), 0)) * 10) / 10 : null
+  return { rows, done: done.length, complete, avg }
+}
+
+/** demandé : « brevet blanc, brevet, bac blanc et bac, et contrôle de fin
+ *  pour les autres ». Le brevet (ou le bac) est la page de l'examen ; le
+ *  brevet blanc, toutes ses épreuves blanches passées une à une. */
+function BlancPanel({ x, st }: { x: Exam; st: SchoolState }) {
+  const s = useS()
+  const b = blancOf(x, st)
+  if (!b.rows.length) return null
+  return (
+    <section className="gm-sec">
+      <div className="cy-card sc-blanc">
+        <h2 className="sc-h2">{x.blanc}</h2>
+        <p className="sc-note">{s(ST.blancLead)}</p>
+        <ul className="sc-blanc-rows">
+          {b.rows.map(({ e, score }) => (
+            <li key={e.id} className={score !== undefined ? 'is-done' : ''}>
+              <span className="sc-dot">{score !== undefined ? <BauhausIcon name="check" size={11} /> : null}</span>
+              <span>{e.name}{e.coefficient !== undefined ? <small> · coef. {e.coefficient}</small> : null}</span>
+              {score !== undefined
+                ? <b>{score.toLocaleString('fr-FR')} / 20</b>
+                : canMock(e) ? <Lnk className="cc-btn cc-violet sc-small" href={`/ecole/examens/${x.id}/${e.id}`}>{s(ST.begin)}</Lnk> : <small>{s(ST.soon)}</small>}
+            </li>
+          ))}
+        </ul>
+        <span className="sc-bar"><i style={{ width: `${(b.done / b.rows.length) * 100}%` }} /></span>
+        <p className="sc-blanc-total">
+          {b.complete
+            ? <>{s(ST.blancAvg)} : <b>{b.avg!.toLocaleString('fr-FR')} / 20</b></>
+            : <>{b.done} / {b.rows.length} {s(ST.blancDone)}</>}
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -170,6 +225,18 @@ function Mock({ x, e, pool }: { x: Exam; e: Epreuve; pool: Pool }) {
   // sans exercice, la partie A compte pour toute la note, et inversement
   const raw = nQ && nE ? partA + partB : nQ ? (20 * right) / nQ : partB * (20 / 12)
   const score = Math.round(raw * 2) / 2
+
+  // LES POINTS · une épreuve blanche notée rapporte ses points une fois, et
+  // l'examen blanc complet son exploit (school/rewards)
+  const [cheers, setCheers] = useState<Cheer[]>([])
+  const t = teacherOf(parseUnit(e.units[0]).subject)
+  const save = () => {
+    addMock({ exam: x.id, epreuve: e.id, score })
+    setPhase('saved'); zen.sfx('chime')
+    const won = [...rewardPart(`ecole/blanc/${x.id}/${e.id}`, `${x.blanc} · ${e.name}`)]
+    if (blancOf(x, getSchool()).complete) won.push(...rewardFeat('ecole-blanc'))
+    if (won.length) setCheers((q) => [...q, ...won])
+  }
 
   return (
     <Shell wide>
@@ -274,7 +341,7 @@ function Mock({ x, e, pool }: { x: Exam; e: Epreuve; pool: Pool }) {
               <p className="sc-note">{s(ST.scoreRule)}</p>
               {(marked || nE === 0) && <p className="sc-big-score">{s(ST.score)} : <b>{score.toLocaleString('fr-FR')} / 20</b></p>}
               {phase === 'review' && (marked || nE === 0) && (
-                <button className="gm-cta" onClick={() => { addMock({ exam: x.id, epreuve: e.id, score }); setPhase('saved'); zen.sfx('chime') }}>{s(ST.saveScore)}</button>
+                <button className="gm-cta" onClick={save}>{s(ST.saveScore)}</button>
               )}
               {phase === 'saved' && (
                 <>
@@ -289,6 +356,7 @@ function Mock({ x, e, pool }: { x: Exam; e: Epreuve; pool: Pool }) {
           </section>
         </>
       )}
+      <MasterCheer lang="fr" queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
     </Shell>
   )
 }

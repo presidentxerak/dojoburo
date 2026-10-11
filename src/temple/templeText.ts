@@ -6,6 +6,8 @@ import { B } from '../data/bilingual'
 
 export const TT = {
   worldTitle: B('Learn AI with Dojoburo', "Apprenez l'IA avec Dojoburo"),
+  mapAi: B('Learn AI', "Apprendre l'IA"),
+  mapSchool: B('School, 3e to Terminale', 'Les cours, de la 3e à la Terminale'),
   worldLead: B('Choose your AI course on the map.', 'Choisissez votre formation IA sur la carte.'),
   allCourses: B('See every course, its master and its price', 'Voir toutes les formations, leurs maîtres et leurs prix'),
   coursesH2: B('The courses', 'Les formations'),

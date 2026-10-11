@@ -8,7 +8,7 @@
 // jamais le code lui-même. Une leçon n'est validée que si le code est saisi,
 // et cinq erreurs de suite bloquent la saisie une minute.
 import { useSyncExternalStore } from 'react'
-import { awardPart } from '../game/achievements'
+import { rewardPart, rewardFeat, type Cheer } from './rewards'
 
 const KEY = 'dojo-school-v1'
 
@@ -119,12 +119,20 @@ export async function checkCode(code: string): Promise<boolean> {
   return false
 }
 
-/** la leçon est validée par un parent · elle rapporte ses points une fois */
-export async function validateLesson(key: string, code: string): Promise<boolean> {
-  if (!(await checkCode(code))) return false
+/** la leçon est validée par un parent · elle rapporte ses points une fois.
+ *  Rend les récompenses à montrer (vide si déjà acquises), ou null si le code
+ *  est faux. `unitTotal` : le nombre de leçons de la matière, pour l'exploit
+ *  « matière maîtrisée ». */
+export async function validateLesson(key: string, code: string, unitTotal?: number): Promise<Cheer[] | null> {
+  if (!(await checkCode(code))) return null
   patchLesson(key, { validated: { at: now() } })
-  awardPart(`ecole/${key}`)
-  return true
+  const unit = key.split('/')[0]
+  const done = Object.entries(cache.lessons).filter(([k, v]) => k.startsWith(`${unit}/`) && v.validated).length
+  return [
+    ...rewardPart(`ecole/${key}`, 'Leçon validée'),
+    ...rewardFeat('ecole-lesson'),
+    ...(unitTotal && done >= unitTotal ? rewardFeat('ecole-temple') : []),
+  ]
 }
 
 /* ---- les épreuves blanches --------------------------------------------------- */

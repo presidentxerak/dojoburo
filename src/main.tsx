@@ -55,6 +55,7 @@ import { FormationsPage } from './game/Formations'
 import { NewsPage } from './game/News'
 import { schoolRoute } from './school/routes'
 import { ParentsPage } from './school/Parents'
+import { SchoolMapPage } from './school/Temples'
 import { AdminNewsletterPage } from './game/AdminNewsletter'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
@@ -216,6 +217,7 @@ function Root() {
   // L'ÉCOLE · la catégorie scolaire (collège et lycée), voir school/routes.
   // Demandé : « une catégorie scolaire pour les collégiens et les lycéens ».
   if (path === '/ecole/parents') return <ParentsPage />
+  if (path === '/ecole/carte') return <SchoolMapPage />
   if (path === '/ecole' || path.startsWith('/ecole/')) return schoolRoute(path)
   // LES NOUVEAUTÉS IA · une édition chaque lundi (voir game/News)
   if (path === '/nouveautes' || path === '/news') return <NewsPage />

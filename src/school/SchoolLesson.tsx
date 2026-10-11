@@ -11,7 +11,8 @@ import { BauhausIcon } from '../components/BauhausIcon'
 import { useHeadTags } from '../lib/headTags'
 import { Shell } from '../game/Shell'
 import { LiveChibi } from '../pixel/LiveChibi'
-import { QuestHud, type QuestStep } from '../game/LessonGame'
+import { QuestHud, MasterCheer, type QuestStep } from '../game/LessonGame'
+import { rewardPart, rewardFeat, type Cheer } from './rewards'
 import { SUBJECTS, gradeInfo, parseUnit, subjectLabel, loadUnitPlan, loadUnitContent, useLoad, type SchoolLesson, type SchoolQuestion } from '../data/school'
 import { useSchool, lessonKey, lessonStatus, recordExercise, recordGame, recordQuiz, validateLesson, hasParent } from './progress'
 import { SchoolGameBox } from './Games'
@@ -33,10 +34,10 @@ export function SchoolLessonPage({ unit, lessonId }: { unit: string; lessonId: s
   const at = flat.findIndex((x) => x.l.id === lessonId)
   const chapter = flat[at]?.c
   const next = flat.slice(at + 1).find((x) => content.has(x.l.id))
-  return <LessonBody key={`${unit}/${lessonId}`} unit={unit} L={L} chapterTitle={chapter?.title ?? ''} nextId={next?.l.id ?? null} />
+  return <LessonBody key={`${unit}/${lessonId}`} unit={unit} L={L} chapterTitle={chapter?.title ?? ''} nextId={next?.l.id ?? null} unitTotal={flat.length} />
 }
 
-function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: SchoolLesson; chapterTitle: string; nextId: string | null }) {
+function LessonBody({ unit, L, chapterTitle, nextId, unitTotal }: { unit: string; L: SchoolLesson; chapterTitle: string; nextId: string | null; unitTotal: number }) {
   const s = useS()
   const st = useSchool()
   const key = lessonKey(unit, L.id)
@@ -46,6 +47,14 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
   const t = teacherOf(subject)
   const g = grade ? gradeInfo(grade) : null
   const seed = [...key].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
+
+  // LES POINTS · demandé : « ont bien le système de points et de récompense ».
+  // Comme dans les formations IA, le professeur félicite et offre les points à
+  // chaque réussite : un exercice réussi, le jeu gagné, une bonne réponse, la
+  // validation du parent (school/rewards). Chaque réussite ne rapporte qu'une fois.
+  const [cheers, setCheers] = useState<Cheer[]>([])
+  const cheer = (won: Cheer[]) => { if (won.length) setCheers((q) => [...q, ...won]) }
+  const part = (id: string, label: string) => cheer(rewardPart(`ecole/${key}/${id}`, label))
 
   // LE QUIZ · une tentative à la fois, comme dans les formations
   const [attempt, setAttempt] = useState(0)
@@ -57,7 +66,12 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
     const next = { ...answers, [i]: k }
     setAnswers(next)
     zen.sfx(k === L.quiz[i].answer ? 'tap' : 'locked')
-    if (Object.keys(next).length === L.quiz.length) recordQuiz(key, L.quiz.filter((q, j) => next[j] === q.answer).length, L.quiz.length)
+    if (k === L.quiz[i].answer) part(`q${i + 1}`, `${s(ST.question)} ${i + 1}`)
+    if (Object.keys(next).length === L.quiz.length) {
+      const right = L.quiz.filter((q, j) => next[j] === q.answer).length
+      recordQuiz(key, right, L.quiz.length)
+      if (right === L.quiz.length) cheer(rewardFeat('flawless'))
+    }
   }
 
   // LA BARRE DE QUÊTE · un carré par exercice achevé, comme dans les formations
@@ -126,7 +140,7 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
                 <ol className="sc-solution">{x.solution.map((y, j) => <li key={j}>{y}</li>)}</ol>
                 <p className="sc-self-q">{s(ST.selfCheck)}</p>
                 <div className="sc-self-btns">
-                  <button className={`cc-btn ${rec?.ex?.[k] === 'ok' ? 'cc-violet' : 'cc-slate'}`} onClick={() => recordExercise(key, k, 'ok')}>{s(ST.didIt)}</button>
+                  <button className={`cc-btn ${rec?.ex?.[k] === 'ok' ? 'cc-violet' : 'cc-slate'}`} onClick={() => { recordExercise(key, k, 'ok'); part(`ex${k + 1}`, `${s(ST.exercises)} ${k + 1}`) }}>{s(ST.didIt)}</button>
                   <button className={`cc-btn ${rec?.ex?.[k] === 'todo' ? 'cc-violet' : 'cc-slate'}`} onClick={() => recordExercise(key, k, 'todo')}>{s(ST.toReview)}</button>
                 </div>
               </Reveal>
@@ -136,7 +150,7 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
 
         <section className="ln-block" data-step="game">
           <h2 className="ln-h2">{s(ST.game)} {rec?.game && <BauhausIcon name="check" size={14} />}</h2>
-          <SchoolGameBox game={L.game} seed={seed} onWin={() => recordGame(key)} />
+          <SchoolGameBox game={L.game} seed={seed} onWin={() => { recordGame(key); part('game', s(ST.game)) }} />
         </section>
 
         <section className="ln-trap">
@@ -159,10 +173,11 @@ function LessonBody({ unit, L, chapterTitle, nextId }: { unit: string; L: School
           )}
         </section>
 
-        <Validation unitKey={key} status={status} validatedAt={rec?.validated?.at} />
+        <Validation unitKey={key} status={status} validatedAt={rec?.validated?.at} unitTotal={unitTotal} onWon={cheer} />
 
         {nextId && <Lnk className="gm-cta sc-next" href={`/ecole/u/${unit}/${nextId}`}>{s(ST.nextLesson)} →</Lnk>}
       </article>
+      <MasterCheer lang="fr" queue={cheers} name={t.name} spec={t.spec} onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
     </Shell>
   )
 }
@@ -197,7 +212,7 @@ export function QuestionCard({ q, n, total = 5, picked, onPick }: { q: SchoolQue
   )
 }
 
-function Validation({ unitKey, status, validatedAt }: { unitKey: string; status: ReturnType<typeof lessonStatus>; validatedAt?: string }) {
+function Validation({ unitKey, status, validatedAt, unitTotal, onWon }: { unitKey: string; status: ReturnType<typeof lessonStatus>; validatedAt?: string; unitTotal: number; onWon: (c: Cheer[]) => void }) {
   const s = useS()
   const [justDone, setJustDone] = useState(false)
   const fmt = useDate()
@@ -217,7 +232,7 @@ function Validation({ unitKey, status, validatedAt }: { unitKey: string; status:
             {status.ready && (hasParent()
               ? <>
                   <p>{s(ST.askParent)}</p>
-                  <ParentCode label={s(ST.parentCode)} onSubmit={async (code) => { const ok = await validateLesson(unitKey, code); if (ok) { setJustDone(true); zen.sfx('chime') } return ok }} />
+                  <ParentCode label={s(ST.parentCode)} onSubmit={async (code) => { const won = await validateLesson(unitKey, code, unitTotal); if (won) { setJustDone(true); zen.sfx('chime'); onWon(won) } return !!won }} />
                 </>
               : <p>{s(ST.noParent)} <Lnk href="/ecole/parents">{s(ST.parents)} →</Lnk></p>)}
           </>

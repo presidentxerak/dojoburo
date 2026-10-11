@@ -152,6 +152,17 @@ if (!only) {
   const EX = await load(`${DIR}/exams.ts`)
   ok('le brevet et le bac ont leurs épreuves, blanches comprises', ['brevet', 'bac', 'bac-francais', 'maths-anticipee'].every((id) => EX.EXAMS.some((x) => x.id === id && x.epreuves.length >= 1)))
   ok('chaque épreuve cite ses sources', EX.EXAMS.every((x) => x.sources?.length >= 1 && x.epreuves.every((ep) => ep.duration > 0 && ep.units.length >= 1)))
+  // demandé : « Vérifie si toutes les niveaux ont leur temple dédié et à la fin
+  // leur examen (brevet blanc, brevet, bac blanc et bac, et contrôle de fin pour
+  // les autres) et ont bien le système de points et de récompense », puis « une
+  // carte de temple par catégorie [...] avec une démarcation entre les années ».
+  ok('chaque classe a son examen de fin, avec son examen blanc', ['6e', '5e', '4e', '3e', '2nde', '1re', 'tle'].every((g) => EX.EXAMS.some((x) => x.grade === g && x.short && x.blanc)))
+  ok('le brevet blanc et le bac blanc existent', EX.EXAMS.find((x) => x.id === 'brevet')?.blanc === 'Brevet blanc' && EX.EXAMS.find((x) => x.id === 'bac')?.blanc === 'Bac blanc')
+  const TP = readFileSync('src/school/Temples.tsx', 'utf8')
+  ok('la carte de l\'école va de la 3e à la Terminale, une bande par année', /MAP_GRADES: Grade\[\] = \['3e', '2nde', '1re', 'tle'\]/.test(TP) && /<YearBand grade=\{g\}/.test(TP) && /p === '\/ecole\/carte'/.test(readFileSync('src/school/routes.tsx', 'utf8')))
+  ok('les deux cartes se choisissent en tête de page', /<MapTabs on="ai"/.test(readFileSync('src/temple/World.tsx', 'utf8')) && /<MapTabs on="school"/.test(TP))
+  const SL = readFileSync('src/school/SchoolLesson.tsx', 'utf8')
+  ok('une leçon rapporte ses points partie par partie', ['ex${k + 1}', "'game'", 'q${i + 1}'].every((k) => SL.includes(k)) && /rewardPart\(/.test(SL) && /<MasterCheer lang="fr"/.test(SL))
 }
 
 const unitsDone = new Set(contentFiles.map((f) => f.replace(/--[a-z0-9-]+\.ts$/, '')))

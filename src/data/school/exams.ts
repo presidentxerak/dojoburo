@@ -5,6 +5,15 @@
 // d'information concordantes (citées pour chaque examen). Ils ne remplacent
 // pas les textes officiels : chaque page renvoie vers le site du ministère.
 // Une épreuve blanche tire ses questions et ses exercices des unités listées.
+//
+// Puis : « Vérifie si toutes les niveaux ont [...] à la fin leur examen
+// (brevet blanc, brevet, bac blanc et bac, et contrôle de fin pour les
+// autres) ». Chaque examen a donc son nom court (le temple au bout de l'année)
+// et le nom de son examen blanc complet (toutes ses épreuves blanches, une
+// moyenne pondérée par les coefficients). Les classes sans examen national
+// ont un contrôle de fin d'année, qui n'est pas un examen officiel.
+import { GRADE_SUBJECTS, gradeInfo, subjectLabel, unitId } from './catalog'
+import type { Grade } from './types'
 
 export interface Epreuve {
   id: string
@@ -25,6 +34,12 @@ export interface Exam {
   id: string
   name: string
   grade: string
+  /** le nom court, sur le temple de l'examen */
+  short: string
+  /** le nom de l'examen blanc complet (toutes les épreuves blanches) */
+  blanc: string
+  /** faux pour un contrôle de fin d'année propre à Dojoburo */
+  official: boolean
   /** ce qu'il faut savoir sur l'examen, en quelques phrases */
   summary: string[]
   epreuves: Epreuve[]
@@ -37,6 +52,9 @@ export const EXAMS: Exam[] = [
   {
     id: 'brevet',
     name: 'Diplôme national du brevet',
+    short: 'Brevet',
+    blanc: 'Brevet blanc',
+    official: true,
     grade: '3e',
     summary: [
       'Depuis la session 2027, la note finale est sur 20 : 40 % de contrôle continu, calculé sur les moyennes annuelles de 3e, et 60 % d\'épreuves finales.',
@@ -59,6 +77,9 @@ export const EXAMS: Exam[] = [
   {
     id: 'bac-francais',
     name: 'Épreuve anticipée de français',
+    short: 'Bac de français',
+    blanc: 'Bac de français blanc',
+    official: true,
     grade: '1re',
     summary: [
       'Passée en fin de Première, elle compte pour le baccalauréat : un écrit et un oral.',
@@ -78,6 +99,9 @@ export const EXAMS: Exam[] = [
   {
     id: 'maths-anticipee',
     name: 'Épreuve anticipée de mathématiques',
+    short: 'Maths anticipées',
+    blanc: 'Épreuve anticipée blanche',
+    official: true,
     grade: '1re',
     summary: [
       'Créée en 2025, passée pour la première fois en juin 2026, elle compte pour le baccalauréat 2027 avec un coefficient 2.',
@@ -97,6 +121,9 @@ export const EXAMS: Exam[] = [
   {
     id: 'bac',
     name: 'Baccalauréat général',
+    short: 'Bac',
+    blanc: 'Bac blanc',
+    official: true,
     grade: 'tle',
     summary: [
       'Le bac est noté sur 100 coefficients : 40 de contrôle continu et 60 d\'épreuves finales, dont les épreuves anticipées de Première.',
@@ -122,4 +149,49 @@ export const EXAMS: Exam[] = [
   },
 ]
 
+/* ---- les contrôles de fin d'année ------------------------------------------ */
+
+/** les matières déjà évaluées par un examen national de la même classe */
+const BY_EXAM: Partial<Record<Grade, string[]>> = {
+  '1re': ['francais', 'maths'],
+  tle: ['philosophie', 'maths', 'physique-chimie', 'svt', 'ses', 'hggsp', 'nsi', 'grand-oral'],
+}
+
+const WHY: Partial<Record<Grade, string>> = {
+  '1re': 'En Première, le français et les mathématiques ont leurs épreuves anticipées ; les autres matières comptent au baccalauréat par le contrôle continu.',
+  tle: 'En Terminale, ces matières ne passent pas d\'épreuve finale : elles comptent au baccalauréat par le contrôle continu.',
+}
+
+function controle(grade: Grade): Exam {
+  const g = gradeInfo(grade)!
+  const subjects = GRADE_SUBJECTS[grade].filter((x) => !(BY_EXAM[grade] ?? []).includes(x) && x !== 'grand-oral')
+  return {
+    id: `controle-${grade}`,
+    name: `Contrôle de fin de ${g.label}`,
+    short: `Contrôle de fin de ${g.label}`,
+    blanc: `Bilan de fin de ${g.label}`,
+    official: false,
+    grade,
+    summary: [
+      'Ce contrôle n\'est pas un examen officiel : c\'est le bilan de fin d\'année de Dojoburo, une épreuve courte par matière, tirée des leçons rédigées.',
+      WHY[grade] ?? `Il n'y a pas d'examen national en fin de ${g.label} : l'année est évaluée par les notes de vos professeurs.`,
+      'Passez les épreuves une à une : quand toutes ont une note, le bilan donne la moyenne de l\'année.',
+    ],
+    epreuves: subjects.map((x) => ({
+      id: x,
+      name: subjectLabel(x, grade),
+      duration: 60,
+      format: 'Des questions sur tout le programme de l\'année, puis deux exercices corrigés.',
+      units: [unitId(x, grade)],
+      mock: { questions: 10, exercises: 2 },
+    })),
+    sources: [OFFICIAL],
+  }
+}
+
+EXAMS.push(...(['6e', '5e', '4e', '2nde', '1re', 'tle'] as Grade[]).map(controle))
+
 export const examOf = (id: string) => EXAMS.find((x) => x.id === id) ?? null
+
+/** les examens d'une classe, dans l'ordre de l'année */
+export const examsOf = (grade: string) => EXAMS.filter((x) => x.grade === grade)
