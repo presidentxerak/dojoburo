@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'school-map',
+    date: '2026-10-11',
+    title: B('The school temples map', 'La carte des temples de l\'école'),
+    body: B('In the Dojoburo tab, a second map: from 3e to Terminale, one band per year, a temple per subject and the exam at the end of the road (brevet, bac, end-of-year check). Mock brevet and bac, points at every success, and the Seconde lessons arriving.', 'Dans l\'onglet Dojoburo, une seconde carte : de la 3e à la Terminale, une bande par année, un temple par matière et l\'examen au bout du chemin (brevet, bac, contrôle de fin). Brevet blanc et bac blanc, des points à chaque réussite, et les leçons de Seconde qui arrivent.'),
+    href: '/ecole/carte',
+  },
+  {
     id: 'school',
     date: '2026-10-10',
     title: B('School, from 6e to Terminale', 'L\'école, de la 6e à la Terminale'),
