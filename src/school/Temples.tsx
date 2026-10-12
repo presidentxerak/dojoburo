@@ -33,8 +33,10 @@ import { blancOf } from './Exams'
 import { ST } from './text'
 import { useS } from './SchoolPages'
 
-/** les classes de la carte · demandé : « de la 3ème à la terminale » */
-export const MAP_GRADES: Grade[] = ['3e', '2nde', '1re', 'tle']
+/** les classes de la carte · demandé d'abord « de la 3ème à la terminale », puis,
+ *  une fois le collège rédigé : « Oui, rédige la 6e, la 5e et la 4e » · toutes
+ *  les classes ont maintenant leur bande et leurs temples. */
+export const MAP_GRADES: Grade[] = ['6e', '5e', '4e', '3e', '2nde', '1re', 'tle']
 /** la couleur des temples d'examen */
 const EXAM_TINT = '#d4a017'
 

@@ -52,9 +52,8 @@ export function SchoolHome() {
   const st = useSchool()
   useHeadTags({ title: `${s(ST.title)} · Dojoburo`, description: s(ST.lead), path: '/ecole' })
   // LA PAGE PAR ANNÉE · demandé : « même chose pour la page de type de classe
-  // comme pour l'IA » · une section par année, de la 3e à la Terminale, avec
-  // ses matières en cartes de temple et son examen en dernier ; le collège
-  // (6e à 4e) suit, avec ses plans.
+  // comme pour l'IA » · une section par année, de la 6e à la Terminale (voir
+  // MAP_GRADES), avec ses matières en cartes de temple et son examen en dernier.
   const college = GRADES.filter((g) => !MAP_GRADES.includes(g.id))
   return (
     <Shell wide>
@@ -87,7 +86,7 @@ export function SchoolHome() {
         </section>
       ))}
 
-      <section className="gm-sec sc-year">
+      {college.length > 0 && <section className="gm-sec sc-year">
         <header className="sc-band is-all">
           <span className="sc-band-n">{s(ST.college)}</span>
           <span className="sc-band-t"><b>{college.map((g) => g.label).join(', ')}</b><small>{s(ST.soonLead)}</small></span>
@@ -105,7 +104,7 @@ export function SchoolHome() {
             )
           })}
         </div>
-      </section>
+      </section>}
     </Shell>
   )
 }

@@ -159,7 +159,9 @@ if (!only) {
   ok('chaque classe a son examen de fin, avec son examen blanc', ['6e', '5e', '4e', '3e', '2nde', '1re', 'tle'].every((g) => EX.EXAMS.some((x) => x.grade === g && x.short && x.blanc)))
   ok('le brevet blanc et le bac blanc existent', EX.EXAMS.find((x) => x.id === 'brevet')?.blanc === 'Brevet blanc' && EX.EXAMS.find((x) => x.id === 'bac')?.blanc === 'Bac blanc')
   const TP = readFileSync('src/school/Temples.tsx', 'utf8')
-  ok('la carte de l\'école va de la 3e à la Terminale, une bande par année', /MAP_GRADES: Grade\[\] = \['3e', '2nde', '1re', 'tle'\]/.test(TP) && /<YearBand grade=\{g\}/.test(TP) && /p === '\/ecole\/carte'/.test(readFileSync('src/school/routes.tsx', 'utf8')))
+  // RÉPARÉE · la carte allait de la 3e à la Terminale ; puis « Oui, rédige la 6e,
+  // la 5e et la 4e » : elle va maintenant de la 6e à la Terminale.
+  ok('la carte de l\'école va de la 6e à la Terminale, une bande par année', /MAP_GRADES: Grade\[\] = \['6e', '5e', '4e', '3e', '2nde', '1re', 'tle'\]/.test(TP) && /<YearBand grade=\{g\}/.test(TP) && /p === '\/ecole\/carte'/.test(readFileSync('src/school/routes.tsx', 'utf8')))
   ok('les deux cartes se choisissent en tête de page', /<MapTabs on="ai"/.test(readFileSync('src/temple/World.tsx', 'utf8')) && /<MapTabs on="school"/.test(TP))
   const SL = readFileSync('src/school/SchoolLesson.tsx', 'utf8')
   ok('une leçon rapporte ses points partie par partie', ['ex${k + 1}', "'game'", 'q${i + 1}'].every((k) => SL.includes(k)) && /rewardPart\(/.test(SL) && /<MasterCheer lang="fr"/.test(SL))

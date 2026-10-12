@@ -22,7 +22,7 @@ export const ST = {
   parentsReady: B('Parent code set for', 'Code parent créé pour'),
   freeBeta: B('Free during the beta', 'Gratuit pendant la bêta'),
   // la carte et les cartes de temples
-  mapTitle: B('School, from 3e to Terminale', 'Les cours, de la 3e à la Terminale'),
+  mapTitle: B('School, from 6e to Terminale', 'Les cours, de la 6e à la Terminale'),
   mapLead: B('One band per year: each subject is a temple, and the exam of the year waits at the end of the road.', 'Une bande par année : chaque matière est un temple, et l\'examen de l\'année attend au bout du chemin.'),
   allSchool: B('See every class and subject', 'Voir toutes les classes et les matières'),
   allGrades: B('All classes', 'Toutes les classes'),
