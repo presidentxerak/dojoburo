@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'school-lycee-options',
+    date: '2026-10-12',
+    title: B('Spanish in Première and Terminale, and the two maths options', 'L\'espagnol en Première et en Terminale, et les deux options de maths'),
+    body: B('Spanish now continues to the end of lycée, with the Andes in Première and the richness of cultural mixing in Terminale. In Terminale, the complementary maths and expert maths options have their own temples and lessons.', 'L\'espagnol continue jusqu\'à la fin du lycée, avec l\'espace andin en Première et la richesse des métissages en Terminale. En Terminale, les options mathématiques complémentaires et mathématiques expertes ont leurs temples et leurs leçons.'),
+    href: '/ecole/tle',
+  },
+  {
     id: 'school-college',
     date: '2026-10-12',
     title: B('Collège: 6e, 5e and 4e, every subject', 'Le collège : la 6e, la 5e et la 4e, toutes les matières'),
