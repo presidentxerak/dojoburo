@@ -301,7 +301,15 @@ const COURSE_META: Record<CourseId, Omit<Pack, 'id' | 'door' | 'modules' | 'cour
     glyph: 'envelope',
     tint: '#db2777',
     kit: 'sales',
+  },  'identite-de-marque': {
+    title: B('Brand identity and design in the age of AI', 'Identité de marque et design à l\'ère de l\'IA'),
+    blurb: B('Like giving a whole team the same compass: strategy, verbal and visual identity, guidelines with AI guardrails, design tokens and governance, so that every creation, human or generated, stays true to the brand.',
+      'Comme donner la même boussole à toute une équipe : stratégie, identité verbale et visuelle, charte avec garde-fous IA, design tokens et gouvernance, pour que chaque création, humaine ou générée, reste fidèle à la marque.'),
+    glyph: 'ring',
+    tint: '#c026d3',
+    kit: 'design',
   },
+
 }
 const COURSE_PACKS: Pack[] = COURSE_IDS
   .filter((id) => COURSE_CITIES[id].length > 0)

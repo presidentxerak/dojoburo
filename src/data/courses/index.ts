@@ -31,6 +31,8 @@ import { BUSINESS_A } from './business-a'
 import { BUSINESS_B } from './business-b'
 import { COPY_A } from './copy-a'
 import { COPY_B } from './copy-b'
+import { BRAND_A } from './brand-a'
+import { BRAND_B } from './brand-b'
 
 /** l'identifiant d'un cours · c'est aussi celui de son temple (/dojo/<id>)
  *  et celui de son achat */
@@ -56,6 +58,9 @@ export const COURSE_IDS = [
   'ia-locale',
   'business-ia',
   'copywriting',
+  // demandé : « on va ajouter une formation dans l'IA pour : Formation
+  // complète : Création de design et identité de marque à l'ère de l'IA »
+  'identite-de-marque',
 ] as const
 export type CourseId = (typeof COURSE_IDS)[number]
 
@@ -77,6 +82,7 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'ia-locale': true,
   'business-ia': true,
   'copywriting': true,
+  'identite-de-marque': false,
 }
 
 const WRITTEN: Record<CourseId, CoursePart[]> = {
@@ -94,6 +100,7 @@ const WRITTEN: Record<CourseId, CoursePart[]> = {
   'ia-locale': [LOCALE_A, LOCALE_B],
   'business-ia': [BUSINESS_A, BUSINESS_B],
   'copywriting': [COPY_A, COPY_B],
+  'identite-de-marque': [BRAND_A, BRAND_B],
 }
 /** LE MODE BROUILLON DES GARDES · `DOJO_COURSE_DRAFTS=1 node scripts/test-…`
  *  fait lire aux gardes de contenu les cours encore en rédaction. Il n'existe

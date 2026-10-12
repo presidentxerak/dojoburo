@@ -199,6 +199,12 @@ export const MASTERS: Record<string, Master> = {
     welcome: B('Words do not sell, they make people want to buy. Let us find the ones your reader is waiting for.', 'Les mots ne vendent pas, ils donnent envie d\'acheter. Trouvons ceux que votre lecteur attend.'),
     spec: human({ skin: '#ffe0c8', hair: 'long', hairColor: '#be185d', accessory: 'flower', outfit: 'dress', outfitColor: '#db2777', accent: '#500724', eyes: 'happy' }),
   },
+  'identite-de-marque': {
+    name: 'Kaede',
+    role: B('Master of brand identity', 'Maître de l\'identité de marque'),
+    welcome: B('A brand is a set of rules that everyone, human or machine, can follow. Let us write yours before anyone draws.', 'Une marque est un ensemble de règles que chacun, humain ou machine, peut suivre. Écrivons les vôtres avant que quiconque ne dessine.'),
+    spec: human({ skin: '#c98a5e', hair: 'bob', hairColor: '#1f1235', accessory: 'glasses', outfit: 'suit', outfitColor: '#c026d3', accent: '#4a044e', eyes: 'happy' }),
+  },
   'metier-consultant': {
     name: 'Rio',
     role: B('Master of consultants', 'Maître des consultants'),

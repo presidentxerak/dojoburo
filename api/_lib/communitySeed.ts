@@ -41,6 +41,7 @@ export const MASTER_NAMES: Record<string, string> = {
   'ia-locale': 'Tetsu',
   'business-ia': 'Daichi',
   'copywriting': 'Mika',
+  'identite-de-marque': 'Kaede',
 }
 
 export const masterDid = (pack: string) => `master:${pack}`
