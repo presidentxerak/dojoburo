@@ -22,6 +22,8 @@ export const TEACHERS: Record<string, Teacher> = {
   technologie: { name: 'M. Rouage', spec: { ...base, species: 'robot', variant: 'visor', skin: '#94a3b8', outfit: 'overalls', outfitColor: '#475569', accessory: 'goggles' } },
   anglais: { name: 'Ms Bridge', spec: human({ skin: '#ffe0c8', hair: 'bob', hairColor: '#f2c94c', outfit: 'tee', outfitColor: '#dc2626', accessory: 'beret' }) },
   espagnol: { name: 'Sra. Sol', spec: human({ skin: '#e7ad82', hair: 'long', hairColor: '#2b1d16', outfit: 'dress', outfitColor: '#ea580c', accessory: 'flower' }) },
+  'maths-comp': { name: 'Mme Euler', spec: human({ skin: '#e7ad82', hair: 'bob', hairColor: '#2b1d16', outfit: 'suit', outfitColor: '#0284c7', accessory: 'glasses' }) },
+  'maths-expertes': { name: 'M. Gauss', spec: human({ hair: 'short', hairColor: '#e9e4da', facial: 'mustache', outfit: 'suit', outfitColor: '#1e3a8a', accessory: 'glasses' }) },
   ses: { name: 'M. Marché', spec: human({ skin: '#6b4128', hair: 'short', outfit: 'suit', outfitColor: '#0891b2', accessory: 'glasses' }) },
   snt: { name: 'Mme Octet', spec: human({ hair: 'spiky', hairColor: '#4aa8ff', outfit: 'hoodie', outfitColor: '#4f46e5', accessory: 'headphones' }) },
   nsi: { name: 'Mme Octet', spec: human({ hair: 'spiky', hairColor: '#4aa8ff', outfit: 'hoodie', outfitColor: '#4338ca', accessory: 'headphones' }) },

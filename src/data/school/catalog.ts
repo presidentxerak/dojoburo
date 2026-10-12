@@ -31,6 +31,8 @@ export interface SubjectInfo {
   tint: string
   /** au lycée : un enseignement de spécialité */
   speciality?: boolean
+  /** en Terminale : un enseignement optionnel (maths complémentaires ou expertes) */
+  option?: boolean
 }
 
 export const SUBJECTS: Record<string, SubjectInfo> = {
@@ -51,19 +53,24 @@ export const SUBJECTS: Record<string, SubjectInfo> = {
   hggsp: { id: 'hggsp', name: 'Histoire-géographie, géopolitique et sciences politiques', glyph: 'target', tint: '#9a3412', speciality: true },
   'ens-sci': { id: 'ens-sci', name: 'Enseignement scientifique', glyph: 'centre', tint: '#0d9488' },
   philosophie: { id: 'philosophie', name: 'Philosophie', glyph: 'diamond', tint: '#6d28d9' },
+  'maths-comp': { id: 'maths-comp', name: 'Mathématiques complémentaires', glyph: 'triangle', tint: '#0284c7', option: true },
+  'maths-expertes': { id: 'maths-expertes', name: 'Mathématiques expertes', glyph: 'triangle', tint: '#1e3a8a', option: true },
   'grand-oral': { id: 'grand-oral', name: 'Grand oral', glyph: 'smile', tint: '#be185d' },
   'ia-ecole': { id: 'ia-ecole', name: 'Apprendre avec l\'IA', glyph: 'training', tint: '#7c3aed' },
 }
 
-/** les matières de chaque classe, dans l'ordre d'affichage */
+/** les matières de chaque classe, dans l'ordre d'affichage · l'espagnol en
+ *  Première et en Terminale, les maths complémentaires et expertes en
+ *  Terminale : demandé « espagnol au lycée et les maths complémentaires et
+ *  expertes » */
 export const GRADE_SUBJECTS: Record<Grade, string[]> = {
   '6e': ['francais', 'maths', 'hg-emc', 'sciences-techno', 'anglais'],
   '5e': ['francais', 'maths', 'hg-emc', 'physique-chimie', 'svt', 'technologie', 'anglais', 'espagnol'],
   '4e': ['francais', 'maths', 'hg-emc', 'physique-chimie', 'svt', 'technologie', 'anglais', 'espagnol'],
   '3e': ['francais', 'maths', 'hg-emc', 'physique-chimie', 'svt', 'technologie', 'anglais', 'espagnol'],
   '2nde': ['francais', 'maths', 'hg', 'emc', 'ses', 'physique-chimie', 'svt', 'snt', 'anglais', 'espagnol'],
-  '1re': ['francais', 'maths', 'physique-chimie', 'svt', 'ses', 'hggsp', 'nsi', 'ens-sci', 'hg', 'emc', 'anglais'],
-  tle: ['philosophie', 'maths', 'physique-chimie', 'svt', 'ses', 'hggsp', 'nsi', 'ens-sci', 'hg', 'emc', 'anglais', 'grand-oral'],
+  '1re': ['francais', 'maths', 'physique-chimie', 'svt', 'ses', 'hggsp', 'nsi', 'ens-sci', 'hg', 'emc', 'anglais', 'espagnol'],
+  tle: ['philosophie', 'maths', 'maths-expertes', 'maths-comp', 'physique-chimie', 'svt', 'ses', 'hggsp', 'nsi', 'ens-sci', 'hg', 'emc', 'anglais', 'espagnol', 'grand-oral'],
 }
 
 /** au lycée, les matières de spécialité (1re et Terminale) */
@@ -87,6 +94,7 @@ export function parseUnit(id: string): { subject: string; grade: Grade | null } 
 export const subjectLabel = (subject: string, grade: Grade | null) => {
   const s = SUBJECTS[subject]
   if (!s) return subject
+  if (s.option) return `${s.name} (option)`
   return grade && s.speciality && (grade === '1re' || grade === 'tle') ? `${s.name} (spécialité)` : s.name
 }
 

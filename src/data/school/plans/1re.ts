@@ -7,8 +7,10 @@
 // - enseignement scientifique : programme de 2019, et nouveau programme de
 //   mathématiques intégré (BO n°14 du 2 avril 2026) ;
 // - EMC : programme de 2024 (BO n°24 du 13 juin 2024) ;
-// - anglais : programme de langues vivantes de 2025 (BO n°22 du 29 mai 2025),
-//   applicable au cycle terminal à la rentrée 2026 ;
+// - anglais et espagnol : programmes de langues vivantes de 2025 (BO n°22 du
+//   29 mai 2025), applicables au cycle terminal à la rentrée 2026 ; en espagnol,
+//   l'axe 6 de première est « L'espace andin, la colonne vertébrale de
+//   l'Amérique du sud » (espagnol ajouté : « espagnol au lycée ») ;
 // - autres spécialités et histoire-géographie : programmes de 2019.
 import type { UnitPlan } from '../types'
 
@@ -1204,6 +1206,106 @@ export const PLANS: UnitPlan[] = [
           { id: 'comprehension-ecrite', title: 'Comprendre un texte écrit et en rendre compte' },
           { id: 'expression-ecrite', title: 'Rédiger un essai ou un article argumenté' },
           { id: 'expression-orale', title: 'Prendre la parole et interagir à l’oral' },
+        ],
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* ESPAGNOL (demandé : « espagnol au lycée ») */
+  /* ------------------------------------------------------------------ */
+  {
+    id: 'espagnol-1re',
+    subject: 'espagnol',
+    grade: '1re',
+    intro: 'Vous saurez comprendre des documents authentiques, raconter, argumenter et débattre en espagnol au niveau attendu en première (B1, vers B2), en vous appuyant sur les axes culturels du programme et sur l\'espace andin.',
+    reference: 'Programme d\'espagnol pour les classes de lycée général et technologique, arrêté du 5 mai 2025, BO n°22 du 29 mai 2025 (annexe 10), appliqué au cycle terminal à la rentrée 2026 : cinq axes sur six par an, dont l\'axe 6 obligatoire (première)',
+    chapters: [
+      {
+        id: 'identites-echanges',
+        title: 'Identités et échanges',
+        programme: 'Axe 1 : Identités et échanges',
+        lessons: [
+          { id: 'migraciones', title: 'Migrations et identités : partir, arriver, revenir' },
+          { id: 'espanol-lengua-mundo', title: 'L\'espagnol, langue d\'échanges dans le monde' },
+          { id: 'intercambios', title: 'Étudier et échanger à l\'étranger : « intercambios »' },
+        ],
+      },
+      {
+        id: 'raconter-passe',
+        title: 'Raconter et situer dans le temps',
+        programme: 'Repères linguistiques : grammaire et lexique',
+        lessons: [
+          { id: 'imperfecto-indefinido', title: 'Raconter au passé : l\'imparfait et le passé simple' },
+          { id: 'perfecto-pluscuamperfecto', title: 'Le passé composé et le plus-que-parfait' },
+          { id: 'futuro-condicional', title: 'Le futur et le conditionnel : projets et hypothèses' },
+        ],
+      },
+      {
+        id: 'diversite-inclusion',
+        title: 'Diversité et inclusion',
+        programme: 'Axe 2 : Diversité et inclusion',
+        lessons: [
+          { id: 'pueblos-originarios', title: 'Les peuples autochtones et leurs droits' },
+          { id: 'igualdad-genero', title: 'L\'égalité entre les femmes et les hommes' },
+          { id: 'vivir-juntos', title: 'Vivre ensemble : inclusion et diversité' },
+        ],
+      },
+      {
+        id: 'art-pouvoir',
+        title: 'Art et pouvoir',
+        programme: 'Axe 3 : Art et pouvoir',
+        lessons: [
+          { id: 'muralismo', title: 'Le muralisme mexicain : l\'art au service d\'un message' },
+          { id: 'arte-dictadura', title: 'L\'art face aux dictatures' },
+          { id: 'cancion-protesta', title: 'La chanson engagée' },
+        ],
+      },
+      {
+        id: 'nuancer-argumenter',
+        title: 'Nuancer et argumenter',
+        programme: 'Repères linguistiques : grammaire et lexique',
+        lessons: [
+          { id: 'presente-subjuntivo', title: 'Le présent du subjonctif : souhaiter, conseiller, douter' },
+          { id: 'imperativo-defensa', title: 'L\'impératif et la défense : conseiller et interdire' },
+          { id: 'opinar-argumentar', title: 'Donner son opinion et argumenter' },
+        ],
+      },
+      {
+        id: 'innovations-responsabilite',
+        title: 'Innovations scientifiques et responsabilité',
+        programme: 'Axe 4 : Innovations scientifiques et responsabilité',
+        lessons: [
+          { id: 'tecnologia-sociedad', title: 'Technologies et société dans le monde hispanique' },
+          { id: 'progreso-etica', title: 'Progrès scientifique et questions éthiques' },
+        ],
+      },
+      {
+        id: 'humain-nature',
+        title: 'L\'être humain et la nature',
+        programme: 'Axe 5 : L\'être humain et la nature',
+        lessons: [
+          { id: 'agua-recurso', title: 'L\'eau, une ressource disputée' },
+          { id: 'proteger-biodiversidad', title: 'Protéger la biodiversité : de l\'Amazonie à la Patagonie' },
+        ],
+      },
+      {
+        id: 'espace-andin',
+        title: 'L\'espace andin, la colonne vertébrale de l\'Amérique du Sud',
+        programme: 'Axe 6 : L\'espace andin, la colonne vertébrale de l\'Amérique du Sud',
+        lessons: [
+          { id: 'cordillera-andes', title: 'La cordillère des Andes : un espace d\'altitude' },
+          { id: 'herencia-inca', title: 'L\'héritage inca et les cultures andines' },
+          { id: 'andes-hoy', title: 'Les pays andins aujourd\'hui : enjeux et défis' },
+        ],
+      },
+      {
+        id: 'evaluations',
+        title: 'Se préparer aux évaluations de l\'année',
+        programme: 'Activités langagières : réception, production, interaction et médiation',
+        lessons: [
+          { id: 'comprender-documento', title: 'Comprendre un document écrit ou audio : méthode' },
+          { id: 'expresarse', title: 'S\'exprimer à l\'écrit et à l\'oral : méthode' },
         ],
       },
     ],
