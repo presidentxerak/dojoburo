@@ -12,6 +12,11 @@
 // - anglais : nouveaux programmes de langues vivantes étrangères (arrêté du
 //   5 mai 2025, BO n°22 du 29 mai 2025), appliqués au cycle terminal à la
 //   rentrée 2026 : six axes, dont l'axe 6 propre à la langue, obligatoire ;
+// - espagnol : même programme de 2025 (annexe 10), axe 6 de terminale « La
+//   richesse des métissages dans le monde hispanique » ; maths complémentaires
+//   et maths expertes (options) : programmes de 2019 (BO spécial n°8 du
+//   25 juillet 2019), le programme de 2026 n'y arrivant qu'à la rentrée 2027
+//   (ajoutés : « espagnol au lycée et les maths complémentaires et expertes ») ;
 // - Grand oral : note de service du BO spécial n°4 du 17 septembre 2026,
 //   applicable à compter de la session 2027 (20 minutes de préparation,
 //   10 minutes d'exposé sur l'une des deux questions choisie par le jury,
@@ -259,6 +264,154 @@ export const PLANS: UnitPlan[] = [
           { id: 'methode-des-exercices', title: 'Lire un sujet et traiter les exercices avec méthode' },
           { id: 'demonstrations-attendues', title: 'Les démonstrations attendues du programme' },
           { id: 'rediger-et-gerer-son-temps', title: 'Rédiger une solution complète et gérer son temps' },
+        ],
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* MATHÉMATIQUES COMPLÉMENTAIRES (demandé : « les maths complémentaires et expertes ») */
+  /* ------------------------------------------------------------------ */
+  {
+    id: 'maths-comp-tle',
+    subject: 'maths-comp',
+    grade: 'tle',
+    intro: 'Vous saurez, sans avoir gardé la spécialité mathématiques, modéliser des évolutions avec les suites et les fonctions, utiliser l\'exponentielle, le logarithme et le calcul intégral, et raisonner sur des lois de probabilité et des séries statistiques.',
+    reference: 'Programme de l\'enseignement optionnel de mathématiques complémentaires de terminale de la voie générale, arrêté du 19 juillet 2019, BO spécial n°8 du 25 juillet 2019 (le nouveau programme du BO n°14 du 2 avril 2026 ne s\'appliquera en terminale qu\'à la rentrée 2027)',
+    chapters: [
+      {
+        id: 'suites',
+        title: 'Suites et modélisation',
+        programme: 'Analyse : suites',
+        lessons: [
+          { id: 'suites-arithmetiques-geometriques', title: 'Suites arithmétiques et géométriques : modéliser une évolution' },
+          { id: 'limites-suites', title: 'Comportement à l\'infini d\'une suite' },
+          { id: 'suites-recurrentes', title: 'Suites définies par récurrence et algorithmes' },
+        ],
+      },
+      {
+        id: 'derivation-convexite',
+        title: 'Dérivation et convexité',
+        programme: 'Analyse : fonctions, dérivation et convexité',
+        lessons: [
+          { id: 'derivees', title: 'Calculer des dérivées' },
+          { id: 'variations-optimisation', title: 'Variations et optimisation' },
+          { id: 'convexite', title: 'Convexité et point d\'inflexion' },
+        ],
+      },
+      {
+        id: 'exponentielle-logarithme',
+        title: 'Exponentielle et logarithme',
+        programme: 'Analyse : fonctions exponentielle et logarithme',
+        lessons: [
+          { id: 'fonction-exponentielle', title: 'La fonction exponentielle' },
+          { id: 'fonction-logarithme', title: 'La fonction logarithme népérien' },
+          { id: 'croissances-modeles', title: 'Croissances exponentielles et modèles' },
+        ],
+      },
+      {
+        id: 'primitives-equations-differentielles',
+        title: 'Primitives et équations différentielles',
+        programme: 'Analyse : primitives et équations différentielles',
+        lessons: [
+          { id: 'primitives', title: 'Primitives' },
+          { id: 'equations-differentielles', title: 'Équations différentielles y\' = ay + b' },
+        ],
+      },
+      {
+        id: 'calcul-integral',
+        title: 'Calcul intégral',
+        programme: 'Analyse : intégration',
+        lessons: [
+          { id: 'integrale-aire', title: 'Intégrale et aire sous une courbe' },
+          { id: 'valeur-moyenne', title: 'Calcul intégral et valeur moyenne' },
+        ],
+      },
+      {
+        id: 'lois-discretes',
+        title: 'Lois discrètes',
+        programme: 'Probabilités : lois discrètes',
+        lessons: [
+          { id: 'loi-binomiale', title: 'La loi binomiale' },
+          { id: 'loi-geometrique', title: 'La loi géométrique' },
+          { id: 'esperance-decision', title: 'Espérance, variance et prise de décision' },
+        ],
+      },
+      {
+        id: 'lois-a-densite',
+        title: 'Lois à densité',
+        programme: 'Probabilités : lois à densité',
+        lessons: [
+          { id: 'loi-uniforme', title: 'Lois à densité et loi uniforme' },
+          { id: 'loi-exponentielle', title: 'La loi exponentielle' },
+        ],
+      },
+      {
+        id: 'statistique-deux-variables',
+        title: 'Statistique à deux variables',
+        programme: 'Statistique à deux variables quantitatives',
+        lessons: [
+          { id: 'nuage-ajustement-affine', title: 'Nuage de points et ajustement affine' },
+          { id: 'changement-variable', title: 'Ajustements par changement de variable' },
+        ],
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* MATHÉMATIQUES EXPERTES (demandé : « les maths complémentaires et expertes ») */
+  /* ------------------------------------------------------------------ */
+  {
+    id: 'maths-expertes-tle',
+    subject: 'maths-expertes',
+    grade: 'tle',
+    intro: 'Vous saurez, en complément de la spécialité mathématiques, calculer avec les nombres complexes et les utiliser en géométrie, raisonner en arithmétique, et modéliser des situations avec des graphes et des matrices.',
+    reference: 'Programme de l\'enseignement optionnel de mathématiques expertes de terminale de la voie générale, arrêté du 19 juillet 2019, BO spécial n°8 du 25 juillet 2019 (le nouveau programme du BO n°14 du 2 avril 2026 ne s\'appliquera en terminale qu\'à la rentrée 2027)',
+    chapters: [
+      {
+        id: 'complexes-algebre',
+        title: 'Nombres complexes : point de vue algébrique',
+        programme: 'Nombres complexes : point de vue algébrique',
+        lessons: [
+          { id: 'forme-algebrique', title: 'Les nombres complexes : forme algébrique' },
+          { id: 'conjugue-second-degre', title: 'Conjugué et équations du second degré' },
+          { id: 'polynomes', title: 'Polynômes et factorisation' },
+        ],
+      },
+      {
+        id: 'complexes-geometrie',
+        title: 'Nombres complexes : point de vue géométrique',
+        programme: 'Nombres complexes : point de vue géométrique',
+        lessons: [
+          { id: 'module-argument', title: 'Module, argument et forme trigonométrique' },
+          { id: 'forme-exponentielle', title: 'La forme exponentielle' },
+          { id: 'racines-unite', title: 'Les racines n-ièmes de l\'unité' },
+          { id: 'complexes-et-geometrie', title: 'Nombres complexes et géométrie' },
+        ],
+      },
+      {
+        id: 'arithmetique',
+        title: 'Arithmétique',
+        programme: 'Arithmétique',
+        lessons: [
+          { id: 'divisibilite-congruences', title: 'Divisibilité, division euclidienne et congruences' },
+          { id: 'pgcd-bezout', title: 'PGCD, algorithme d\'Euclide et théorème de Bézout' },
+          { id: 'gauss-diophantiennes', title: 'Théorème de Gauss et équations diophantiennes' },
+          { id: 'nombres-premiers', title: 'Nombres premiers et décomposition' },
+          { id: 'petit-theoreme-fermat', title: 'Le petit théorème de Fermat et la cryptographie' },
+        ],
+      },
+      {
+        id: 'graphes-matrices',
+        title: 'Graphes et matrices',
+        programme: 'Graphes et matrices',
+        lessons: [
+          { id: 'matrices-operations', title: 'Matrices et opérations' },
+          { id: 'matrices-inversibles', title: 'Matrices inversibles et systèmes linéaires' },
+          { id: 'graphes', title: 'Graphes : sommets, arêtes et chaînes' },
+          { id: 'matrice-adjacence', title: 'Matrice d\'adjacence et nombre de chemins' },
+          { id: 'suites-matrices', title: 'Suites de matrices et évolutions' },
+          { id: 'chaines-markov', title: 'Chaînes de Markov et état stable' },
         ],
       },
     ],
@@ -1241,6 +1394,93 @@ export const PLANS: UnitPlan[] = [
         lessons: [
           { id: 'evaluation-ecrite', title: 'Compréhension et expression écrites : méthode' },
           { id: 'evaluation-orale', title: 'Expression orale : présenter et défendre un point de vue' },
+        ],
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* ESPAGNOL (demandé : « espagnol au lycée ») */
+  /* ------------------------------------------------------------------ */
+  {
+    id: 'espagnol-tle',
+    subject: 'espagnol',
+    grade: 'tle',
+    intro: 'Vous saurez comprendre des documents authentiques variés, raconter, argumenter et débattre en espagnol au niveau attendu en fin de lycée (B1, vers B2), sur les axes du programme et sur la richesse des métissages du monde hispanique.',
+    reference: 'Programme d\'espagnol pour les classes de lycée général et technologique, arrêté du 5 mai 2025, BO n°22 du 29 mai 2025 (annexe 10), appliqué au cycle terminal à la rentrée 2026 : cinq axes sur six par an, dont l\'axe 6 obligatoire (terminale)',
+    chapters: [
+      {
+        id: 'prive-public',
+        title: 'Espace privé et espace public',
+        programme: 'Axe 1 : Espace privé et espace public',
+        lessons: [
+          { id: 'vida-privada', title: 'La vie privée à l\'ère numérique' },
+          { id: 'espacio-publico', title: 'L\'espace public : la rue, la place, la ville' },
+        ],
+      },
+      {
+        id: 'territoire-memoire',
+        title: 'Territoire et mémoire',
+        programme: 'Axe 2 : Territoire et mémoire',
+        lessons: [
+          { id: 'memoria-espana', title: 'La mémoire de la guerre civile et du franquisme' },
+          { id: 'memoria-america', title: 'Dictatures et mémoire en Amérique latine' },
+        ],
+      },
+      {
+        id: 'outils-langue',
+        title: 'Les outils de la langue',
+        programme: 'Repères linguistiques : grammaire et lexique',
+        lessons: [
+          { id: 'imperfecto-subjuntivo', title: 'L\'imparfait du subjonctif et la concordance des temps' },
+          { id: 'hipotesis-si', title: 'Exprimer l\'hypothèse : les phrases avec « si »' },
+          { id: 'estilo-indirecto', title: 'Rapporter des paroles : le discours indirect' },
+        ],
+      },
+      {
+        id: 'fictions-realites',
+        title: 'Fictions et réalités',
+        programme: 'Axe 3 : Fictions et réalités',
+        lessons: [
+          { id: 'realismo-magico', title: 'Le réalisme magique' },
+          { id: 'cine-series', title: 'Cinéma et séries : quand la fiction parle du réel' },
+        ],
+      },
+      {
+        id: 'communication',
+        title: 'Enjeux et formes de la communication',
+        programme: 'Axe 4 : Enjeux et formes de la communication',
+        lessons: [
+          { id: 'medios-informacion', title: 'Médias et information : s\'informer, vérifier' },
+          { id: 'convencer', title: 'Convaincre : discours et publicité' },
+        ],
+      },
+      {
+        id: 'citoyennete-mondes-virtuels',
+        title: 'Citoyenneté et mondes virtuels',
+        programme: 'Axe 5 : Citoyenneté et mondes virtuels',
+        lessons: [
+          { id: 'ciudadania-digital', title: 'Être citoyen à l\'ère du numérique' },
+          { id: 'movilizaciones', title: 'Mobilisations et engagement en ligne' },
+        ],
+      },
+      {
+        id: 'metissages',
+        title: 'La richesse des métissages dans le monde hispanique',
+        programme: 'Axe 6 : La richesse des métissages dans le monde hispanique',
+        lessons: [
+          { id: 'mestizaje-historia', title: 'Le métissage dans l\'histoire de l\'Amérique hispanique' },
+          { id: 'culturas-mestizas', title: 'Musiques, langues et cuisines métissées' },
+          { id: 'espana-encrucijada', title: 'L\'Espagne, carrefour des cultures' },
+        ],
+      },
+      {
+        id: 'evaluations',
+        title: 'Se préparer aux évaluations de l\'année',
+        programme: 'Activités langagières : réception, production, interaction et médiation',
+        lessons: [
+          { id: 'evaluacion-escrita', title: 'Compréhension et expression écrites : méthode' },
+          { id: 'evaluacion-oral', title: 'Expression orale : présenter et défendre un point de vue' },
         ],
       },
     ],
