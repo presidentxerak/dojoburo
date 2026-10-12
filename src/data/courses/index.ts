@@ -82,7 +82,7 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'ia-locale': true,
   'business-ia': true,
   'copywriting': true,
-  'identite-de-marque': false,
+  'identite-de-marque': true,
 }
 
 const WRITTEN: Record<CourseId, CoursePart[]> = {
