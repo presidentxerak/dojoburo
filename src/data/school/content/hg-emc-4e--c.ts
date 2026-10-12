@@ -1216,7 +1216,7 @@ export const CONTENT: UnitContent = {
               heading: "La journée défense et citoyenneté",
               paragraphs: [
                 "Après le recensement, chaque jeune est convoqué à la journée défense et citoyenneté, en général avant ses 18 ans. Elle a remplacé en 2011 la journée d'appel de préparation à la défense (JAPD), créée en 1998. Elle se déroule souvent dans une enceinte militaire et dure une journée ou une demi-journée selon les années.",
-                "Pendant la JDC, les jeunes découvrent les enjeux de la défense, les missions des armées et les devoirs du citoyen. Ils passent un test de lecture en français : ceux qui ont des difficultés se voient proposer de l'aide. Ils reçoivent aussi des informations sur les métiers de la défense et sur les formes de volontariat. À la fin, ils obtiennent un certificat de participation, demandé jusqu'à 25 ans pour s'inscrire aux examens et concours publics.",
+                "Pendant la JDC, les jeunes découvrent les enjeux de la défense, les missions des armées et les devoirs du citoyen. Ils passent un test de lecture en français : ceux qui ont des difficultés se voient proposer de l'aide. Ils reçoivent aussi des informations sur les métiers de la défense et sur les formes de volontariat. À la fin, ils obtiennent un certificat de participation, demandé jusqu'à 25 ans pour s'inscrire aux examens et concours publics, comme le baccalauréat, et à l'examen du permis de conduire.",
               ],
             },
             {
