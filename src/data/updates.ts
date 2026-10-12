@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'brand-identity-course',
+    date: '2026-10-12',
+    title: B('New course: brand identity and design in the age of AI', 'Nouvelle formation : identité de marque et design à l\'ère de l\'IA'),
+    body: B('From strategy to governance: brand platform, verbal and visual identity, guidelines with AI guardrails, DTCG design tokens and a brand that machines can read, with Master Kaede.', 'De la stratégie à la gouvernance : plateforme de marque, identité verbale et visuelle, charte avec guardrails IA, design tokens au format DTCG et une marque lisible par les machines, avec Maître Kaede.'),
+    href: '/dojo/identite-de-marque',
+  },
+  {
     id: 'school-lycee-options',
     date: '2026-10-12',
     title: B('Spanish in Première and Terminale, and the two maths options', 'L\'espagnol en Première et en Terminale, et les deux options de maths'),
