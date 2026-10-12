@@ -591,12 +591,12 @@ export const CONTENT: UnitContent = {
             },
             {
               level: 3,
-              statement: "Défi : chiffres cachés. a) Le nombre à trois chiffres 4■6 est divisible par 9. Quel est le chiffre caché ? b) Le nombre 3■5 est divisible par 3 et par 5. Trouvez toutes les valeurs possibles du chiffre caché. c) Je suis un nombre compris entre 50 et 100. Je suis divisible par 4 et par 9. Qui suis-je ?",
+              statement: "Défi : chiffres cachés. a) Le nombre à trois chiffres 4c6, où la lettre c remplace le chiffre caché, est divisible par 9. Quel est le chiffre caché ? b) Le nombre 3c5 est divisible par 3 et par 5. Trouvez toutes les valeurs possibles du chiffre caché. c) Je suis un nombre compris entre 50 et 100. Je suis divisible par 4 et par 9. Qui suis-je ?",
               hint: "Pour 9 et 3, pensez à la somme des chiffres. Pour le c, faites d'abord la liste des multiples de 9 compris entre 50 et 100.",
               solution: [
-                "a) La somme des chiffres est 4 + ■ + 6 = 10 + ■. Elle doit être un multiple de 9 : avec un seul chiffre, le seul choix est 18, donc ■ = 8. Le nombre est 486 (486 = 9 × 54).",
-                "b) 3■5 se termine par 5 : il est toujours divisible par 5. La somme des chiffres vaut 3 + ■ + 5 = 8 + ■ ; elle doit être 9, 12 ou 15 (au plus 8 + 9 = 17).",
-                "Donc ■ = 1, 4 ou 7 : les nombres possibles sont 315, 345 et 375.",
+                "a) La somme des chiffres est 4 + c + 6 = 10 + c. Elle doit être un multiple de 9 : avec un seul chiffre, le seul choix est 18, donc c = 8. Le nombre est 486 (486 = 9 × 54).",
+                "b) 3c5 se termine par 5 : il est toujours divisible par 5. La somme des chiffres vaut 3 + c + 5 = 8 + c ; elle doit être 9, 12 ou 15 (au plus 8 + 9 = 17).",
+                "Donc c = 1, 4 ou 7 : les nombres possibles sont 315, 345 et 375.",
                 "c) Multiples de 9 entre 50 et 100 : 54, 63, 72, 81, 90, 99. On garde ceux dont les deux derniers chiffres forment un multiple de 4 : seul 72 convient (72 = 4 × 18).",
                 "Réponse : a) 8 ; b) 1, 4 ou 7 ; c) 72.",
               ],
@@ -619,7 +619,7 @@ export const CONTENT: UnitContent = {
           quiz: [
             { q: "Lequel de ces nombres est divisible par 9 ?", options: ["1 234", "3 105", "2 010", "4 404"], answer: 1, why: "3 + 1 + 0 + 5 = 9. Les sommes des chiffres des autres nombres (10, 3 et 12) ne sont pas divisibles par 9." },
             { q: "Quel nombre n'est pas un diviseur de 30 ?", options: ["5", "6", "4", "15"], answer: 2, why: "30 = 4 × 7 + 2 : le reste n'est pas nul. En revanche 30 = 5 × 6 = 2 × 15." },
-            { q: "Le nombre à deux chiffres 6■ est divisible par 2 et par 5. Le chiffre caché est :", options: ["0", "5", "2", "6"], answer: 0, why: "Pour être divisible à la fois par 2 et par 5, le chiffre des unités doit être 0 : le nombre est 60." },
+            { q: "Le nombre à deux chiffres 6c, où la lettre c remplace le chiffre caché, est divisible par 2 et par 5. Le chiffre caché est :", options: ["0", "5", "2", "6"], answer: 0, why: "Pour être divisible à la fois par 2 et par 5, le chiffre des unités doit être 0 : le nombre est 60." },
             { q: "Quelle phrase est juste ?", options: ["35 est un diviseur de 5", "5 est un multiple de 35", "5 est divisible par 35", "35 est divisible par 5"], answer: 3, why: "35 = 5 × 7 : 35 est un multiple de 5, donc divisible par 5." },
             { q: "Lequel de ces nombres est divisible par 4 ?", options: ["1 234", "2 518", "3 136", "4 042"], answer: 2, why: "Ses deux derniers chiffres forment 36 = 4 × 9. Ni 34, ni 18, ni 42 ne sont dans la table de 4." },
           ],
