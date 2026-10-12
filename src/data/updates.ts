@@ -20,6 +20,13 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'school-college',
+    date: '2026-10-12',
+    title: B('Collège: 6e, 5e and 4e, every subject', 'Le collège : la 6e, la 5e et la 4e, toutes les matières'),
+    body: B('Every subject of 6e, 5e and 4e now has its lessons (course, exercises, game, quiz), with an end-of-year check for each class. The temples map now runs from 6e to Terminale, one band per year.', 'Toutes les matières de la 6e, de la 5e et de la 4e ont leurs leçons (cours, exercices, jeu, quiz), avec un contrôle de fin d\'année pour chaque classe. La carte des temples va maintenant de la 6e à la Terminale, une bande par année.'),
+    href: '/ecole/carte',
+  },
+  {
     id: 'school-2nde-1re',
     date: '2026-10-11',
     title: B('Seconde and Première, every subject', 'La Seconde et la Première, toutes les matières'),

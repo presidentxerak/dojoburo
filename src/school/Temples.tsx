@@ -3,8 +3,8 @@
 // 3ème à la terminale avec sur la carte une démarcation entre les années même
 // chose pour la page de type de classe comme pour l'IA ».
 //
-//   · la carte (/ecole/carte, onglet Dojoburo) : une bande par année, de la 3e
-//     à la Terminale, chaque matière un temple, et au bout de l'année le
+//   · la carte (/ecole/carte, onglet Dojoburo) : une bande par année, de la 6e
+//     à la Terminale (voir MAP_GRADES), chaque matière un temple, et au bout de l'année le
 //     temple de son examen (brevet, bac, contrôle de fin) ;
 //   · les cartes (page École, une classe) : le même décor que les cartes des
 //     formations IA (game/Formations), une matière par carte, l'examen en
